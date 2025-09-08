@@ -16,14 +16,14 @@ jobs:
   clang-format:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: DoozyX/clang-format-lint-action@v0.18.2
         with:
           source: '.'
   python-lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           python3 -m pip install flake8
@@ -36,7 +36,7 @@ jobs:
       - python-lint
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup environment
@@ -88,7 +88,7 @@ jobs:
       - ubuntu-gcc-build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -144,7 +144,7 @@ jobs:
       - ubuntu-gcc-test
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -197,7 +197,7 @@ jobs:
       - python-lint
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup environment
@@ -245,7 +245,7 @@ jobs:
       - ubuntu-clang-build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -303,7 +303,7 @@ jobs:
       - ubuntu-clang-test
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -357,7 +357,7 @@ jobs:
       - ubuntu-clang-build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup environment
@@ -407,7 +407,7 @@ jobs:
       - ubuntu-clang-sanitizer-build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -465,7 +465,7 @@ jobs:
       - ubuntu-clang-sanitizer-test
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -528,7 +528,7 @@ jobs:
       - python-lint
     runs-on: macOS-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup environment
@@ -573,7 +573,7 @@ jobs:
       - macos-clang-build
     runs-on: macOS-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           brew update-reset
@@ -631,7 +631,7 @@ jobs:
       - macos-clang-test
     runs-on: macOS-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           brew update-reset
@@ -689,7 +689,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Add msbuild to PATH
@@ -745,7 +745,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
@@ -811,7 +811,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
@@ -874,7 +874,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Add msbuild to PATH
@@ -919,7 +919,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
@@ -969,7 +969,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
@@ -1038,7 +1038,7 @@ jobs:
       - macos-clang-test-extended
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup environment
@@ -1119,7 +1119,7 @@ jobs:
       - windows-msvc-test-extended
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup environment
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
