@@ -96,7 +96,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y gcc-14 g++-14 ninja-build libmpich-dev libomp-dev valgrind
           python3 -m pip install -r requirements.txt
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-gcc-install
       - name: Extract installed package
@@ -152,7 +152,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y gcc-14 g++-14 ninja-build libmpich-dev libomp-dev valgrind
           python3 -m pip install -r requirements.txt
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-gcc-install
       - name: Extract installed package
@@ -255,7 +255,7 @@ jobs:
           chmod u+x llvm.sh
           sudo ./llvm.sh 19 all
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-clang-install
       - name: Extract installed package
@@ -313,7 +313,7 @@ jobs:
           chmod u+x llvm.sh
           sudo ./llvm.sh 19 all
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-clang-install
       - name: Extract installed package
@@ -417,7 +417,7 @@ jobs:
           chmod u+x llvm.sh
           sudo ./llvm.sh 19 all
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-clang-sanitizer-install
       - name: Extract installed package
@@ -475,7 +475,7 @@ jobs:
           chmod u+x llvm.sh
           sudo ./llvm.sh 19 all
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-clang-sanitizer-install
       - name: Extract installed package
@@ -583,7 +583,7 @@ jobs:
           brew install openssl
           brew link openssl --overwrite --force
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: macos-clang-sanitizer-install
       - name: Extract installed package
@@ -641,7 +641,7 @@ jobs:
           brew install openssl
           brew link openssl --overwrite --force
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: macos-clang-sanitizer-install
       - name: Extract installed package
@@ -761,7 +761,7 @@ jobs:
           max_attempts: 3
           command: choco install openssl --execution-timeout 3600
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: windows-msvc-install
       - name: Extract installed package
@@ -827,7 +827,7 @@ jobs:
           max_attempts: 3
           command: choco install openssl --execution-timeout 3600
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: windows-msvc-install
       - name: Extract installed package
@@ -935,7 +935,7 @@ jobs:
           max_attempts: 3
           command: choco install openssl --execution-timeout 3600
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: windows-clang-install
       - name: Extract installed package
@@ -985,7 +985,7 @@ jobs:
           max_attempts: 3
           command: choco install openssl --execution-timeout 3600
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: windows-clang-install
       - name: Extract installed package
@@ -1127,7 +1127,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y gcc-14 g++-14 ninja-build libmpich-dev libomp-dev valgrind
           python3 -m pip install -r requirements.txt
       - name: Download installed package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ubuntu-gcc-install
       - name: Extract installed package
