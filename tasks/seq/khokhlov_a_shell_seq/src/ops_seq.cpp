@@ -47,14 +47,12 @@ std::vector<int> khokhlov_a_shell_seq::ShellSeq::ShellSort(const std::vector<int
   return vec;
 }
 
-bool khokhlov_a_shell_seq::CheckSorted(const std::vector<int>& input) {
-  return std::ranges::is_sorted(input);
-}
+bool khokhlov_a_shell_seq::CheckSorted(const std::vector<int>& input) { return std::ranges::is_sorted(input); }
 
-std::vector<int> khokhlov_a_shell_seq::GenerateRandomVector(int size, int min, int max) {
+std::vector<int> khokhlov_a_shell_seq::GenerateRandomVector(int size) {
   std::random_device rnd_device;
   std::mt19937 mersenne_engine{rnd_device()};
-  std::uniform_int_distribution<int> dist{min, max};
+  std::uniform_int_distribution<int> dist{1, 100};
 
   auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
 

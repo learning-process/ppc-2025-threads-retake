@@ -13,7 +13,7 @@ TEST(khokhlov_a_shell_seq, pipeline_run_seq) {
   const int count = 2000000;
 
   // Create data
-  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(count, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(count);
   std::vector<int> out(count, 0);
 
   // Create TaskData
@@ -50,7 +50,7 @@ TEST(khokhlov_a_shell_seq, task_run_seq) {
   const int count = 6000000;
 
   // Create data
-  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(count, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(count);
   std::vector<int> out(count, 0);
 
   // Create TaskData

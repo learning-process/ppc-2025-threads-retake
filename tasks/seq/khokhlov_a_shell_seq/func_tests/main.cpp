@@ -4,11 +4,12 @@
 #include <memory>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 
 TEST(khokhlov_a_shell_seq, Shell_Validation_Fail) {
   // Create data
-  std::vector<int> in1 = khokhlov_a_shell_seq::GenerateRandomVector(10, 1, 100);
+  std::vector<int> in1 = khokhlov_a_shell_seq::GenerateRandomVector(10);
   std::vector<int> in2 = std::vector<int>(5);
   std::vector<int> out(10, 0);
 
@@ -28,7 +29,7 @@ TEST(khokhlov_a_shell_seq, Shell_Validation_Fail) {
 
 TEST(khokhlov_a_shell_seq, Shell_Random_10) {
   // Create data
-  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(10, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(10);
   std::vector<int> out(10, 0);
 
   // Create TaskData
@@ -49,7 +50,7 @@ TEST(khokhlov_a_shell_seq, Shell_Random_10) {
 
 TEST(khokhlov_a_shell_seq, Shell_Random_20) {
   // Create data
-  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(20, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(20);
   std::vector<int> out(20, 0);
 
   // Create TaskData
@@ -70,7 +71,7 @@ TEST(khokhlov_a_shell_seq, Shell_Random_20) {
 
 TEST(khokhlov_a_shell_seq, Shell_Random_50) {
   // Create data
-  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(50, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(50);
   std::vector<int> out(50, 0);
 
   // Create TaskData
@@ -91,7 +92,7 @@ TEST(khokhlov_a_shell_seq, Shell_Random_50) {
 
 TEST(khokhlov_a_shell_seq, Shell_Random_70) {
   // Create data
-  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(70, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(70);
   std::vector<int> out(70, 0);
 
   // Create TaskData
@@ -112,7 +113,7 @@ TEST(khokhlov_a_shell_seq, Shell_Random_70) {
 
 TEST(khokhlov_a_shell_seq, Shell_Random_100) {
   // Create data
-  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(100, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::GenerateRandomVector(100);
   std::vector<int> out(100, 0);
 
   // Create TaskData
