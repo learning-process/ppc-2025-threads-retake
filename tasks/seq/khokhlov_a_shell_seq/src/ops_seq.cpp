@@ -1,6 +1,5 @@
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 
-
 #include <algorithm>
 #include <iterator>
 #include <memory>
