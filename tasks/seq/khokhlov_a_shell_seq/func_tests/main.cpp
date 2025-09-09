@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 

@@ -19,8 +19,7 @@ bool khokhlov_a_shell_seq::ShellSeq::PreProcessingImpl() {
 bool khokhlov_a_shell_seq::ShellSeq::ValidationImpl() {
   // Check equality of counts elements
   return task_data->inputs_count.size() == 1 && task_data->inputs_count[0] > 0 &&
-         task_data->outputs_count.size() == 1 &&
-         task_data->inputs_count[0] == task_data->outputs_count[0];
+         task_data->outputs_count.size() == 1 && task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool khokhlov_a_shell_seq::ShellSeq::RunImpl() {
