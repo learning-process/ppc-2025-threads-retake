@@ -24,4 +24,8 @@ class ShellSeq : public ppc::core::Task {
   std::vector<int> input_;
 };
 
+bool checkSorted(std::vector<int> input);
+
+std::vector<int> generate_random_vector(int size, int min, int max);
+
 }  // namespace khokhlov_a_shell_seq

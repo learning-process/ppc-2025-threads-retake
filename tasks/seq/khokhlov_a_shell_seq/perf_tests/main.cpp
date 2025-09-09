@@ -1,27 +1,9 @@
 #include <gtest/gtest.h>
 
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
-
-namespace khokhlov_a_shell_seq {
-bool checkSorted(std::vector<int> input) { return std::is_sorted(input.begin(), input.end()); }
-
-std::vector<int> generate_random_vector(int size, int min, int max) {
-  std::random_device rnd_device;
-  std::mt19937 mersenne_engine{rnd_device()};
-  std::uniform_int_distribution<int> dist{min, max};
-
-  auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
-
-  std::vector<int> vec(size);
-  generate(begin(vec), end(vec), gen);
-
-  return vec;
-}
-}  // namespace khokhlov_a_shell_seq
 
 TEST(khokhlov_a_shell_seq, pipeline_run_seq) {
   const int count = 2000000;
