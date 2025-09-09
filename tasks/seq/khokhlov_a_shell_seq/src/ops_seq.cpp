@@ -1,7 +1,6 @@
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 
 #include <algorithm>
-#include <iterator>
 #include <random>
 #include <vector>
 
@@ -20,7 +19,7 @@ bool khokhlov_a_shell_seq::ShellSeq::ValidationImpl() {
 }
 
 bool khokhlov_a_shell_seq::ShellSeq::RunImpl() {
-  input_ = shell_sort(input_);
+  input_ = ShellSort(input_);
   return true;
 }
 
@@ -31,7 +30,7 @@ bool khokhlov_a_shell_seq::ShellSeq::PostProcessingImpl() {
   return true;
 }
 
-std::vector<int> khokhlov_a_shell_seq::ShellSeq::shell_sort(const std::vector<int>& input) {
+std::vector<int> khokhlov_a_shell_seq::ShellSeq::ShellSort(const std::vector<int>& input) {
   std::vector<int> vec(input);
 
   for (int interval = static_cast<int>(vec.size()) / 2; interval > 0; interval /= 2) {
@@ -48,9 +47,11 @@ std::vector<int> khokhlov_a_shell_seq::ShellSeq::shell_sort(const std::vector<in
   return vec;
 }
 
-bool khokhlov_a_shell_seq::checkSorted(std::vector<int> input) { return std::ranges::is_sorted input; }
+bool khokhlov_a_shell_seq::CheckSorted(const std::vector<int>& input) {
+  return std::ranges::is_sorted(input);
+}
 
-std::vector<int> khokhlov_a_shell_seq::generate_random_vector(int size, int min, int max) {
+std::vector<int> khokhlov_a_shell_seq::GenerateRandomVector(int size, int min, int max) {
   std::random_device rnd_device;
   std::mt19937 mersenne_engine{rnd_device()};
   std::uniform_int_distribution<int> dist{min, max};
@@ -58,7 +59,7 @@ std::vector<int> khokhlov_a_shell_seq::generate_random_vector(int size, int min,
   auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
 
   std::vector<int> vec(size);
-  std::ranges::generate vec
+  std::ranges::generate(vec, gen);
 
   return vec;
 }
