@@ -2,10 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
-#include <memory>
 #include <random>
-#include <string>
-#include <utility>
 #include <vector>
 
 bool khokhlov_a_shell_seq::ShellSeq::PreProcessingImpl() {
@@ -51,7 +48,7 @@ std::vector<int> khokhlov_a_shell_seq::ShellSeq::shell_sort(const std::vector<in
   return vec;
 }
 
-bool khokhlov_a_shell_seq::checkSorted(std::vector<int> input) { return std::is_sorted(input.begin(), input.end()); }
+bool khokhlov_a_shell_seq::checkSorted(std::vector<int> input) { return std::ranges::is_sorted input; }
 
 std::vector<int> khokhlov_a_shell_seq::generate_random_vector(int size, int min, int max) {
   std::random_device rnd_device;
@@ -61,7 +58,7 @@ std::vector<int> khokhlov_a_shell_seq::generate_random_vector(int size, int min,
   auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
 
   std::vector<int> vec(size);
-  generate(begin(vec), end(vec), gen);
+  std::ranges::generate vec
 
   return vec;
 }

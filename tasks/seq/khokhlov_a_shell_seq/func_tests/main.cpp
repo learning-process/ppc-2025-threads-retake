@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
@@ -11,18 +13,18 @@ TEST(khokhlov_a_shell_seq, Shell_Validation_Fail) {
   std::vector<int> out(10, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();  // NOLINT
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
-  taskDataSeq->inputs_count.emplace_back(in1.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();  // NOLINT
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
+  test_task_sequential->inputs_count.emplace_back(in1.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in2.data()));
-  taskDataSeq->inputs_count.emplace_back(in2.size());
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in2.data()));
+  test_task_sequential->inputs_count.emplace_back(in2.size());
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  khokhlov_a_shell_seq::ShellSeq testTaskSequential(taskDataSeq);
+  khokhlov_a_shell_seq::ShellSeq testTaskSequential(test_task_sequential);
   ASSERT_EQ(testTaskSequential.ValidationImpl(), false);
 }
 
@@ -32,14 +34,14 @@ TEST(khokhlov_a_shell_seq, Shell_Random_10) {
   std::vector<int> out(10, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();  // NOLINT
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();  // NOLINT
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_task_sequential->inputs_count.emplace_back(in.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  khokhlov_a_shell_seq::ShellSeq testTaskSequential(taskDataSeq);
+  khokhlov_a_shell_seq::ShellSeq testTaskSequential(test_task_sequential);
   ASSERT_EQ(testTaskSequential.ValidationImpl(), true);
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
@@ -53,14 +55,14 @@ TEST(khokhlov_a_shell_seq, Shell_Random_20) {
   std::vector<int> out(20, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();  // NOLINT
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();  // NOLINT
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_task_sequential->inputs_count.emplace_back(in.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  khokhlov_a_shell_seq::ShellSeq testTaskSequential(taskDataSeq);
+  khokhlov_a_shell_seq::ShellSeq testTaskSequential(test_task_sequential);
   ASSERT_EQ(testTaskSequential.ValidationImpl(), true);
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
@@ -74,14 +76,14 @@ TEST(khokhlov_a_shell_seq, Shell_Random_50) {
   std::vector<int> out(50, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();  // NOLINT
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();  // NOLINT
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_task_sequential->inputs_count.emplace_back(in.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  khokhlov_a_shell_seq::ShellSeq testTaskSequential(taskDataSeq);
+  khokhlov_a_shell_seq::ShellSeq testTaskSequential(test_task_sequential);
   ASSERT_EQ(testTaskSequential.ValidationImpl(), true);
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
@@ -95,14 +97,14 @@ TEST(khokhlov_a_shell_seq, Shell_Random_70) {
   std::vector<int> out(70, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();  // NOLINT
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();  // NOLINT
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_task_sequential->inputs_count.emplace_back(in.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  khokhlov_a_shell_seq::ShellSeq testTaskSequential(taskDataSeq);
+  khokhlov_a_shell_seq::ShellSeq testTaskSequential(test_task_sequential);
   ASSERT_EQ(testTaskSequential.ValidationImpl(), true);
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
@@ -116,14 +118,14 @@ TEST(khokhlov_a_shell_seq, Shell_Random_100) {
   std::vector<int> out(100, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();  // NOLINT
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();  // NOLINT
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_task_sequential->inputs_count.emplace_back(in.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  khokhlov_a_shell_seq::ShellSeq testTaskSequential(taskDataSeq);
+  khokhlov_a_shell_seq::ShellSeq testTaskSequential(test_task_sequential);
   ASSERT_EQ(testTaskSequential.ValidationImpl(), true);
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();

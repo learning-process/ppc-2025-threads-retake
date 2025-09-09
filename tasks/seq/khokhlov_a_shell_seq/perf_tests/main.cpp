@@ -1,8 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 
 TEST(khokhlov_a_shell_seq, pipeline_run_seq) {
@@ -13,32 +16,32 @@ TEST(khokhlov_a_shell_seq, pipeline_run_seq) {
   std::vector<int> out(count, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_task_sequential->inputs_count.emplace_back(in.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto testTaskSequential = std::make_shared<khokhlov_a_shell_seq::ShellSeq>(taskDataSeq);
+  auto test_task_sequential = std::make_shared<khokhlov_a_shell_seq::ShellSeq>(test_task_sequential);
 
   // Create Perf attributes
-  auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
-  perfAttr->num_running = 10;
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
-  perfAttr->current_timer = [&] {
+  perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
   // Create and init perf results
-  auto perfResults = std::make_shared<ppc::core::PerfResults>();
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
-  perfAnalyzer->PipelineRun(perfAttr, perfResults);
-  ppc::core::Perf::PrintPerfStatistic(perfResults);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_TRUE(khokhlov_a_shell_seq::checkSorted(out));
 }
 
@@ -50,31 +53,31 @@ TEST(khokhlov_a_shell_seq, task_run_seq) {
   std::vector<int> out(count, 0);
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> test_task_sequential = std::make_shared<ppc::core::TaskData>();
+  test_task_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_task_sequential->inputs_count.emplace_back(in.size());
+  test_task_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_task_sequential->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto testTaskSequential = std::make_shared<khokhlov_a_shell_seq::ShellSeq>(taskDataSeq);
+  auto test_task_sequential = std::make_shared<khokhlov_a_shell_seq::ShellSeq>(test_task_sequential);
 
   // Create Perf attributes
-  auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
-  perfAttr->num_running = 10;
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
-  perfAttr->current_timer = [&] {
+  perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();  // NOLINT
     return static_cast<double>(duration) * 1e-9;
   };
 
   // Create and init perf results
-  auto perfResults = std::make_shared<ppc::core::PerfResults>();
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
-  perfAnalyzer->TaskRun(perfAttr, perfResults);
-  ppc::core::Perf::PrintPerfStatistic(perfResults);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_TRUE(khokhlov_a_shell_seq::checkSorted(out));
 }

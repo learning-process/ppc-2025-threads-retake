@@ -1,9 +1,5 @@
 #pragma once
 
-#include <algorithm>
-#include <iterator>
-#include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -20,12 +16,12 @@ class ShellSeq : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  static std::vector<int> shell_sort(const std::vector<int>& input);
+  static std::vector<int> ShellSort(const std::vector<int>& input);
   std::vector<int> input_;
 };
 
-bool checkSorted(std::vector<int> input);
+bool CheckSorted(std::vector<int> input);
 
-std::vector<int> generate_random_vector(int size, int min, int max);
+std::vector<int> GenerateRandomVector(int size, int min, int max);
 
 }  // namespace khokhlov_a_shell_seq
