@@ -5,7 +5,7 @@
 
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 
-namespace khokhlov_a_shell_seq{
+namespace khokhlov_a_shell_seq {
 bool checkSorted(std::vector<int> input) { return std::is_sorted(input.begin(), input.end()); }
 
 std::vector<int> generate_random_vector(int size, int min, int max) {
@@ -20,7 +20,7 @@ std::vector<int> generate_random_vector(int size, int min, int max) {
 
   return vec;
 }
-}
+}  // namespace khokhlov_a_shell_seq
 
 void runTestRandom(int count) {
   // Create data
