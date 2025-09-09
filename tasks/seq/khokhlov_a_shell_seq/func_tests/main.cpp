@@ -5,24 +5,26 @@
 
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 
-bool checkSorted(std::vector<int> input) { return std::is_sorted(input.begin(), input.end()); }
+namespace khokhlov_a_shell_seq{
+  bool checkSorted(std::vector<int> input) { return std::is_sorted(input.begin(), input.end()); }
 
-std::vector<int> generate_random_vector(int size, int min, int max) {
-  std::random_device rnd_device;
-  std::mt19937 mersenne_engine{rnd_device()};
-  std::uniform_int_distribution<int> dist{min, max};
+  std::vector<int> generate_random_vector(int size, int min, int max) {
+    std::random_device rnd_device;
+    std::mt19937 mersenne_engine{rnd_device()};
+    std::uniform_int_distribution<int> dist{min, max};
 
-  auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
+    auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
 
-  std::vector<int> vec(size);
-  generate(begin(vec), end(vec), gen);
+    std::vector<int> vec(size);
+    generate(begin(vec), end(vec), gen);
 
-  return vec;
+    return vec;
+  }
 }
 
 void runTestRandom(int count) {
   // Create data
-  std::vector<int> in = generate_random_vector(count, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::generate_random_vector(count, 1, 100);
   std::vector<int> out(count, 0);
 
   // Create TaskData
@@ -38,14 +40,14 @@ void runTestRandom(int count) {
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
   testTaskSequential.PostProcessingImpl();
-  ASSERT_TRUE(checkSorted(out));
+  ASSERT_TRUE(khokhlov_a_shell_seq::checkSorted(out));
 }
 
 TEST(khokhlov_a_shell_seq, Shell_Validation_Fail) {
   const int count = 10;
 
   // Create data
-  std::vector<int> in1 = generate_random_vector(count, 1, 100);
+  std::vector<int> in1 = khokhlov_a_shell_seq::generate_random_vector(count, 1, 100);
   std::vector<int> in2 = std::vector<int>(5);
   std::vector<int> out(count, 0);
 

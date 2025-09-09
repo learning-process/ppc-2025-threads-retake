@@ -6,26 +6,28 @@
 #include "core/perf/include/perf.hpp"
 #include "seq/khokhlov_a_shell_seq/include/ops_seq.hpp"
 
-bool checkSorted(std::vector<int> input) { return std::is_sorted(input.begin(), input.end()); }
+namespace khokhlov_a_shell_seq{
+  bool checkSorted(std::vector<int> input) { return std::is_sorted(input.begin(), input.end()); }
 
-std::vector<int> generate_random_vector(int size, int min, int max) {
-  std::random_device rnd_device;
-  std::mt19937 mersenne_engine{rnd_device()};
-  std::uniform_int_distribution<int> dist{min, max};
+  std::vector<int> generate_random_vector(int size, int min, int max) {
+    std::random_device rnd_device;
+    std::mt19937 mersenne_engine{rnd_device()};
+    std::uniform_int_distribution<int> dist{min, max};
 
-  auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
+    auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
 
-  std::vector<int> vec(size);
-  generate(begin(vec), end(vec), gen);
+    std::vector<int> vec(size);
+    generate(begin(vec), end(vec), gen);
 
-  return vec;
+    return vec;
+  }
 }
 
 TEST(khokhlov_a_shell_seq, pipeline_run_seq) {
   const int count = 2000000;
 
   // Create data
-  std::vector<int> in = generate_random_vector(count, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::generate_random_vector(count, 1, 100);
   std::vector<int> out(count, 0);
 
   // Create TaskData
@@ -55,14 +57,14 @@ TEST(khokhlov_a_shell_seq, pipeline_run_seq) {
   auto perfAnalyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
   perfAnalyzer->PipelineRun(perfAttr, perfResults);
   ppc::core::Perf::PrintPerfStatistic(perfResults);
-  ASSERT_TRUE(checkSorted(out));
+  ASSERT_TRUE(khokhlov_a_shell_seq::checkSorted(out));
 }
 
 TEST(khokhlov_a_shell_seq, task_run_seq) {
   const int count = 2000000;
 
   // Create data
-  std::vector<int> in = generate_random_vector(count, 1, 100);
+  std::vector<int> in = khokhlov_a_shell_seq::generate_random_vector(count, 1, 100);
   std::vector<int> out(count, 0);
 
   // Create TaskData
@@ -92,5 +94,5 @@ TEST(khokhlov_a_shell_seq, task_run_seq) {
   auto perfAnalyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
   perfAnalyzer->TaskRun(perfAttr, perfResults);
   ppc::core::Perf::PrintPerfStatistic(perfResults);
-  ASSERT_TRUE(checkSorted(out));
+  ASSERT_TRUE(khokhlov_a_shell_seq::checkSorted(out));
 }
