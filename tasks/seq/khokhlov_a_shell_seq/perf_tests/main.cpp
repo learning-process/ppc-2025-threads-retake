@@ -43,7 +43,7 @@ TEST(khokhlov_a_shell_seq, pipeline_run_seq) {
 }
 
 TEST(khokhlov_a_shell_seq, task_run_seq) {
-  const int count = 2000000;
+  const int count = 6000000;
 
   // Create data
   std::vector<int> in = khokhlov_a_shell_seq::generate_random_vector(count, 1, 100);
