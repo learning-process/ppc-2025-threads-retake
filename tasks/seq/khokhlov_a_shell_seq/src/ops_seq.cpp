@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <random>
 #include <string>
 #include <utility>
-#include <random>
 #include <vector>
 
 bool khokhlov_a_shell_seq::ShellSeq::PreProcessingImpl() {
