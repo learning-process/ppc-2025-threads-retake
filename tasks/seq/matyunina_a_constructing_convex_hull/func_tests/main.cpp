@@ -49,7 +49,7 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
     return false;
   }
   cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
-  cv::threshold(image, image, 128, 1, cv::THRESH_BINARY);
+  cv::threshold(image, image, 128, 1, cv::THRESH_BINARY_INV);
 
   std::vector<int> pixels(image.rows * image.cols);
   for (int i = 0; i < image.rows; i++) {
