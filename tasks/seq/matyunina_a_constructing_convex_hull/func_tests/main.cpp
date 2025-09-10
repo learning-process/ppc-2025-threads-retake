@@ -135,6 +135,12 @@ TEST(matyunina_a_constructing_convex_hull_seq, image4) {
 
   ASSERT_TRUE(RunImageTest(src_path, exp_path));
 }
+TEST(matyunina_a_constructing_convex_hull_seq, image5) {
+  std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/image5.png");
+  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/ans5.png");
+
+  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+}
 #endif
 
 TEST(matyunina_a_constructing_convex_hull_seq, test_9_9) {
