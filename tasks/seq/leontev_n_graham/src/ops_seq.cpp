@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <iostream>
 #include <vector>
 
 bool leontev_n_graham_seq::GrahamSeq::PreProcessingImpl() {
@@ -20,7 +21,7 @@ bool leontev_n_graham_seq::GrahamSeq::PreProcessingImpl() {
 
 bool leontev_n_graham_seq::GrahamSeq::ValidationImpl() {
   // Check equality of counts elements
-  return task_data->inputs.size() == 2 && task_data->outputs_count <= task_data->inputs_count;
+  return task_data->inputs.size() == 2 && task_data->outputs_count[0] <= task_data->inputs_count[0];
 }
 
 std::pair<float, float> leontev_n_graham_seq::GrahamSeq::minus(std::pair<float, float> a, std::pair<float, float> b) {
@@ -50,13 +51,15 @@ bool leontev_n_graham_seq::GrahamSeq::RunImpl() {
     while (hull.size() >= 2) {
       point new_vector = minus(p, hull.back());
       point last_vector = minus(hull.back(), hull[hull.size() - 2]);
-      if (mul(new_vector, last_vector) > 0.0f)
+      if (mul(new_vector, last_vector) >= 0.0f)
         hull.pop_back();
       else
         break;
     }
     hull.push_back(p);
   }
+  output_X_.resize(hull.size());
+  output_Y_.resize(hull.size());
   for (int i = 0; i < hull.size(); i++) {
     output_X_[i] = hull[i].first;
     output_Y_[i] = hull[i].second;
@@ -65,9 +68,10 @@ bool leontev_n_graham_seq::GrahamSeq::RunImpl() {
 }
 
 bool leontev_n_graham_seq::GrahamSeq::PostProcessingImpl() {
+  reinterpret_cast<int*>(task_data->outputs[2])[0] = static_cast<int>(output_X_.size());
   for (size_t i = 0; i < output_X_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = output_X_[i];
-    reinterpret_cast<int *>(task_data->outputs[1])[i] = output_Y_[i];
+    reinterpret_cast<float *>(task_data->outputs[0])[i] = output_X_[i];
+    reinterpret_cast<float *>(task_data->outputs[1])[i] = output_Y_[i];
   }
   return true;
 }

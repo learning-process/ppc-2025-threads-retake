@@ -30,8 +30,9 @@ TEST(leontev_n_graham_seq, test_pipeline_run) {
   // Create data
   std::vector<float> in_X = GenVec(kCount);
   std::vector<float> in_Y = GenVec(kCount);
-  std::vector<float> out_X(kCount, 0);
-  std::vector<float> out_Y(kCount, 0);
+  std::vector<float> out_X(kCount, 0.0f);
+  std::vector<float> out_Y(kCount, 0.0f);
+  int out_size = 0;
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -40,6 +41,7 @@ TEST(leontev_n_graham_seq, test_pipeline_run) {
   task_data_seq->inputs_count.emplace_back(in_X.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_X.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_Y.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out_size));
   task_data_seq->outputs_count.emplace_back(out_X.size());
 
   // Create Task
@@ -70,8 +72,9 @@ TEST(leontev_n_graham_seq, test_task_run) {
   // Create data
   std::vector<float> in_X = GenVec(kCount);
   std::vector<float> in_Y = GenVec(kCount);
-  std::vector<float> out_X(kCount, 0);
-  std::vector<float> out_Y(kCount, 0);
+  std::vector<float> out_X(kCount, 0.0f);
+  std::vector<float> out_Y(kCount, 0.0f);
+  int out_size = 0;
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -80,6 +83,7 @@ TEST(leontev_n_graham_seq, test_task_run) {
   task_data_seq->inputs_count.emplace_back(in_X.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_X.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_Y.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out_size));
   task_data_seq->outputs_count.emplace_back(out_X.size());
 
 
