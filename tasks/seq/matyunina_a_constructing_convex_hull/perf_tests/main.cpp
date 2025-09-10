@@ -11,7 +11,7 @@
 #include "seq/matyunina_a_constructing_convex_hull/include/ops_seq.hpp"
 
 TEST(matyunina_a_constructing_convex_hull_seq, test_pipeline_run) {
-  constexpr int count = 3000;
+  constexpr int count = 8000;
 
   std::vector<int> image(count * count, 1);
 
@@ -57,7 +57,7 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_pipeline_run) {
 }
 
 TEST(matyunina_a_constructing_convex_hull_seq, test_task_run) {
-  constexpr int count = 3000;
+  constexpr int count = 8000;
 
   std::vector<int> image(count * count, 1);
 

@@ -133,3 +133,94 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_6_3_line) {
 
   RunTest(height, width, image, ans);
 }
+
+TEST(matyunina_a_constructing_convex_hull_seq, test_empty_square) {
+  int height = 4;
+  int width = 4;
+  // clang-format off
+  std::vector<int> image = {
+    0,0,0,0,
+    0,0,0,0,
+    0,0,0,0,
+    0,0,0,0
+  };
+
+  std::vector<matyunina_a_constructing_convex_hull_seq::Point> ans;
+  // clang-format on
+
+  RunTest(height, width, image, ans);
+}
+
+TEST(matyunina_a_constructing_convex_hull_seq, test_black_square) {
+  int height = 4;
+  int width = 4;
+  // clang-format off
+  std::vector<int> image = {
+    1,1,1,1,
+    1,1,1,1,
+    1,1,1,1,
+    1,1,1,1
+  };
+
+  std::vector<matyunina_a_constructing_convex_hull_seq::Point> ans = {
+    {0, 0},
+    {0, 3},
+    {3, 0},
+    {3, 3}
+  };
+  // clang-format on
+
+  RunTest(height, width, image, ans);
+}
+
+TEST(matyunina_a_constructing_convex_hull_seq, test_triangle) {
+  int height = 4;
+  int width = 5;
+  // clang-format off
+  std::vector<int> image = {
+    0,0,1,0,0,
+    0,0,0,0,0,
+    0,0,0,0,0,
+    1,0,0,0,1
+  };
+
+  std::vector<matyunina_a_constructing_convex_hull_seq::Point> ans = {
+    {0, 3},
+    {2, 0},
+    {4, 3}
+  };
+  // clang-format on
+
+  RunTest(height, width, image, ans);
+}
+
+
+TEST(matyunina_a_constructing_convex_hull_seq, test_9_9_polygon) {
+  int height = 9;
+  int width = 9;
+  // clang-format off
+  std::vector<int> image = {
+    0, 0, 0, 0, 0, 1, 0, 0, 0,
+    0, 0, 0, 1, 1, 1, 0, 1, 0,
+    0, 0, 1, 0, 1, 0, 1, 0, 0,
+    0, 1, 0, 1, 1, 0, 0, 1, 0,
+    0, 1, 1, 1, 1, 1, 1, 1, 0,
+    0, 1, 0, 0, 1, 0, 0, 1, 0,
+    0, 0, 1, 0, 1, 0, 1, 0, 1,
+    0, 0, 0, 1, 1, 1, 0, 0, 0,
+    1, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
+
+  std::vector<matyunina_a_constructing_convex_hull_seq::Point> ans = {
+    {0, 8},
+    {1, 3},
+    {3, 1},
+    {5, 0},
+    {5, 7},
+    {7, 1},
+    {8, 6}
+  };
+  // clang-format on
+
+  RunTest(height, width, image, ans);
+}

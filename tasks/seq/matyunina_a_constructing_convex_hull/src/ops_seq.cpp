@@ -23,6 +23,8 @@ double matyunina_a_constructing_convex_hull_seq::Point::distanceToLine(Point& a,
 }
 
 bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::PreProcessingImpl() {
+  points_.clear();
+
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
 
@@ -31,10 +33,17 @@ bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::PreProces
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size);
 
+  int estimated_points = 0;
+  for (int i = 0; i < std::min(1000, size); i++) {
+    if (input_[i] == 1) estimated_points++;
+  }
+  double density = static_cast<double>(estimated_points) / std::min(1000, size);
+  points_.reserve(static_cast<int>(size * density * 1.2));
+
   for (int i = 0; i < width_; i++) {
     for (int j = 0; j < height_; j++) {
       if (input_[j * width_ + i] == 1) {
-        points_.push_back({i, j});
+        points_.emplace_back(Point(i, j));
       }
     }
   }
