@@ -91,7 +91,7 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
 
   for (int i = 0; i < ans.cols; i++) {
     for (int j = 0; j < ans.rows; j++) {
-      cv::Vec3b pixel = ans.at<cv::Vec3b>(y, x);
+      cv::Vec3b pixel = ans.at<cv::Vec3b>(j, i);
       uchar blue = pixel[0];
       uchar green = pixel[1];
       uchar red = pixel[2];
