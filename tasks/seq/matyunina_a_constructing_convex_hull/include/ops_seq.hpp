@@ -13,7 +13,7 @@ struct Point {
   bool operator<(const Point& other) const;
   bool operator==(const Point& other) const;
   static int orientation(Point& a, Point& b, Point& c);
-  static double distanceToLine(Point& a, Point& b,Point& c);
+  static double distanceToLine(Point& a, Point& b, Point& c);
 };
 
 class ConstructingConvexHull : public ppc::core::Task {
