@@ -91,8 +91,8 @@ bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::RunImpl()
     if (found) {
       hullSet.insert(farthestPoint);
 
-      segmentStack.push({ a, farthestPoint });
-      segmentStack.push({ farthestPoint, b });
+      segmentStack.push({a, farthestPoint});
+      segmentStack.push({farthestPoint, b});
     }
   }
 
