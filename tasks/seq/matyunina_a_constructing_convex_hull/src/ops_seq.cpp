@@ -23,7 +23,6 @@ double matyunina_a_constructing_convex_hull_seq::Point::distanceToLine(Point& a,
 }
 
 bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::PreProcessingImpl() {
-
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
 
