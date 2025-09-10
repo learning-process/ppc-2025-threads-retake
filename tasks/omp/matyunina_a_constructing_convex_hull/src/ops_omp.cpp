@@ -27,7 +27,7 @@ double matyunina_a_constructing_convex_hull_omp::Point::distanceToLine(Point& a,
 double matyunina_a_constructing_convex_hull_omp::Point::distance(const Point& p1, const Point& p2) {
   double dx = p1.x - p2.x;
   double dy = p1.y - p2.y;
-  return std::sqrt(dx*dx + dy*dy);
+  return std::sqrt(dx * dx + dy * dy);
 }
 
 bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::PreProcessingImpl() {
@@ -38,7 +38,6 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::PreProces
 
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size);
-
 
   return true;
 }
@@ -59,10 +58,10 @@ void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::FindPoint
   double density = static_cast<double>(estimated_points) / std::min(1000, size);
   points_.reserve(static_cast<int>(size * density * 1.2));
 
-  #pragma omp parallel
+#pragma omp parallel
   {
     std::vector<Point> local_points;
-    #pragma omp for nowait
+#pragma omp for nowait
     for (int i = 0; i < width_; i++) {
       for (int j = 0; j < height_; j++) {
         if (input_[j * width_ + i] == 1) {
@@ -71,11 +70,10 @@ void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::FindPoint
       }
     }
 
-    #pragma omp critical
+#pragma omp critical
     points_.insert(points_.end(), local_points.begin(), local_points.end());
   }
 }
-
 
 bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl() {
   FindPoints();
@@ -106,17 +104,17 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
     
     size_t batch_size = std::min(segmentStack.size(), (size_t)omp_get_max_threads() * 4);
     for (size_t i = 0; i < batch_size && !segmentStack.empty(); ++i) {
-        segmentsToProcess.push_back(segmentStack.top());
-        segmentStack.pop();
+      segmentsToProcess.push_back(segmentStack.top());
+      segmentStack.pop();
     }
 
     std::vector<std::pair<Point, Point>> newSegments;
 
-    #pragma omp parallel
+#pragma omp parallel
     {
       std::vector<std::pair<Point, Point>> local_newSegments;
 
-      #pragma omp for nowait
+#pragma omp for nowait
       for (int i = 0; i < segmentsToProcess.size(); ++i) {
         Point a = segmentsToProcess[i].first;
         Point b = segmentsToProcess[i].second;
@@ -136,20 +134,16 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
         }
 
         if (found) {
-          #pragma omp critical
-          {
-            hullSet.insert(farthestPoint);
-          }
-                
+#pragma omp critical
+          { hullSet.insert(farthestPoint); }
+     
           local_newSegments.push_back({a, farthestPoint});
           local_newSegments.push_back({farthestPoint, b});
         }
       }
         
-      #pragma omp critical
-      {
-        newSegments.insert(newSegments.end(), local_newSegments.begin(), local_newSegments.end());
-      }
+#pragma omp critical
+      { newSegments.insert(newSegments.end(), local_newSegments.begin(), local_newSegments.end()); }
     }
 
     for (const auto& seg : newSegments) {
@@ -182,12 +176,12 @@ void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::DeleteDub
     Point prev = tempHull[(i - 1 + tempHull.size()) % tempHull.size()];
     Point curr = tempHull[i];
     Point next = tempHull[(i + 1) % tempHull.size()];
-    
+
     if (Point::orientation(prev, curr, next) == 0) {
       double dist1 = Point::distance(prev, curr);
       double dist2 = Point::distance(curr, next);
       double dist3 = Point::distance(prev, next);
-        
+
       if (std::abs(dist1 + dist2 - dist3) < 1e-9) {
         continue;
       }
