@@ -111,9 +111,27 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
 }  // namespace
 
 #ifndef _WIN32
+TEST(matyunina_a_constructing_convex_hull_seq, image1) {
+  std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/image1.png");
+  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/ans1.png");
+
+  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+}
 TEST(matyunina_a_constructing_convex_hull_seq, image2) {
   std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/image2.png");
   std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/ans2.png");
+
+  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+}
+TEST(matyunina_a_constructing_convex_hull_seq, image3) {
+  std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/image3.png");
+  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/ans3.png");
+
+  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+}
+TEST(matyunina_a_constructing_convex_hull_seq, image4) {
+  std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/image4.png");
+  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/ans4.png");
 
   ASSERT_TRUE(RunImageTest(src_path, exp_path));
 }
