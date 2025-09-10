@@ -101,7 +101,7 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
 
   while (!segmentStack.empty()) {
     std::vector<std::pair<Point, Point>> segmentsToProcess;
-    
+
     size_t batch_size = std::min(segmentStack.size(), (size_t)omp_get_max_threads() * 4);
     for (size_t i = 0; i < batch_size && !segmentStack.empty(); ++i) {
       segmentsToProcess.push_back(segmentStack.top());
@@ -136,12 +136,12 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
         if (found) {
 #pragma omp critical
           { hullSet.insert(farthestPoint); }
-     
+
           local_newSegments.push_back({a, farthestPoint});
           local_newSegments.push_back({farthestPoint, b});
         }
       }
-        
+
 #pragma omp critical
       { newSegments.insert(newSegments.end(), local_newSegments.begin(), local_newSegments.end()); }
     }
