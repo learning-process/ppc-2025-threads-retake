@@ -77,23 +77,43 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
   std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(pointArray,
                                                                       pointArray + task_data->outputs_count[0]);
 
-  std::cout << "\n#######\n";
-  for (matyunina_a_constructing_convex_hull_seq::Point& point : points) {
-    std::cout << "x: " << point.x << " y: " << point.y << "\n";
+  // std::cout << "\n#######\n";
+  // for (matyunina_a_constructing_convex_hull_seq::Point& point : points) {
+  //   std::cout << "x: " << point.x << " y: " << point.y << "\n";
+  // }
+  // std::cout << "\n#######\n";
+
+  cv::Mat ans = cv::imread(ans_path);
+  if (ans.empty()) {
+    return false;
   }
-  std::cout << "\n#######\n";
+  std::vector<matyunina_a_constructing_convex_hull_seq::Point> ansPoints;
+
+  for (int i = 0; i < ans.cols; i++) {
+    for (int j = 0; j < ans.rows; j++) {
+      cv::Vec3b pixel = ans.at<cv::Vec3b>(y, x);
+      uchar blue = pixel[0];
+      uchar green = pixel[1];
+      uchar red = pixel[2];
+
+      if (red > 200 && green < 50 && blue < 50) {
+        ansPoints.push_back({i, j});
+      }
+    }
+  }
 
   image.release();
+  ans.release();
 
-  return true;
+  return ansPoints == points;
 }
 #endif
 }  // namespace
 
 #ifndef _WIN32
-TEST(matyunina_a_constructing_convex_hull_seq, image1) {
+TEST(matyunina_a_constructing_convex_hull_seq, image2) {
   std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/image2.png");
-  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/0_expected.png");
+  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/ans2.png");
 
   ASSERT_TRUE(RunImageTest(src_path, exp_path));
 }
