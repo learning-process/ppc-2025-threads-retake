@@ -54,7 +54,7 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
   std::vector<int> pixels(image.rows * image.cols);
   for (int i = 0; i < image.rows; i++) {
     for (int j = 0; j < image.cols; j++) {
-      pixels[(i * image.cols + j)] = image.at<uchar>(i,j);
+      pixels[(i * image.cols + j)] = image.at<uchar>(i, j);
     }
   }
 
@@ -78,8 +78,8 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
                                                                       pointArray + task_data->outputs_count[0]);
 
   std::cout << "\n#######\n";
-  for (matyunina_a_constructing_convex_hull_seq::Point& point: points) {
-    std::cout<< "x: " << point.x << " y: " << point.y << "\n";
+  for (matyunina_a_constructing_convex_hull_seq::Point& point : points) {
+    std::cout << "x: " << point.x << " y: " << point.y << "\n";
   }
   std::cout << "\n#######\n";
 
