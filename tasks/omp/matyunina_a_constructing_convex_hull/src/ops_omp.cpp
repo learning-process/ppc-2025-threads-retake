@@ -115,7 +115,7 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
       std::vector<std::pair<Point, Point>> local_newSegments;
 
 #pragma omp for nowait
-      for (int i = 0; i < segmentsToProcess.size(); ++i) {
+      for (int i = 0; i < (int)segmentsToProcess.size(); ++i) {
         Point a = segmentsToProcess[i].first;
         Point b = segmentsToProcess[i].second;
         double maxDistance = -1;
@@ -172,7 +172,7 @@ void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::DeleteDub
     return atan2(a.y - center.y, a.x - center.x) < atan2(b.y - center.y, b.x - center.x);
   });
 
-  for (int i = 0; i < tempHull.size(); i++) {
+  for (int i = 0; i < (int)tempHull.size(); i++) {
     Point prev = tempHull[(i - 1 + tempHull.size()) % tempHull.size()];
     Point curr = tempHull[i];
     Point next = tempHull[(i + 1) % tempHull.size()];
