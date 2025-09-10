@@ -23,7 +23,6 @@ double matyunina_a_constructing_convex_hull_seq::Point::distanceToLine(Point& a,
 }
 
 bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::PreProcessingImpl() {
-  points_.clear();
 
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
@@ -33,6 +32,16 @@ bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::PreProces
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size);
 
+  return true;
+}
+
+bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::ValidationImpl() {
+  return task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0;
+}
+
+bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::RunImpl() {
+  points_.clear();
+  int size = width_ * height_;
   int estimated_points = 0;
   for (int i = 0; i < std::min(1000, size); i++) {
     if (input_[i] == 1) estimated_points++;
@@ -48,14 +57,6 @@ bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::PreProces
     }
   }
 
-  return true;
-}
-
-bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::ValidationImpl() {
-  return task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0;
-}
-
-bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::RunImpl() {
   if (points_.size() < 3) {
     output_ = points_;
     return true;
