@@ -92,8 +92,8 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
 
 #ifndef _WIN32
 TEST(matyunina_a_constructing_convex_hull_seq, image1) {
-  std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull_seq/data/image1.png");
-  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull_seq/data/0_expected.png");
+  std::string src_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/image1.png");
+  std::string exp_path = ppc::util::GetAbsolutePath("seq/matyunina_a_constructing_convex_hull/data/0_expected.png");
 
   ASSERT_TRUE(RunImageTest(src_path, exp_path));
 }
