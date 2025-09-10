@@ -194,7 +194,6 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_triangle) {
   RunTest(height, width, image, ans);
 }
 
-
 TEST(matyunina_a_constructing_convex_hull_seq, test_9_9_polygon) {
   int height = 9;
   int width = 9;
