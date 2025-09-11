@@ -120,20 +120,20 @@ bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::RunImpl()
 
     arena.execute([&] {
       best = oneapi::tbb::parallel_reduce(
-        oneapi::tbb::blocked_range<std::size_t>(0, points_.size()), std::pair<double, Point>{-1.0, Point{}},
-        [&](const oneapi::tbb::blocked_range<std::size_t>& r, std::pair<double, Point> local) {
-          for (std::size_t i = r.begin(); i != r.end(); ++i) {
-            Point& p = points_[i];
-            if (Point::orientation(a, b, p) > 0) {
-              double d = Point::distanceToLine(a, b, p);
-              if (d > local.first) {
-                local.first = d;
-                local.second = p;
+          oneapi::tbb::blocked_range<std::size_t>(0, points_.size()), std::pair<double, Point>{-1.0, Point{}},
+          [&](const oneapi::tbb::blocked_range<std::size_t>& r, std::pair<double, Point> local) {
+            for (std::size_t i = r.begin(); i != r.end(); ++i) {
+              Point& p = points_[i];
+              if (Point::orientation(a, b, p) > 0) {
+                double d = Point::distanceToLine(a, b, p);
+                if (d > local.first) {
+                  local.first = d;
+                  local.second = p;
               }
             }
           }
-          return local;
-        },
+            return local;
+          },
           [&](const std::pair<double, Point>& x, const std::pair<double, Point>& y) {
             if (x.first > y.first) return x;
             if (y.first > x.first) return y;
