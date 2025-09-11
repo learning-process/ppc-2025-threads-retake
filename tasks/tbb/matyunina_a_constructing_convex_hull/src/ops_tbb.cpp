@@ -29,6 +29,12 @@ double matyunina_a_constructing_convex_hull_tbb::Point::distanceToLine(Point& a,
   return std::abs(orientation(a, b, c));
 }
 
+double matyunina_a_constructing_convex_hull_tbb::Point::distance(const Point& p1, const Point& p2) {
+  double dx = p1.x - p2.x;
+  double dy = p1.y - p2.y;
+  return std::sqrt(dx * dx + dy * dy);
+}
+
 bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
@@ -148,9 +154,45 @@ bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::RunImpl()
     }
   }
 
-  output_.assign(hullSet.begin(), hullSet.end());
+  DeleteDublecate(hullSet);
 
   return true;
+}
+
+void matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::DeleteDublecate(std::set<Point>& hullSet) {
+  std::vector<Point> tempHull(hullSet.begin(), hullSet.end());
+  std::vector<Point> finalHull;
+
+  Point center;
+  for (const auto& p : tempHull) {
+    center.x += p.x;
+    center.y += p.y;
+  }
+  center.x /= tempHull.size();
+  center.y /= tempHull.size();
+
+  std::sort(tempHull.begin(), tempHull.end(), [&center](const Point& a, const Point& b) {
+    return atan2(a.y - center.y, a.x - center.x) < atan2(b.y - center.y, b.x - center.x);
+  });
+
+  for (int i = 0; i < (int)tempHull.size(); i++) {
+    Point prev = tempHull[(i - 1 + tempHull.size()) % tempHull.size()];
+    Point curr = tempHull[i];
+    Point next = tempHull[(i + 1) % tempHull.size()];
+
+    if (Point::orientation(prev, curr, next) == 0) {
+      double dist1 = Point::distance(prev, curr);
+      double dist2 = Point::distance(curr, next);
+      double dist3 = Point::distance(prev, next);
+
+      if (std::abs(dist1 + dist2 - dist3) < 1e-9) {
+        continue;
+      }
+    }
+    finalHull.push_back(curr);
+  }
+
+  output_ = finalHull;
 }
 
 bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::PostProcessingImpl() {

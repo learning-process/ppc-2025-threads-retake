@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include <set>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -14,6 +15,7 @@ struct Point {
   bool operator==(const Point& other) const;
   static int orientation(Point& a, Point& b, Point& c);
   static double distanceToLine(Point& a, Point& b, Point& c);
+  static double distance(const Point& p1, const Point& p2);
 };
 
 class ConstructingConvexHull : public ppc::core::Task {
@@ -26,6 +28,7 @@ class ConstructingConvexHull : public ppc::core::Task {
 
  private:
   void FindPoints();
+  void DeleteDublecate(std::set<Point>& hullSet);
   std::vector<int> input_;
   std::vector<Point> points_{};
   std::vector<Point> output_{};
