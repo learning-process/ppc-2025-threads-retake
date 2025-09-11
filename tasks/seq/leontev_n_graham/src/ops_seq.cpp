@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <vector>
 
 bool leontev_n_graham_seq::GrahamSeq::PreProcessingImpl() {

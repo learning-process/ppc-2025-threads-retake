@@ -5,8 +5,8 @@
 #include <fstream>
 #include <memory>
 #include <string>
-#include <random>
 #include <vector>
+#include <random>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
