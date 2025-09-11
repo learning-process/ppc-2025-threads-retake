@@ -129,9 +129,9 @@ bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::RunImpl()
                 if (d > local.first) {
                   local.first = d;
                   local.second = p;
+                }
               }
             }
-          }
             return local;
           },
           [&](const std::pair<double, Point>& x, const std::pair<double, Point>& y) {
