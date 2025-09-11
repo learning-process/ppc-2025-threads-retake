@@ -1,9 +1,10 @@
 #include "omp/khokhlov_a_shell_omp/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <random>
 #include <vector>
-#include <omp.h>
 
 bool khokhlov_a_shell_omp::ShellOmp::PreProcessingImpl() {
   // Init value for input and output
@@ -37,7 +38,7 @@ std::vector<int> khokhlov_a_shell_omp::ShellOmp::ShellSort(const std::vector<int
   int num_threads = omp_get_max_threads();
   int chunk_size = (n + num_threads - 1) / num_threads;
 
-  #pragma omp parallel num_threads(num_threads)
+#pragma omp parallel num_threads(num_threads)
   {
     int thread_id = omp_get_thread_num();
     int start = thread_id * chunk_size;
