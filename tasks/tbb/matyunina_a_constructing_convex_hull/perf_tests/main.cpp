@@ -46,7 +46,7 @@ TEST(matyunina_a_constructing_convex_hull_tbb, test_pipeline_run) {
       reinterpret_cast<matyunina_a_constructing_convex_hull_tbb::Point*>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_tbb::Point> points(pointArray,
                                                                       pointArray + task_data->outputs_count[0]);
-  
+
   // std::cout << "\n#######\n";
   // for (matyunina_a_constructing_convex_hull_tbb::Point& point: points) {
   //   std::cout<< "x: " << point.x << " y: " << point.y << "\n";
