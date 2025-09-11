@@ -34,8 +34,8 @@ void RunTest(int height, int width, std::vector<int> image,
                                                                       pointArray + task_data->outputs_count[0]);
 
   std::cout << "\n#######\n";
-  for (matyunina_a_constructing_convex_hull_tbb::Point& point: points) {
-    std::cout<< "x: " << point.x << " y: " << point.y << "\n";
+  for (matyunina_a_constructing_convex_hull_tbb::Point& point : points) {
+    std::cout << "x: " << point.x << " y: " << point.y << "\n";
   }
   std::cout << "\n#######\n";
 
