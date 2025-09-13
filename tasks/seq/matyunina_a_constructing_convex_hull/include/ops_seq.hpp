@@ -7,9 +7,18 @@
 
 namespace matyunina_a_constructing_convex_hull_seq {
 
+struct XCoord {
+  int value;
+  XCoord(int v = 0) : value(v) {}
+};
+struct YCoord {
+  int value;
+  YCoord(int v = 0) : value(v) {}
+};
+
 struct Point {
   int x, y;
-  Point(int x = 0, int y = 0) : x(x), y(y) {}
+  Point(XCoord x = {0}, YCoord y = {0}) : x(x.value), y(y.value) {}
   bool operator<(const Point& other) const;
   bool operator==(const Point& other) const;
   static int Orientation(Point& a, Point& b, Point& c);

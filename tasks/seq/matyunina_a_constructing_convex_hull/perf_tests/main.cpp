@@ -15,7 +15,7 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_pipeline_run) {
   std::vector<int> image(kCount * kCount, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(image.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
   task_data->inputs_count.emplace_back(kCount);
   task_data->inputs_count.emplace_back(kCount);
 
@@ -41,7 +41,7 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto *point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
+  auto* point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point *>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 
@@ -60,7 +60,7 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_task_run) {
   std::vector<int> image(kCount * kCount, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(image.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
   task_data->inputs_count.emplace_back(kCount);
   task_data->inputs_count.emplace_back(kCount);
 
@@ -86,7 +86,7 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto *point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
+  auto* point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point *>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 
