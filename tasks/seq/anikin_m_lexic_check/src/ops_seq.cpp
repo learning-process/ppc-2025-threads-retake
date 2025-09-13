@@ -12,11 +12,11 @@ bool anikin_m_lexic_check_seq::LexicCheckSequential::ValidationImpl() {
 
 bool anikin_m_lexic_check_seq::LexicCheckSequential::PreProcessingImpl() {
   unsigned int input0_size = task_data->inputs_count[0];
-  auto *in0_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
+  auto *in0_ptr = task_data->inputs[0];
   input0_ = std::string(in0_ptr, in0_ptr + input0_size);
 
   unsigned int input1_size = task_data->inputs_count[1];
-  auto *in1_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
+  auto *in1_ptr = task_data->inputs[1];
   input1_ = std::string(in1_ptr, in1_ptr + input1_size);
 
   ret = 0;
