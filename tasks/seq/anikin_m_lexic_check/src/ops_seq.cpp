@@ -30,7 +30,7 @@ bool anikin_m_lexic_check_seq::LexicCheckSequential::RunImpl() {
   } else if (input0_.size() > input1_.size()) {
     ret = 1;
   } else {
-    for (int i = 0; i < input0_.size(); i++) {
+    for (size_t i = 0; i < input0_.size(); i++) {
       if (input0_[i] == input1_[i]) {
         continue;
       }
