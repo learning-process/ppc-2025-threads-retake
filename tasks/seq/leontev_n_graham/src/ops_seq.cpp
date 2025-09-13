@@ -3,8 +3,8 @@
 #include <cmath>
 #include <cstddef>
 #include <ranges>
-#include <vector>
 #include <utility>
+#include <vector>
 
 bool leontev_n_graham_seq::GrahamSeq::PreProcessingImpl() {
   // Init value for input and output

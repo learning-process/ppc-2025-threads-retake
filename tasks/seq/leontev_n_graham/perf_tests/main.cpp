@@ -21,7 +21,7 @@ std::vector<float> GenVec(int size) {
   }
   return vec;
 }
-} // namespace
+}  // namespace
 
 TEST(leontev_n_graham_seq, test_pipeline_run) {
   constexpr int kCount = 500000;
