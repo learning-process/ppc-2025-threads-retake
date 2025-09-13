@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -22,27 +21,27 @@ std::vector<float> GenVec(int size) {
   }
   return vec;
 }
-}
+}  // namespace
 
 TEST(leontev_n_graham_omp, test_pipeline_run) {
   constexpr int kCount = 500000;
 
   // Create data
-  std::vector<float> in_X = GenVec(kCount);
-  std::vector<float> in_Y = GenVec(kCount);
-  std::vector<float> out_X(kCount, 0.0f);
-  std::vector<float> out_Y(kCount, 0.0f);
+  std::vector<float> in_x = GenVec(kCount);
+  std::vector<float> in_y = GenVec(kCount);
+  std::vector<float> out_x(kCount, 0.0F);
+  std::vector<float> out_y(kCount, 0.0F);
   int out_size = 0;
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_X.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_Y.data()));
-  task_data_omp->inputs_count.emplace_back(in_X.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_X.data()));
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_Y.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_x.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_y.data()));
+  task_data_omp->inputs_count.emplace_back(in_x.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_x.data()));
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_y.data()));
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out_size));
-  task_data_omp->outputs_count.emplace_back(out_X.size());
+  task_data_omp->outputs_count.emplace_back(out_x.size());
 
   // Create Task
   auto graham_omp = std::make_shared<leontev_n_graham_omp::GrahamOmp>(task_data_omp);
@@ -70,22 +69,21 @@ TEST(leontev_n_graham_omp, test_task_run) {
   constexpr int kCount = 500000;
 
   // Create data
-  std::vector<float> in_X = GenVec(kCount);
-  std::vector<float> in_Y = GenVec(kCount);
-  std::vector<float> out_X(kCount, 0.0f);
-  std::vector<float> out_Y(kCount, 0.0f);
+  std::vector<float> in_x = GenVec(kCount);
+  std::vector<float> in_y = GenVec(kCount);
+  std::vector<float> out_x(kCount, 0.0F);
+  std::vector<float> out_y(kCount, 0.0F);
   int out_size = 0;
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_X.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_Y.data()));
-  task_data_omp->inputs_count.emplace_back(in_X.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_X.data()));
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_Y.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_x.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_y.data()));
+  task_data_omp->inputs_count.emplace_back(in_x.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_x.data()));
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_y.data()));
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out_size));
-  task_data_omp->outputs_count.emplace_back(out_X.size());
-
+  task_data_omp->outputs_count.emplace_back(out_x.size());
 
   // Create Task
   auto graham_omp = std::make_shared<leontev_n_graham_omp::GrahamOmp>(task_data_omp);

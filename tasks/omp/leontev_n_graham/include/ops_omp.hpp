@@ -18,8 +18,8 @@ class GrahamOmp : public ppc::core::Task {
  private:
   std::vector<float> input_X_, input_Y_;
   std::vector<float> output_X_, output_Y_;
-  std::pair<float, float> minus(std::pair<float, float> a, std::pair<float, float> b);
-  float mul(std::pair<float, float> a, std::pair<float, float> b);
+  static std::pair<float, float> Minus(std::pair<float, float> a, std::pair<float, float> b);
+  static float Mul(std::pair<float, float> a, std::pair<float, float> b);
 };
 
 class GrahamSeq : public ppc::core::Task {
@@ -33,7 +33,7 @@ class GrahamSeq : public ppc::core::Task {
  private:
   std::vector<float> input_X_, input_Y_;
   std::vector<float> output_X_, output_Y_;
-  std::pair<float, float> minus(std::pair<float, float> a, std::pair<float, float> b);
-  float mul(std::pair<float, float> a, std::pair<float, float> b);
+  static std::pair<float, float> Minus(std::pair<float, float> a, std::pair<float, float> b);
+  static float Mul(std::pair<float, float> a, std::pair<float, float> b);
 };
 }  // namespace leontev_n_graham_omp
