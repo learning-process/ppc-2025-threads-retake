@@ -20,6 +20,9 @@ class GrahamOmp : public ppc::core::Task {
   std::vector<float> output_X_, output_Y_;
   static std::pair<float, float> Minus(std::pair<float, float> a, std::pair<float, float> b);
   static float Mul(std::pair<float, float> a, std::pair<float, float> b);
+  static std::pair<float, float> GetMinPoint(const std::vector<std::pair<float, float>> &points);
+  static void InitData(std::vector<std::vector<std::pair<float, float>>> &data, int threads, size_t temp_size,
+                       const std::vector<std::pair<float, float>> &points);
 };
 
 class GrahamSeq : public ppc::core::Task {

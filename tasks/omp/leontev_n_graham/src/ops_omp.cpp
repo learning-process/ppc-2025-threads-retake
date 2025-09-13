@@ -1,5 +1,7 @@
 #include "omp/leontev_n_graham/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -37,19 +39,44 @@ float leontev_n_graham_omp::GrahamOmp::Mul(std::pair<float, float> a, std::pair<
   return (a.first * b.second) - (b.first * a.second);
 }
 
-bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
-  size_t  amount_of_points = input_X_.size();
-  using Point = std::pair<float, float>;
-  std::vector<Point> points(amount_of_points);
-  for (size_t i = 0; i < amount_of_points; i++) {
-    points[i] = Point(input_X_[i], input_Y_[i]);
+void leontev_n_graham_omp::GrahamOmp::InitData(std::vector<std::vector<std::pair<float, float>>> &data, int threads,
+                                               size_t temp_size, const std::vector<std::pair<float, float>> &points) {
+  data[threads - 1].resize(temp_size + 1 + ((points.size() - 1) % threads));
+  data[0][0] = points[0];
+  std::copy(points.begin() + 1, points.begin() + 1 + static_cast<long>(temp_size), data[0].begin() + 1);
+  for (int i = 1; i < threads - 1; i++) {
+    data[i][0] = points[0];
+    std::copy(points.begin() + 1 + static_cast<long>(i * temp_size),
+              points.begin() + 1 + static_cast<long>((i + 1) * temp_size), data[i].begin() + 1);
   }
+  data[threads - 1][0] = points[0];
+  std::copy(points.begin() + 1 + static_cast<long>((threads - 1) * temp_size), points.end(),
+            data[threads - 1].begin() + 1);
+}
+
+std::pair<float, float> leontev_n_graham_omp::GrahamOmp::GetMinPoint(
+    const std::vector<std::pair<float, float>> &points) {
+  using Point = std::pair<float, float>;
   Point p0 = points[0];
   for (Point p : points) {
     if (p.first < p0.first || (p.first == p0.first && p.second < p0.second)) {
       p0 = p;
     }
   }
+  return p0;
+}
+
+bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
+  size_t amount_of_points = input_X_.size();
+  if (amount_of_points == 0) {
+    return false;
+  }
+  using Point = std::pair<float, float>;
+  std::vector<Point> points(amount_of_points);
+  for (size_t i = 0; i < amount_of_points; i++) {
+    points[i] = Point(input_X_[i], input_Y_[i]);
+  }
+  Point p0 = GetMinPoint(points);
 
   // sort by polar angle
   std::ranges::sort(points, [&](Point a, Point b) {
@@ -65,21 +92,11 @@ bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
   if (threads < 1) {
     return false;
   }
-  size_t temp_size = (points.size() - 1) / threads; 
+  size_t temp_size = (points.size() - 1) / threads;
   std::vector<std::vector<Point>> data(threads, std::vector<Point>(temp_size + 1));
   std::vector<std::vector<Point>> outputs(threads);
-  std::vector<Point> hull;
   std::vector<Point> hull1;
-  hull.push_back(points[0]);
-  data[threads - 1].resize(temp_size + 1 + ((points.size() - 1) % threads));
-  data[0][0] = points[0];
-  std::copy(points.begin() + 1, points.begin() + 1 + temp_size, data[0].begin() + 1);
-  for (int i = 1; i < threads - 1; i++) {
-    data[i][0] = points[0];
-    std::copy(points.begin() + 1 + (i * temp_size), points.begin() + 1 + ((i + 1) * temp_size), data[i].begin() + 1);
-  }
-  data[threads - 1][0] = points[0];
-  std::copy(points.begin() + 1 + ((threads - 1) * temp_size), points.end(), data[threads - 1].begin() + 1);
+  InitData(data, threads, temp_size, points);
 #pragma omp parallel for num_threads(threads)
   for (int thread = 0; thread < threads; thread++) {
     for (Point p : data[thread]) {
@@ -96,21 +113,19 @@ bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
     }
   }
   for (int thread = 0; thread < threads; thread++) {
-    for (size_t i = 1; i < outputs[thread].size(); i++) {
-      hull.push_back(outputs[thread][i]);
-    }
-  }
-  for (Point p : hull) {
-    while (hull1.size() >= 2) {
-      Point new_vector = Minus(p, hull1.back());
-      Point last_vector = Minus(hull1.back(), hull1[hull1.size() - 2]);
-      if (Mul(new_vector, last_vector) >= 0.0F) {
-        hull1.pop_back();
-      } else {
-        break;
+    for (size_t i = (thread == 0) ? 0 : 1; i < outputs[thread].size(); i++) {
+      Point p = outputs[thread][i];
+      while (hull1.size() >= 2) {
+        Point new_vector = Minus(p, hull1.back());
+        Point last_vector = Minus(hull1.back(), hull1[hull1.size() - 2]);
+        if (Mul(new_vector, last_vector) >= 0.0F) {
+          hull1.pop_back();
+        } else {
+          break;
+        }
       }
+      hull1.push_back(p);
     }
-    hull1.push_back(p);
   }
   output_X_.resize(hull1.size());
   output_Y_.resize(hull1.size());

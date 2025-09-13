@@ -10,10 +10,10 @@
 #include "omp/leontev_n_graham/include/ops_omp.hpp"
 
 namespace {
-std::vector<float> GenVec(int size, float max = 5.0F) {
+std::vector<float> GenVec(int size) {
   std::random_device dev;
   std::mt19937 gen(dev());
-  std::uniform_real_distribution<float> dist(-max, max);
+  std::uniform_real_distribution<float> dist(-5.0F, 5.0F);
   std::vector<float> vec(size);
   for (int i = 0; i < size; i++) {
     vec[i] = dist(gen);
@@ -102,8 +102,8 @@ TEST(leontev_n_graham_omp, test_lot_of_points) {
   constexpr size_t kCount = 500;
 
   // Create data
-  std::vector<float> in_x = GenVec(kCount, 5.0F);
-  std::vector<float> in_y = GenVec(kCount, 5.0F);
+  std::vector<float> in_x = GenVec(kCount);
+  std::vector<float> in_y = GenVec(kCount);
   std::vector<float> out_x(kCount, 0.0F);
   std::vector<float> out_y(kCount, 0.0F);
   int out_size = 0;
