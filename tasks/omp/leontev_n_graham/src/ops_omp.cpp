@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <omp.h>
 #include <utility>
 #include <vector>
 
@@ -66,6 +65,21 @@ std::pair<float, float> leontev_n_graham_omp::GrahamOmp::GetMinPoint(
   return p0;
 }
 
+void leontev_n_graham_omp::GrahamOmp::WhileLoop(const std::pair<float, float> &p,
+                                                std::vector<std::pair<float, float>> &hull) {
+  using Point = std::pair<float, float>;
+  while (hull.size() >= 2) {
+    Point new_vector = Minus(p, hull.back());
+    Point last_vector = Minus(hull.back(), hull[hull.size() - 2]);
+    if (Mul(new_vector, last_vector) >= 0.0F) {
+      hull.pop_back();
+    } else {
+      break;
+    }
+  }
+  hull.push_back(p);
+}
+
 bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
   size_t amount_of_points = input_X_.size();
   if (amount_of_points == 0) {
@@ -100,31 +114,13 @@ bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
 #pragma omp parallel for num_threads(threads)
   for (int thread = 0; thread < threads; thread++) {
     for (Point p : data[thread]) {
-      while (outputs[thread].size() >= 2) {
-        Point new_vector = Minus(p, outputs[thread].back());
-        Point last_vector = Minus(outputs[thread].back(), outputs[thread][outputs[thread].size() - 2]);
-        if (Mul(new_vector, last_vector) >= 0.0F) {
-          outputs[thread].pop_back();
-        } else {
-          break;
-        }
-      }
-      outputs[thread].push_back(p);
+      WhileLoop(p, outputs[thread]);
     }
   }
   for (int thread = 0; thread < threads; thread++) {
     for (size_t i = (thread == 0) ? 0 : 1; i < outputs[thread].size(); i++) {
       Point p = outputs[thread][i];
-      while (hull1.size() >= 2) {
-        Point new_vector = Minus(p, hull1.back());
-        Point last_vector = Minus(hull1.back(), hull1[hull1.size() - 2]);
-        if (Mul(new_vector, last_vector) >= 0.0F) {
-          hull1.pop_back();
-        } else {
-          break;
-        }
-      }
-      hull1.push_back(p);
+      WhileLoop(p, hull1);
     }
   }
   output_X_.resize(hull1.size());

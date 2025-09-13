@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -23,6 +24,7 @@ class GrahamOmp : public ppc::core::Task {
   static std::pair<float, float> GetMinPoint(const std::vector<std::pair<float, float>> &points);
   static void InitData(std::vector<std::vector<std::pair<float, float>>> &data, int threads, size_t temp_size,
                        const std::vector<std::pair<float, float>> &points);
+  static void WhileLoop(const std::pair<float, float> &p, std::vector<std::pair<float, float>> &hull);
 };
 
 class GrahamSeq : public ppc::core::Task {
