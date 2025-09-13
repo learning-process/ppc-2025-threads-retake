@@ -24,7 +24,7 @@ std::vector<float> GenVec(int size) {
 }  // namespace
 
 TEST(leontev_n_graham_omp, test_pipeline_run) {
-  constexpr int kCount = 500000;
+  constexpr int kCount = 5000000;
 
   // Create data
   std::vector<float> in_x = GenVec(kCount);
@@ -66,7 +66,7 @@ TEST(leontev_n_graham_omp, test_pipeline_run) {
 }
 
 TEST(leontev_n_graham_omp, test_task_run) {
-  constexpr int kCount = 500000;
+  constexpr int kCount = 5000000;
 
   // Create data
   std::vector<float> in_x = GenVec(kCount);
