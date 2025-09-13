@@ -170,6 +170,9 @@ float leontev_n_graham_omp::GrahamSeq::Mul(std::pair<float, float> a, std::pair<
 
 bool leontev_n_graham_omp::GrahamSeq::RunImpl() {
   size_t amount_of_points = input_X_.size();
+  if (amount_of_points == 0) {
+    return false;
+  }
   using Point = std::pair<float, float>;
   std::vector<Point> points(amount_of_points);
   for (size_t i = 0; i < amount_of_points; i++) {
