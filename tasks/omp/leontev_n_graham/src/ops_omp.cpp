@@ -101,7 +101,7 @@ bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
     }
     return res > 0.0F;
   });
-  int threads = 4;  // ppc::util::GetPPCNumThreads();
+  int threads = ppc::util::GetPPCNumThreads();
   if (threads < 1) {
     return false;
   }
