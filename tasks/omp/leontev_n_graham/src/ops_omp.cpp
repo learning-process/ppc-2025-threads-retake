@@ -94,15 +94,14 @@ bool leontev_n_graham_omp::GrahamOmp::RunImpl() {
 
   // sort by polar angle
   std::ranges::sort(points, [&](Point a, Point b) {
-    if (a == p0) {
-      return Mul((Point(1.0F, 0.0F)), Minus(b, p0)) > 0.0F;
+    float res = Mul(Minus(a, p0), Minus(b, p0));
+    if (res == 0) {
+      return (Minus(a, p0).first * Minus(a, p0).first) + (Minus(a, p0).second * Minus(a, p0).second) <
+             (Minus(b, p0).first * Minus(b, p0).first) + (Minus(b, p0).second * Minus(b, p0).second);
     }
-    if (b == p0) {
-      return Mul(Minus(a, p0), Point(1.0F, 0.0F)) > 0.0F;
-    }
-    return Mul(Minus(a, p0), Minus(b, p0)) > 0.0F;
+    return res > 0.0F;
   });
-  int threads = ppc::util::GetPPCNumThreads();
+  int threads = 4;  // ppc::util::GetPPCNumThreads();
   if (threads < 1) {
     return false;
   }
@@ -185,13 +184,12 @@ bool leontev_n_graham_omp::GrahamSeq::RunImpl() {
 
   // sort by polar angle
   std::ranges::sort(points, [&](Point a, Point b) {
-    if (a == p0) {
-      return Mul((Point(1.0F, 0.0F)), Minus(b, p0)) > 0.0F;
+    float res = Mul(Minus(a, p0), Minus(b, p0));
+    if (res == 0) {
+      return (Minus(a, p0).first * Minus(a, p0).first) + (Minus(a, p0).second * Minus(a, p0).second) <
+             (Minus(b, p0).first * Minus(b, p0).first) + (Minus(b, p0).second * Minus(b, p0).second);
     }
-    if (b == p0) {
-      return Mul(Minus(a, p0), Point(1.0F, 0.0F)) > 0.0F;
-    }
-    return Mul(Minus(a, p0), Minus(b, p0)) > 0.0F;
+    return res > 0.0F;
   });
   std::vector<Point> hull;
   for (Point p : points) {

@@ -111,7 +111,7 @@ TEST(leontev_n_graham_omp, test_lot_of_points) {
   std::vector<float> true_result_y(kCount, 0.0F);
   int out_size_seq = 0;
 
-    // Create task_data
+  // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_x.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_y.data()));
