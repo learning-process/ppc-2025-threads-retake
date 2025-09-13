@@ -22,7 +22,8 @@ bool leontev_n_graham_seq::GrahamSeq::PreProcessingImpl() {
 
 bool leontev_n_graham_seq::GrahamSeq::ValidationImpl() {
   // Check equality of counts elements
-  return task_data->inputs.size() == 2 && task_data->outputs_count[0] <= task_data->inputs_count[0];
+  return task_data->inputs.size() == 2 && task_data->outputs_count[0] <= task_data->inputs_count[0] &&
+         task_data->inputs_count[0] > 0;
 }
 
 std::pair<float, float> leontev_n_graham_seq::GrahamSeq::Minus(std::pair<float, float> a, std::pair<float, float> b) {
@@ -37,7 +38,7 @@ bool leontev_n_graham_seq::GrahamSeq::RunImpl() {
   size_t amount_of_points = input_X_.size();
   using Point = std::pair<float, float>;
   std::vector<Point> points(amount_of_points);
-  for (int i = 0; i < amount_of_points; i++) {
+  for (size_t i = 0; i < amount_of_points; i++) {
     points[i] = Point(input_X_[i], input_Y_[i]);
   }
   Point p0 = points[0];
