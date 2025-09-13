@@ -47,6 +47,6 @@ bool anikin_m_lexic_check_seq::LexicCheckSequential::RunImpl() {
 }
 
 bool anikin_m_lexic_check_seq::LexicCheckSequential::PostProcessingImpl() {
-  *reinterpret_cast<int*>(task_data->outputs[0]) = ret;
+  *reinterpret_cast<int *>(task_data->outputs[0]) = ret;
   return true;
 }
