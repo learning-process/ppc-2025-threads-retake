@@ -13,8 +13,8 @@
 #include "seq/matyunina_a_constructing_convex_hull/include/ops_seq.hpp"
 
 namespace {
-void RunTest(int height, int width, std::vector<int> image, const
-             std::vector<matyunina_a_constructing_convex_hull_seq::Point>& ans) {
+void RunTest(int height, int width, std::vector<int> image,
+             const std::vector<matyunina_a_constructing_convex_hull_seq::Point>& ans) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(image.data()));
   task_data->inputs_count.emplace_back(width);
@@ -26,8 +26,7 @@ void RunTest(int height, int width, std::vector<int> image, const
   constructing_convex_hull.Run();
   constructing_convex_hull.PostProcessing();
 
-  auto point_array =
-      reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
+  auto *point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 
@@ -70,8 +69,7 @@ bool RunImageTest(const std::string& image_path, const std::string& ans_path) {
   constructing_convex_hull.Run();
   constructing_convex_hull.PostProcessing();
 
-  auto point_array =
-      reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
+  auto *point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 
@@ -95,7 +93,7 @@ bool RunImageTest(const std::string& image_path, const std::string& ans_path) {
       uchar red = pixel[2];
 
       if (red > 200 && green < 50 && blue < 50) {
-        ans_pointsemplace_back(i, j);
+        ans_points.emplace_back(i, j);
       }
     }
   }

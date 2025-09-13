@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstdint> 
+#include <cstdint>
 #include <set>
 #include <stack>
 #include <utility>
@@ -44,7 +44,9 @@ void matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::FindPoint
   int size = width_ * height_;
   int estimated_points = 0;
   for (int i = 0; i < std::min(1000, size); i++) {
-    if (input_[i] == 1) { estimated_points++; };
+    if (input_[i] == 1) {
+      estimated_points++;
+    };
   }
   double density = static_cast<double>(estimated_points) / std::min(1000, size);
   points_.reserve(static_cast<int>(size * density * 1.2));
@@ -70,8 +72,12 @@ bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::RunImpl()
   Point rightmost = points_[0];
 
   for (Point& p : points_) {
-    if (p.x < leftmost.x) { leftmost = p; };
-    if (p.x > rightmost.x) { rightmost = p; };
+    if (p.x < leftmost.x) {
+      leftmost = p;
+    };
+    if (p.x > rightmost.x) {
+      rightmost = p;
+    };
   }
 
   std::stack<std::pair<Point, Point>> segment_stack;
@@ -116,9 +122,7 @@ bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::RunImpl()
 }
 
 bool matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull::PostProcessingImpl() {
-  std::ranges::sort(output_, [](const Point& a, const Point& b) {
-    return (a.x < b.x) || (a.x == b.x && a.y < b.y);
-  });
+  std::ranges::sort(output_, [](const Point& a, const Point& b) { return (a.x < b.x) || (a.x == b.x && a.y < b.y); });
 
   task_data->outputs_count.push_back(output_.size());
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(output_.data()));
