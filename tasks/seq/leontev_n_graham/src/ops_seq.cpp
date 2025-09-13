@@ -27,15 +27,6 @@ bool leontev_n_graham_seq::GrahamSeq::ValidationImpl() {
 }
 
 std::pair<float, float> leontev_n_graham_seq::GrahamSeq::Minus(std::pair<float, float> a, std::pair<float, float> b) {
-  const float eps = 1e-6F;
-  float coord1 = a.first - b.first;
-  float coord2 = a.second - b.second;
-  if (std::abs(coord1) < eps) {
-    coord1 = 0.0F;
-  }
-  if (std::abs(coord2) < eps) {
-    coord2 = 0.0F;
-  }
   return {a.first - b.first, a.second - b.second};
 }
 
@@ -62,13 +53,12 @@ bool leontev_n_graham_seq::GrahamSeq::RunImpl() {
 
   // sort by polar angle
   std::ranges::sort(points, [&](Point a, Point b) {
-    if (a == p0) {
-      return Mul(Point(1.0F, 0.0F), Minus(b, p0)) > 0.0F;
+    float res = Mul(Minus(a, p0), Minus(b, p0));
+    if (res == 0) {
+      return (Minus(a, p0).first * Minus(a, p0).first) + (Minus(a, p0).second * Minus(a, p0).second) <
+             (Minus(b, p0).first * Minus(b, p0).first) + (Minus(b, p0).second * Minus(b, p0).second);
     }
-    if (b == p0) {
-      return Mul(Minus(a, p0), Point(1.0F, 0.0F)) > 0.0F;
-    }
-    return Mul(Minus(a, p0), Minus(b, p0)) > 0.0F;
+    return res > 0.0F;
   });
 
   std::vector<Point> hull;
