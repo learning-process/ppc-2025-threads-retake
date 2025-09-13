@@ -1,8 +1,8 @@
 #include "seq/leontev_n_graham/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -35,34 +35,34 @@ float leontev_n_graham_seq::GrahamSeq::Mul(std::pair<float, float> a, std::pair<
 
 bool leontev_n_graham_seq::GrahamSeq::RunImpl() {
   size_t amount_of_points = input_X_.size();
-  using point = std::pair<float, float>;
-  std::vector<point> points(amount_of_points);
+  using Point = std::pair<float, float>;
+  std::vector<Point> points(amount_of_points);
   for (int i = 0; i < amount_of_points; i++) {
-    points[i] = point(input_X_[i], input_Y_[i]);
+    points[i] = Point(input_X_[i], input_Y_[i]);
   }
-  point p0 = points[0];
-  for (point p : points) {
+  Point p0 = points[0];
+  for (Point p : points) {
     if (p.first < p0.first || (p.first == p0.first && p.second < p0.second)) {
       p0 = p;
     }
   }
 
   // sort by polar angle
-  std::ranges::sort(points, [&](point a, point b) {
+  std::ranges::sort(points, [&](Point a, Point b) {
     if (a == p0) {
-      return Mul((point(1.0F, 0.0F)), Minus(b, p0)) > 0.0F;
+      return Mul((Point(1.0F, 0.0F)), Minus(b, p0)) > 0.0F;
     }
     if (b == p0) {
-      return Mul(Minus(a, p0), point(1.0F, 0.0F)) > 0.0F;
+      return Mul(Minus(a, p0), Point(1.0F, 0.0F)) > 0.0F;
     }
     return Mul(Minus(a, p0), Minus(b, p0)) > 0.0F;
   });
 
-  std::vector<point> hull;
-  for (point p : points) {
+  std::vector<Point> hull;
+  for (Point p : points) {
     while (hull.size() >= 2) {
-      point new_vector = Minus(p, hull.back());
-      point last_vector = Minus(hull.back(), hull[hull.size() - 2]);
+      Point new_vector = Minus(p, hull.back());
+      Point last_vector = Minus(hull.back(), hull[hull.size() - 2]);
       if (Mul(new_vector, last_vector) >= 0.0F) {
         hull.pop_back();
       } else {

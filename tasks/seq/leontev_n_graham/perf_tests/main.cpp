@@ -85,7 +85,6 @@ TEST(leontev_n_graham_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out_size));
   task_data_seq->outputs_count.emplace_back(out_x.size());
 
-
   // Create Task
   auto graham_seq = std::make_shared<leontev_n_graham_seq::GrahamSeq>(task_data_seq);
 
