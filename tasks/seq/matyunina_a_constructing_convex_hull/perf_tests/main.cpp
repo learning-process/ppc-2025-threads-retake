@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -11,17 +10,17 @@
 #include "seq/matyunina_a_constructing_convex_hull/include/ops_seq.hpp"
 
 TEST(matyunina_a_constructing_convex_hull_seq, test_pipeline_run) {
-  constexpr int count = 8000;
+  constexpr int kCount = 8000;
 
-  std::vector<int> image(count * count, 1);
+  std::vector<int> image(kCount * kCount, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(image.data()));
-  task_data->inputs_count.emplace_back(count);
-  task_data->inputs_count.emplace_back(count);
+  task_data->inputs_count.emplace_back(kCount);
+  task_data->inputs_count.emplace_back(kCount);
 
   // Create Task
-  auto constructingConvexHull =
+  auto constructing_convex_hull =
       std::make_shared<matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull>(task_data);
 
   // Create Perf attributes
@@ -38,36 +37,36 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(constructingConvexHull);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(constructing_convex_hull);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  matyunina_a_constructing_convex_hull_seq::Point* pointArray =
+  auto point_array =
       reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
-  std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(pointArray,
-                                                                      pointArray + task_data->outputs_count[0]);
+  std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(point_array,
+                                                                      point_array + task_data->outputs_count[0]);
 
   std::vector<matyunina_a_constructing_convex_hull_seq::Point> ans = {
       {0, 0},
-      {0, count - 1},
-      {count - 1, 0},
-      {count - 1, count - 1},
+      {0, kCount - 1},
+      {kCount - 1, 0},
+      {kCount - 1, kCount - 1},
   };
   EXPECT_EQ(points, ans);
 }
 
 TEST(matyunina_a_constructing_convex_hull_seq, test_task_run) {
-  constexpr int count = 8000;
+  constexpr int kCount = 8000;
 
-  std::vector<int> image(count * count, 1);
+  std::vector<int> image(kCount * kCount, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(image.data()));
-  task_data->inputs_count.emplace_back(count);
-  task_data->inputs_count.emplace_back(count);
+  task_data->inputs_count.emplace_back(kCount);
+  task_data->inputs_count.emplace_back(kCount);
 
   // Create Task
-  auto constructingConvexHull =
+  auto constructing_convex_hull =
       std::make_shared<matyunina_a_constructing_convex_hull_seq::ConstructingConvexHull>(task_data);
 
   // Create Perf attributes
@@ -84,20 +83,20 @@ TEST(matyunina_a_constructing_convex_hull_seq, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(constructingConvexHull);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(constructing_convex_hull);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  matyunina_a_constructing_convex_hull_seq::Point* pointArray =
+  auto point_array =
       reinterpret_cast<matyunina_a_constructing_convex_hull_seq::Point*>(task_data->outputs[0]);
-  std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(pointArray,
-                                                                      pointArray + task_data->outputs_count[0]);
+  std::vector<matyunina_a_constructing_convex_hull_seq::Point> points(point_array,
+                                                                      point_array + task_data->outputs_count[0]);
 
   std::vector<matyunina_a_constructing_convex_hull_seq::Point> ans = {
       {0, 0},
-      {0, count - 1},
-      {count - 1, 0},
-      {count - 1, count - 1},
+      {0, kCount - 1},
+      {kCount - 1, 0},
+      {kCount - 1, kCount - 1},
   };
   EXPECT_EQ(points, ans);
 }

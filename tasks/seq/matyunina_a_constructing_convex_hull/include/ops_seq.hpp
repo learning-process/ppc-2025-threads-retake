@@ -12,8 +12,8 @@ struct Point {
   Point(int x = 0, int y = 0) : x(x), y(y) {}
   bool operator<(const Point& other) const;
   bool operator==(const Point& other) const;
-  static int orientation(Point& a, Point& b, Point& c);
-  static double distanceToLine(Point& a, Point& b, Point& c);
+  static int Orientation(Point& a, Point& b, Point& c);
+  static double DistanceToLine(Point& a, Point& b, Point& c);
 };
 
 class ConstructingConvexHull : public ppc::core::Task {
@@ -25,9 +25,10 @@ class ConstructingConvexHull : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  void FindPoints();
   std::vector<int> input_;
-  std::vector<Point> points_{};
-  std::vector<Point> output_{};
+  std::vector<Point> points_;
+  std::vector<Point> output_;
   int width_{}, height_{};
 };
 
