@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tbb/tbb.h>
 #include <oneapi/tbb/blocked_range.h>
+#include <tbb/tbb.h>
 
 #include <cstddef>
 #include <set>
