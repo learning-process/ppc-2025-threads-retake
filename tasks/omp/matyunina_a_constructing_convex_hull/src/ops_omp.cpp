@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <set>
 #include <stack>
 #include <utility>
@@ -113,7 +113,6 @@ std::pair<Point, Point> ConstructingConvexHull::FindExtremePoints() {
 
 void ConstructingConvexHull::InitializeHull(const Point& leftmost, const Point& rightmost, std::set<Point>& hull_set,
                                             std::stack<std::pair<Point, Point>>& segment_stack) {
-
   hull_set.insert(leftmost);
   hull_set.insert(rightmost);
   segment_stack.emplace(leftmost, rightmost);
