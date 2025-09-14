@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -16,22 +14,22 @@
 
 namespace {
 void RunTest(int height, int width, std::vector<int> image,
-             std::vector<matyunina_a_constructing_convex_hull_omp::Point> ans) {
+             const std::vector<matyunina_a_constructing_convex_hull_omp::Point>& ans) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(image.data()));
   task_data->inputs_count.emplace_back(width);
   task_data->inputs_count.emplace_back(height);
 
-  matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull constructingConvexHull(task_data);
-  ASSERT_TRUE(constructingConvexHull.Validation());
-  constructingConvexHull.PreProcessing();
-  constructingConvexHull.Run();
-  constructingConvexHull.PostProcessing();
+  matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull constructing_convex_hull(task_data);
+  ASSERT_TRUE(constructing_convex_hull.Validation());
+  constructing_convex_hull.PreProcessing();
+  constructing_convex_hull.Run();
+  constructing_convex_hull.PostProcessing();
 
-  matyunina_a_constructing_convex_hull_omp::Point* pointArray =
+  auto* point_array =
       reinterpret_cast<matyunina_a_constructing_convex_hull_omp::Point*>(task_data->outputs[0]);
-  std::vector<matyunina_a_constructing_convex_hull_omp::Point> points(pointArray,
-                                                                      pointArray + task_data->outputs_count[0]);
+  std::vector<matyunina_a_constructing_convex_hull_omp::Point> points(point_array,
+                                                                      point_array + task_data->outputs_count[0]);
 
   // std::cout << "\n#######\n";
   // for (matyunina_a_constructing_convex_hull_omp::Point& point: points) {
@@ -43,7 +41,7 @@ void RunTest(int height, int width, std::vector<int> image,
 }
 
 #ifndef _WIN32
-bool RunImageTest(std::string image_path, std::string ans_path) {
+bool RunImageTest(const std::string& image_path, const std::string& ans_path) {
   cv::Mat image = cv::imread(image_path);
   if (image.empty()) {
     return false;
@@ -54,7 +52,7 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
   std::vector<int> pixels(image.rows * image.cols);
   for (int i = 0; i < image.rows; i++) {
     for (int j = 0; j < image.cols; j++) {
-      pixels[(i * image.cols + j)] = image.at<uchar>(i, j);
+      pixels[((i * image.cols) + j)] = image.at<uchar>(i, j);
     }
   }
 
@@ -66,16 +64,16 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
   task_data->inputs_count.emplace_back(width);
   task_data->inputs_count.emplace_back(height);
 
-  matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull constructingConvexHull(task_data);
-  constructingConvexHull.Validation();
-  constructingConvexHull.PreProcessing();
-  constructingConvexHull.Run();
-  constructingConvexHull.PostProcessing();
+  matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull constructing_convex_hull(task_data);
+  constructing_convex_hull.Validation();
+  constructing_convex_hull.PreProcessing();
+  constructing_convex_hull.Run();
+  constructing_convex_hull.PostProcessing();
 
-  matyunina_a_constructing_convex_hull_omp::Point* pointArray =
+  auto* point_array =
       reinterpret_cast<matyunina_a_constructing_convex_hull_omp::Point*>(task_data->outputs[0]);
-  std::vector<matyunina_a_constructing_convex_hull_omp::Point> points(pointArray,
-                                                                      pointArray + task_data->outputs_count[0]);
+  std::vector<matyunina_a_constructing_convex_hull_omp::Point> points(point_array,
+                                                                      point_array + task_data->outputs_count[0]);
 
   // std::cout << "\n#######\n";
   // for (matyunina_a_constructing_convex_hull_omp::Point& point : points) {
@@ -87,7 +85,7 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
   if (ans.empty()) {
     return false;
   }
-  std::vector<matyunina_a_constructing_convex_hull_omp::Point> ansPoints;
+  std::vector<matyunina_a_constructing_convex_hull_omp::Point> ans_points;
 
   for (int i = 0; i < ans.cols; i++) {
     for (int j = 0; j < ans.rows; j++) {
@@ -97,7 +95,7 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
       uchar red = pixel[2];
 
       if (red > 200 && green < 50 && blue < 50) {
-        ansPoints.push_back({i, j});
+        ans_points.emplace_back(i, j);
       }
     }
   }
@@ -105,41 +103,41 @@ bool RunImageTest(std::string image_path, std::string ans_path) {
   image.release();
   ans.release();
 
-  return ansPoints == points;
+  return ans_points == points;
 }
 #endif
 }  // namespace
 
 #ifndef _WIN32
 TEST(matyunina_a_constructing_convex_hull_omp, image1) {
-  std::string src_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image1.png");
-  std::string exp_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans1.png");
+  std::string image_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image1.png");
+  std::string ans_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans1.png");
 
-  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+  ASSERT_TRUE(RunImageTest(image_path, ans_path));
 }
 TEST(matyunina_a_constructing_convex_hull_omp, image2) {
-  std::string src_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image2.png");
-  std::string exp_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans2.png");
+  std::string image_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image2.png");
+  std::string ans_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans2.png");
 
-  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+  ASSERT_TRUE(RunImageTest(image_path, ans_path));
 }
 TEST(matyunina_a_constructing_convex_hull_omp, image3) {
-  std::string src_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image3.png");
-  std::string exp_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans3.png");
+  std::string image_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image3.png");
+  std::string ans_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans3.png");
 
-  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+  ASSERT_TRUE(RunImageTest(image_path, ans_path));
 }
 TEST(matyunina_a_constructing_convex_hull_omp, image4) {
-  std::string src_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image4.png");
-  std::string exp_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans4.png");
+  std::string image_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image4.png");
+  std::string ans_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans4.png");
 
-  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+  ASSERT_TRUE(RunImageTest(image_path, ans_path));
 }
 TEST(matyunina_a_constructing_convex_hull_omp, image5) {
-  std::string src_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image5.png");
-  std::string exp_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans5.png");
+  std::string image_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/image5.png");
+  std::string ans_path = ppc::util::GetAbsolutePath("omp/matyunina_a_constructing_convex_hull/data/ans5.png");
 
-  ASSERT_TRUE(RunImageTest(src_path, exp_path));
+  ASSERT_TRUE(RunImageTest(image_path, ans_path));
 }
 #endif
 
