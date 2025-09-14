@@ -19,20 +19,15 @@
 
 using namespace matyunina_a_constructing_convex_hull_tbb;
 
-bool Point::operator<(const Point& other) const {
-  return (x < other.x) || (x == other.x && y < other.y);
-}
-bool Point::operator==(const Point& other) const {
-  return x == other.x && y == other.y;
-}
+bool Point::operator<(const Point& other) const { return (x < other.x) || (x == other.x && y < other.y); }
+
+bool Point::operator==(const Point& other) const { return x == other.x && y == other.y; }
 
 int Point::Orientation(Point& a, Point& b, Point& c) {
   return ((b.x - a.x) * (c.y - a.y)) - ((b.y - a.y) * (c.x - a.x));
 }
 
-double Point::DistanceToLine(Point& a, Point& b, Point& c) {
-  return std::abs(Orientation(a, b, c));
-}
+double Point::DistanceToLine(Point& a, Point& b, Point& c) { return std::abs(Orientation(a, b, c)); }
 
 double Point::Distance(const Point& p1, const Point& p2) {
   double dx = p1.x - p2.x;

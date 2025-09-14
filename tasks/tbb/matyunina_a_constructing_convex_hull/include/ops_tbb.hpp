@@ -1,8 +1,8 @@
 #pragma once
 
 #include <set>
-#include <utility>
 #include <stack>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
