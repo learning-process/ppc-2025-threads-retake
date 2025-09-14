@@ -55,9 +55,9 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto mm = std::minmax_element(out.begin(), out.end());
-  ASSERT_EQ(*mm.first, 0);
-  ASSERT_EQ(*mm.second, 255);
+  auto mm = std::ranges::minmax_element(out);
+  ASSERT_EQ(*mm.min, 0);
+  ASSERT_EQ(*mm.max, 255);
   ExtraCheck(out);
 }
 
@@ -93,8 +93,8 @@ TEST(muradov_k_histogram_stretch_seq, test_task_run) {
   analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto mm = std::minmax_element(out.begin(), out.end());
-  ASSERT_EQ(*mm.first, 0);
-  ASSERT_EQ(*mm.second, 255);
+  auto mm = std::ranges::minmax_element(out);
+  ASSERT_EQ(*mm.min, 0);
+  ASSERT_EQ(*mm.max, 255);
   ExtraCheck(out);
 }
