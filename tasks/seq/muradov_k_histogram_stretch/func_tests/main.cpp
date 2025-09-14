@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -27,7 +29,6 @@ TEST(muradov_k_histogram_stretch_seq, stretch_small_vector) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-  // Ожидаемое преобразование
   std::vector<int> expected{0, (10 * 255) / 40, (20 * 255) / 40, (30 * 255) / 40, 255};
   EXPECT_EQ(out, expected);
 }
@@ -41,8 +42,7 @@ TEST(muradov_k_histogram_stretch_seq, stretch_constant) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  // Все должны стать 0
-  EXPECT_TRUE(std::all_of(out.begin(), out.end(), [](int v) { return v == 0; }));
+  EXPECT_TRUE(std::ranges::all_of(out, [](int v) { return v == 0; }));
 }
 
 TEST(muradov_k_histogram_stretch_seq, validation_invalid_range) {
@@ -55,7 +55,9 @@ TEST(muradov_k_histogram_stretch_seq, validation_invalid_range) {
 
 TEST(muradov_k_histogram_stretch_seq, stretch_full_range_preserve) {
   std::vector<int> in(256, 0);
-  for (int i = 0; i < 256; ++i) in[i] = i;  // полный диапазон
+  for (int i = 0; i < 256; ++i) {
+    in[i] = i;
+  }
   std::vector<int> out(in.size(), 0);
   auto td = MakeTaskData(in, out);
   muradov_k_histogram_stretch_seq::HistogramStretchSequential task(td);
@@ -63,7 +65,7 @@ TEST(muradov_k_histogram_stretch_seq, stretch_full_range_preserve) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  EXPECT_EQ(out, in);  // линейное отображение тождественно
+  EXPECT_EQ(out, in);
 }
 
 TEST(muradov_k_histogram_stretch_seq, output_min_zero_max_255) {
@@ -75,7 +77,7 @@ TEST(muradov_k_histogram_stretch_seq, output_min_zero_max_255) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  auto mm = std::minmax_element(out.begin(), out.end());
-  EXPECT_EQ(*mm.first, 0);
-  EXPECT_EQ(*mm.second, 255);
+  auto mm = std::ranges::minmax_element(out);
+  EXPECT_EQ(*mm.min, 0);
+  EXPECT_EQ(*mm.max, 255);
 }

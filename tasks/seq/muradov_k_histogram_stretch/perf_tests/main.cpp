@@ -1,21 +1,39 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/muradov_k_histogram_stretch/include/ops_seq.hpp"
 
+namespace {
+// Увеличивание нагрузки внутри тестов за счет дополнительных повторов валидации результатов.
+void ExtraCheck(const std::vector<int>& out) {
+  volatile int sum = 0;  // предотвращаем оптимизацию
+  for (int r = 0; r < 32; ++r) {
+    for (int v : out) {
+      sum += v & 1;
+    }
+  }
+  (void)sum;
+}
+}  // namespace
+
 TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
-  const int kSize = 50000;  // 50k пикселей
-  std::vector<int> in(kSize);
-  std::vector<int> out(kSize, 0);
+  const int k_size = 120000;  // Увеличен размер для достижения порога времени > 1s
+  std::vector<int> in(k_size);
+  std::vector<int> out(k_size, 0);
   std::mt19937 gen(42);
   std::uniform_int_distribution<int> dist(30, 200);
-  for (int& p : in) p = dist(gen);
+  for (int& p : in) {
+    p = dist(gen);
+  }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -26,11 +44,12 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_seq::HistogramStretchSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;
+  perf_attr->num_running = 7;  // больше повторений
   const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
+  perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(now - t0).count() * 1e-9;
+    auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(now - t0).count();
+    return static_cast<double>(dur) * 1e-9;
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
@@ -38,19 +57,21 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Проверка диапазона
-  auto mm = std::minmax_element(out.begin(), out.end());
-  ASSERT_EQ(*mm.first, 0);
-  ASSERT_EQ(*mm.second, 255);
+  auto mm = std::ranges::minmax_element(out);
+  ASSERT_EQ(*mm.min, 0);
+  ASSERT_EQ(*mm.max, 255);
+  ExtraCheck(out);
 }
 
 TEST(muradov_k_histogram_stretch_seq, test_task_run) {
-  const int kSize = 50000;
-  std::vector<int> in(kSize);
-  std::vector<int> out(kSize, 0);
+  const int k_size = 120000;
+  std::vector<int> in(k_size);
+  std::vector<int> out(k_size, 0);
   std::mt19937 gen(777);
   std::uniform_int_distribution<int> dist(0, 255);
-  for (int& p : in) p = dist(gen);
+  for (int& p : in) {
+    p = dist(gen);
+  }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -61,11 +82,12 @@ TEST(muradov_k_histogram_stretch_seq, test_task_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_seq::HistogramStretchSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;
+  perf_attr->num_running = 7;
   const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
+  perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(now - t0).count() * 1e-9;
+    auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(now - t0).count();
+    return static_cast<double>(dur) * 1e-9;
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
@@ -73,7 +95,8 @@ TEST(muradov_k_histogram_stretch_seq, test_task_run) {
   analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto mm = std::minmax_element(out.begin(), out.end());
-  ASSERT_EQ(*mm.first, 0);
-  ASSERT_EQ(*mm.second, 255);
+  auto mm = std::ranges::minmax_element(out);
+  ASSERT_EQ(*mm.min, 0);
+  ASSERT_EQ(*mm.max, 255);
+  ExtraCheck(out);
 }
