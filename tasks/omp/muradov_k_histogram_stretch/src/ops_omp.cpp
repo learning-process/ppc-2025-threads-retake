@@ -29,14 +29,16 @@ bool HistogramStretchOpenMP::ValidationImpl() {
 
 bool HistogramStretchOpenMP::RunImpl() {
   if (input_image_.empty()) return false;
-  min_val_ = 255;
-  max_val_ = 0;
-#pragma omp parallel for reduction(min : min_val_) reduction(max : max_val_)
+  int local_min = 255;
+  int local_max = 0;
+#pragma omp parallel for reduction(min : local_min) reduction(max : local_max)
   for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
     int v = input_image_[i];
-    if (v < min_val_) min_val_ = v;
-    if (v > max_val_) max_val_ = v;
+    if (v < local_min) local_min = v;
+    if (v > local_max) local_max = v;
   }
+  min_val_ = local_min;
+  max_val_ = local_max;
   if (min_val_ == max_val_) {
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(output_image_.size()); ++i) {
@@ -45,7 +47,7 @@ bool HistogramStretchOpenMP::RunImpl() {
     return true;
   }
   const int range = max_val_ - min_val_;
-  static constexpr int kRepeat = 800;
+  static constexpr int kRepeat = 800;  // согласовано с seq версией
   for (int r = 0; r < kRepeat; ++r) {
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
