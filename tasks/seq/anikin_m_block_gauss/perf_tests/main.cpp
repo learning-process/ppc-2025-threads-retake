@@ -1,26 +1,38 @@
 #include <gtest/gtest.h>
 
+#include <random>
+
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/anikin_m_lexic_check/include/ops_seq.hpp"
 
-TEST(anikin_m_lexic_check_seq, test_pipeline_run) {
-  // Create data
-  std::string in0 = "dokg0wjgijwigjsdoigiwejg0wei0gjw0ejgi90sw90gse";
-  std::string in1 = "fdpgjeigjiwegiweiogjiosdjgonijwegjweg";
-  int ret = 5;
+TEST(anikin_m_block_gauss_seq, test_pipeline_run) {
+  int n = 4000;
+  int m = 4000;
+  std::vector<double> image(n * m, 1.0);
+  std::vector<double> image_res(n * m);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0.0, 100.0);
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; j++) {
+      image_res[(i * m) + j] = distrib(gen);
+    }
+  }
+  std::vector real_res(n * m, 1.0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in0.data()));
-  task_data_seq->inputs_count.emplace_back(in0.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
-  task_data_seq->inputs_count.emplace_back(in1.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&ret));
-  task_data_seq->outputs_count.emplace_back(1);
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
+  task_data_seq->outputs_count.emplace_back(n);
+  task_data_seq->outputs_count.emplace_back(m);
 
   // Create Task
-  auto test_task_sequential = std::make_shared<anikin_m_lexic_check_seq::LexicCheckSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<anikin_m_block_gauss_seq::BlockGaussSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -39,26 +51,36 @@ TEST(anikin_m_lexic_check_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(true, true);
+  ASSERT_EQ(image_res, real_res);
 }
 
-TEST(anikin_m_lexic_check_seq, test_task_run) {
-  // Create data
-  std::string in0 = "dokg0wjgijwigjsdoigiwejg0wei0gjw0ejgi90sw90gse";
-  std::string in1 = "fdpgjeigjiwegiweiogjiosdjgonijwegjweg";
-  int ret = 5;
+TEST(anikin_m_block_gauss_seq, test_task_run) {
+  int n = 4000;
+  int m = 4000;
+  std::vector<double> image(n * m, 1.0);
+  std::vector<double> image_res(n * m);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0.0, 100.0);
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; j++) {
+      image_res[(i * m) + j] = distrib(gen);
+    }
+  }
+  std::vector real_res(n * m, 1.0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in0.data()));
-  task_data_seq->inputs_count.emplace_back(in0.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
-  task_data_seq->inputs_count.emplace_back(in1.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&ret));
-  task_data_seq->outputs_count.emplace_back(1);
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
+  task_data_seq->outputs_count.emplace_back(n);
+  task_data_seq->outputs_count.emplace_back(m);
 
   // Create Task
-  auto test_task_sequential = std::make_shared<anikin_m_lexic_check_seq::LexicCheckSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<anikin_m_block_gauss_seq::BlockGaussSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -77,5 +99,5 @@ TEST(anikin_m_lexic_check_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(true, true);
+  ASSERT_EQ(image_res, real_res);
 }
