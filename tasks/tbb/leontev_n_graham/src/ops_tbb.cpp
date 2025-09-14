@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
+#include "oneapi/tbb/parallel_for.h"
 
 bool leontev_n_graham_tbb::GrahamTbb::PreProcessingImpl() {
   // Init value for input and output
