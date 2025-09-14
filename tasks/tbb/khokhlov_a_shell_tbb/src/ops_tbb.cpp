@@ -2,6 +2,7 @@
 
 #include <tbb/parallel_for.h>
 #include <tbb/task_arena.h>
+
 #include <algorithm>
 #include <random>
 #include <vector>
@@ -38,25 +39,22 @@ std::vector<int> khokhlov_a_shell_tbb::ShellTbb::ShellSort(const std::vector<int
   int num_threads = tbb::task_arena::automatic;
   int chunk_size = (n + num_threads - 1) / num_threads;
 
-  // Parallel phase: each thread sorts its chunk
-  tbb::parallel_for(tbb::blocked_range<int>(0, n, chunk_size),
-    [&](const tbb::blocked_range<int>& range) {
-      int start = range.begin();
-      int end = range.end();
+  tbb::parallel_for(tbb::blocked_range<int>(0, n, chunk_size), [&](const tbb::blocked_range<int>& range) {
+    int start = range.begin();
+    int end = range.end();
 
-      for (int interval = (end - start) / 2; interval > 0; interval /= 2) {
-        for (int i = start + interval; i < end; i++) {
-          int tmp = vec[i];
-          int j = i;
-          for (; j >= start + interval && vec[j - interval] > tmp; j -= interval) {
-            vec[j] = vec[j - interval];
-          }
-          vec[j] = tmp;
+    for (int interval = (end - start) / 2; interval > 0; interval /= 2) {
+      for (int i = start + interval; i < end; i++) {
+        int tmp = vec[i];
+        int j = i;
+        for (; j >= start + interval && vec[j - interval] > tmp; j -= interval) {
+          vec[j] = vec[j - interval];
         }
+        vec[j] = tmp;
       }
-    });
+    }
+  });
 
-  // Sequential merge phase
   for (int interval = n / 2; interval > 0; interval /= 2) {
     for (int i = interval; i < n; i++) {
       int tmp = vec[i];
@@ -71,9 +69,7 @@ std::vector<int> khokhlov_a_shell_tbb::ShellTbb::ShellSort(const std::vector<int
   return vec;
 }
 
-bool khokhlov_a_shell_tbb::CheckSorted(const std::vector<int>& input) { 
-  return std::ranges::is_sorted(input); 
-}
+bool khokhlov_a_shell_tbb::CheckSorted(const std::vector<int>& input) { return std::ranges::is_sorted(input); }
 
 std::vector<int> khokhlov_a_shell_tbb::GenerateRandomVector(int size) {
   std::random_device rnd_device;
