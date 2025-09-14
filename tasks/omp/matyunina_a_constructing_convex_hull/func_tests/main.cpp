@@ -26,8 +26,7 @@ void RunTest(int height, int width, std::vector<int> image,
   constructing_convex_hull.Run();
   constructing_convex_hull.PostProcessing();
 
-  auto* point_array =
-      reinterpret_cast<matyunina_a_constructing_convex_hull_omp::Point*>(task_data->outputs[0]);
+  auto* point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_omp::Point*>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_omp::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 
@@ -70,8 +69,7 @@ bool RunImageTest(const std::string& image_path, const std::string& ans_path) {
   constructing_convex_hull.Run();
   constructing_convex_hull.PostProcessing();
 
-  auto* point_array =
-      reinterpret_cast<matyunina_a_constructing_convex_hull_omp::Point*>(task_data->outputs[0]);
+  auto* point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_omp::Point*>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_omp::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 

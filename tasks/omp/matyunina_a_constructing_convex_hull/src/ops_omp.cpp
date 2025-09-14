@@ -10,28 +10,30 @@
 #include <utility>
 #include <vector>
 
-bool matyunina_a_constructing_convex_hull_omp::Point::operator<(const Point& other) const {
+using namespace matyunina_a_constructing_convex_hull_omp;
+
+bool Point::operator<(const Point& other) const {
   return (x < other.x) || (x == other.x && y < other.y);
 }
-bool matyunina_a_constructing_convex_hull_omp::Point::operator==(const Point& other) const {
+bool Point::operator==(const Point& other) const {
   return x == other.x && y == other.y;
 }
 
-int matyunina_a_constructing_convex_hull_omp::Point::Orientation(Point& a, Point& b, Point& c) {
+int Point::Orientation(Point& a, Point& b, Point& c) {
   return ((b.x - a.x) * (c.y - a.y)) - ((b.y - a.y) * (c.x - a.x));
 }
 
-double matyunina_a_constructing_convex_hull_omp::Point::DistanceToLine(Point& a, Point& b, Point& c) {
+double Point::DistanceToLine(Point& a, Point& b, Point& c) {
   return std::abs(Orientation(a, b, c));
 }
 
-double matyunina_a_constructing_convex_hull_omp::Point::Distance(const Point& p1, const Point& p2) {
+double Point::Distance(const Point& p1, const Point& p2) {
   double dx = p1.x - p2.x;
   double dy = p1.y - p2.y;
   return std::sqrt((dx * dx) + (dy * dy));
 }
 
-bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::PreProcessingImpl() {
+bool ConstructingConvexHull::PreProcessingImpl() {
   width_ = static_cast<int>(task_data->inputs_count[0]);
   height_ = static_cast<int>(task_data->inputs_count[1]);
 
@@ -43,11 +45,11 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::PreProces
   return true;
 }
 
-bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::ValidationImpl() {
+bool ConstructingConvexHull::ValidationImpl() {
   return task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0;
 }
 
-void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::FindPoints() {
+void ConstructingConvexHull::FindPoints() {
   points_.clear();
 
   int size = width_ * height_;
@@ -78,7 +80,7 @@ void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::FindPoint
   }
 }
 
-bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl() {
+bool ConstructingConvexHull::RunImpl() {
   FindPoints();
 
   if (points_.size() < 3) {
@@ -86,32 +88,46 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
     return true;
   }
 
+  auto [leftmost, rightmost] = FindExtremePoints();
+  std::stack<std::pair<Point, Point>> segment_stack;
+  std::set<Point> hull_set;
+
+  InitializeHull(leftmost, rightmost, hull_set, segment_stack);
+  ProcessAllSegments(segment_stack, hull_set);
+  DeleteDublecate(hull_set);
+
+  return true;
+}
+
+std::pair<Point, Point> ConstructingConvexHull::FindExtremePoints() {
   Point leftmost = points_[0];
   Point rightmost = points_[0];
 
   for (Point& p : points_) {
-    if (p.x < leftmost.x) {
-      leftmost = p;
-    }
-    if (p.x > rightmost.x) {
-      rightmost = p;
-    }
+    if (p.x < leftmost.x) leftmost = p;
+    if (p.x > rightmost.x) rightmost = p;
   }
+  
+  return {leftmost, rightmost};
+}
 
-  std::stack<std::pair<Point, Point>> segment_stack;
-  std::set<Point> hull_set;
-
+void ConstructingConvexHull::InitializeHull(const Point& leftmost, const Point& rightmost, 
+                                          std::set<Point>& hull_set, 
+                                          std::stack<std::pair<Point, Point>>& segment_stack) {
   hull_set.insert(leftmost);
   hull_set.insert(rightmost);
   segment_stack.emplace(leftmost, rightmost);
   segment_stack.emplace(rightmost, leftmost);
+}
 
+void ConstructingConvexHull::ProcessAllSegments(std::stack<std::pair<Point, Point>>& segment_stack,
+                                              std::set<Point>& hull_set) {
   while (!segment_stack.empty()) {
-    std::vector<std::pair<Point, Point>> segmentsToProcess;
-
+    std::vector<std::pair<Point, Point>> segments_to_process;
     size_t batch_size = std::min(segment_stack.size(), (size_t)omp_get_max_threads() * 4);
+    
     for (size_t i = 0; i < batch_size && !segment_stack.empty(); ++i) {
-      segmentsToProcess.push_back(segment_stack.top());
+      segments_to_process.push_back(segment_stack.top());
       segment_stack.pop();
     }
 
@@ -122,9 +138,9 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
       std::vector<std::pair<Point, Point>> local_new_segments;
 
 #pragma omp for nowait
-      for (int i = 0; i < (int)segmentsToProcess.size(); ++i) {
-        Point a = segmentsToProcess[i].first;
-        Point b = segmentsToProcess[i].second;
+      for (int i = 0; i < (int)segments_to_process.size(); ++i) {
+        Point a = segments_to_process[i].first;
+        Point b = segments_to_process[i].second;
         double max_distance = -1;
         Point farthest_point;
         bool found = false;
@@ -142,7 +158,7 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
 
         if (found) {
 #pragma omp critical
-          { hull_set.insert(farthest_point); }
+          hull_set.insert(farthest_point);
 
           local_new_segments.emplace_back(a, farthest_point);
           local_new_segments.emplace_back(farthest_point, b);
@@ -150,39 +166,35 @@ bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::RunImpl()
       }
 
 #pragma omp critical
-      { new_segments.insert(new_segments.end(), local_new_segments.begin(), local_new_segments.end()); }
+      new_segments.insert(new_segments.end(), local_new_segments.begin(), local_new_segments.end());
     }
 
     for (const auto& seg : new_segments) {
       segment_stack.push(seg);
     }
   }
-
-  DeleteDublecate(hull_set);
-
-  return true;
 }
 
-void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::DeleteDublecate(std::set<Point>& hull_set) {
-  std::vector<Point> tempHull(hull_set.begin(), hull_set.end());
+void ConstructingConvexHull::DeleteDublecate(std::set<Point>& hull_set) {
+  std::vector<Point> temp_hull(hull_set.begin(), hull_set.end());
   std::vector<Point> final_hull;
 
   Point center;
-  for (const auto& p : tempHull) {
+  for (const auto& p : temp_hull) {
     center.x += p.x;
     center.y += p.y;
   }
-  center.x /= static_cast<int>(tempHull.size());
-  center.y /= static_cast<int>(tempHull.size());
+  center.x /= static_cast<int>(temp_hull.size());
+  center.y /= static_cast<int>(temp_hull.size());
 
-  std::ranges::sort(tempHull, [&center](const Point& a, const Point& b) {
+  std::ranges::sort(temp_hull, [&center](const Point& a, const Point& b) {
     return atan2(a.y - center.y, a.x - center.x) < atan2(b.y - center.y, b.x - center.x);
   });
 
-  for (int i = 0; i < (int)tempHull.size(); i++) {
-    Point prev = tempHull[(i - 1 + tempHull.size()) % tempHull.size()];
-    Point curr = tempHull[i];
-    Point next = tempHull[(i + 1) % tempHull.size()];
+  for (int i = 0; i < (int)temp_hull.size(); i++) {
+    Point prev = temp_hull[(i - 1 + temp_hull.size()) % temp_hull.size()];
+    Point curr = temp_hull[i];
+    Point next = temp_hull[(i + 1) % temp_hull.size()];
 
     if (Point::Orientation(prev, curr, next) == 0) {
       double dist1 = Point::Distance(prev, curr);
@@ -199,8 +211,8 @@ void matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::DeleteDub
   output_ = final_hull;
 }
 
-bool matyunina_a_constructing_convex_hull_omp::ConstructingConvexHull::PostProcessingImpl() {
-  std::sort(output_.begin(), output_.end());
+bool ConstructingConvexHull::PostProcessingImpl() {
+  std::ranges::sort(output_, [](const Point& a, const Point& b) { return (a.x < b.x) || (a.x == b.x && a.y < b.y); });
 
   task_data->outputs_count.push_back(output_.size());
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(output_.data()));
