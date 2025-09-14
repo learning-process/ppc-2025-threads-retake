@@ -17,7 +17,7 @@ class BlockGaussSequential : public ppc::core::Task {
 
  private:
   std::vector<double> input_, output_;
-  int xres, yres;
+  int xres_, yres_;
 };
 
 }  // namespace anikin_m_block_gauss_seq

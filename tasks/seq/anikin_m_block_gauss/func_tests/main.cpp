@@ -1,13 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <chrono>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/anikin_m_block_gauss/include/ops_seq.hpp"
 
 TEST(anikin_m_block_gauss_seq, zero_test) {
