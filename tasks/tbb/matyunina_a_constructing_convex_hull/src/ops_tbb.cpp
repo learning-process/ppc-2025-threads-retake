@@ -2,6 +2,7 @@
 
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
@@ -90,7 +91,9 @@ void ConstructingConvexHull::FindPoints() {
   for (auto& v : tls_points) {
     total += v.size();
   }
-  if (points_.capacity() < total) points_.reserve(static_cast<int>(total));
+  if (points_.capacity() < total) {
+    points_.reserve(static_cast<int>(total));
+  }
 
   for (auto& v : tls_points) {
     points_.insert(points_.end(), std::make_move_iterator(v.begin()), std::make_move_iterator(v.end()));
@@ -154,28 +157,13 @@ void ConstructingConvexHull::ProcessAllSegments(std::stack<std::pair<Point, Poin
 
     arena.execute([&] {
       best = oneapi::tbb::parallel_reduce(
-          oneapi::tbb::blocked_range<std::size_t>(0, points_.size()), std::pair<double, Point>{-1.0, Point{}},
+          oneapi::tbb::blocked_range<std::size_t>(0, points_.size()), 
+          std::pair<double, Point>{-1.0, Point{}},
           [&](const oneapi::tbb::blocked_range<std::size_t>& r, std::pair<double, Point> local) {
-            for (std::size_t i = r.begin(); i != r.end(); ++i) {
-              Point& p = points_[i];
-              if (Point::Orientation(a, b, p) > 0) {
-                double d = Point::DistanceToLine(a, b, p);
-                if (d > local.first) {
-                  local.first = d;
-                  local.second = p;
-                }
-              }
-            }
-            return local;
+            return ProcessSegmentRange(a, b, r, local);
           },
           [&](const std::pair<double, Point>& x, const std::pair<double, Point>& y) {
-            if (x.first > y.first) {
-              return x;
-            }
-            if (y.first > x.first) {
-              return y;
-            }
-            return (x.second.x < y.second.x || (x.second.x == y.second.x && x.second.y < y.second.y)) ? x : y;
+            return CombineResults(x, y);
           });
     });
 
@@ -185,6 +173,42 @@ void ConstructingConvexHull::ProcessAllSegments(std::stack<std::pair<Point, Poin
       segment_stack.emplace(best.second, b);
     }
   }
+}
+
+std::pair<double, Point> ConstructingConvexHull::ProcessSegmentRange(
+    Point& a, Point& b, 
+    const oneapi::tbb::blocked_range<std::size_t>& r, 
+    std::pair<double, Point> local) {
+  
+  for (std::size_t i = r.begin(); i != r.end(); ++i) {
+    Point& p = points_[i];
+    if (Point::Orientation(a, b, p) > 0) {
+      const double d = Point::DistanceToLine(a, b, p);
+      if (d > local.first) {
+        local.first = d;
+        local.second = p;
+      }
+    }
+  }
+  return local;
+}
+
+std::pair<double, Point> ConstructingConvexHull::CombineResults(
+    const std::pair<double, Point>& x, 
+    const std::pair<double, Point>& y) {
+  
+  if (x.first > y.first) {
+    return x;
+  }
+  if (y.first > x.first) {
+    return y;
+  }
+
+  if (x.second.x < y.second.x || 
+      (x.second.x == y.second.x && x.second.y < y.second.y)) {
+    return x;
+  }
+  return y;
 }
 
 void ConstructingConvexHull::DeleteDublecate(std::set<Point>& hull_set) {
