@@ -45,7 +45,7 @@ bool HistogramStretchSequential::RunImpl() {
     return true;
   }
   const int range = max_val_ - min_val_;
-  static constexpr int kRepeat = 16;
+  static constexpr int kRepeat = 800;
   for (int r = 0; r < kRepeat; ++r) {
     for (size_t i = 0; i < input_image_.size(); ++i) {
       int stretched = (input_image_[i] - min_val_) * 255 / range;
