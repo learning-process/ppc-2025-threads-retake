@@ -41,22 +41,22 @@ bool anikin_m_block_gauss_tbb::BlockGaussTBB::RunImpl() {
     for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
       for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
         if (i == 0 || j == 0 || i == xres - 1 || j == yres - 1) {
-          output_[i * yres + j] = input_[i * yres + j];
+          output_[(i * yres) + j] = input_[(i * yres) + j];
         } else {
           double sum = 0.0;
-          sum += input_[(i - 1) * yres + (j - 1)] * kernel[0][0];
-          sum += input_[(i - 1) * yres + j] * kernel[0][1];
-          sum += input_[(i - 1) * yres + (j + 1)] * kernel[0][2];
+          sum += input_[((i - 1) * yres) + (j - 1)] * kernel[0][0];
+          sum += input_[((i - 1) * yres) + j] * kernel[0][1];
+          sum += input_[((i - 1) * yres) + (j + 1)] * kernel[0][2];
 
-          sum += input_[i * yres + (j - 1)] * kernel[1][0];
-          sum += input_[i * yres + j] * kernel[1][1];
-          sum += input_[i * yres + (j + 1)] * kernel[1][2];
+          sum += input_[(i * yres) + (j - 1)] * kernel[1][0];
+          sum += input_[(i * yres) + j] * kernel[1][1];
+          sum += input_[(i * yres) + (j + 1)] * kernel[1][2];
 
-          sum += input_[(i + 1) * yres + (j - 1)] * kernel[2][0];
-          sum += input_[(i + 1) * yres + j] * kernel[2][1];
-          sum += input_[(i + 1) * yres + (j + 1)] * kernel[2][2];
+          sum += input_[((i + 1) * yres) + (j - 1)] * kernel[2][0];
+          sum += input_[((i + 1) * yres) + j] * kernel[2][1];
+          sum += input_[((i + 1) * yres) + (j + 1)] * kernel[2][2];
 
-          output_[i * yres + j] = sum;
+          output_[(i * yres) + j] = sum;
         }
       }
     }
