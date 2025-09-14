@@ -75,7 +75,7 @@ TEST(leontev_n_graham_tbb, test_task_run) {
   std::vector<float> out_y(kCount, 0.0F);
   int out_size = 0;
 
-  // Create task_data
+  // Create task_dataa
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_x.data()));
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_y.data()));
