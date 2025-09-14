@@ -17,28 +17,30 @@
 
 #include "core/util/include/util.hpp"
 
-bool matyunina_a_constructing_convex_hull_tbb::Point::operator<(const Point& other) const {
+using namespace matyunina_a_constructing_convex_hull_tbb;
+
+bool Point::operator<(const Point& other) const {
   return (x < other.x) || (x == other.x && y < other.y);
 }
-bool matyunina_a_constructing_convex_hull_tbb::Point::operator==(const Point& other) const {
+bool Point::operator==(const Point& other) const {
   return x == other.x && y == other.y;
 }
 
-int matyunina_a_constructing_convex_hull_tbb::Point::Orientation(Point& a, Point& b, Point& c) {
+int Point::Orientation(Point& a, Point& b, Point& c) {
   return ((b.x - a.x) * (c.y - a.y)) - ((b.y - a.y) * (c.x - a.x));
 }
 
-double matyunina_a_constructing_convex_hull_tbb::Point::DistanceToLine(Point& a, Point& b, Point& c) {
+double Point::DistanceToLine(Point& a, Point& b, Point& c) {
   return std::abs(Orientation(a, b, c));
 }
 
-double matyunina_a_constructing_convex_hull_tbb::Point::Distance(const Point& p1, const Point& p2) {
+double Point::Distance(const Point& p1, const Point& p2) {
   double dx = p1.x - p2.x;
   double dy = p1.y - p2.y;
   return std::sqrt((dx * dx) + (dy * dy));
 }
 
-bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::PreProcessingImpl() {
+bool ConstructingConvexHull::PreProcessingImpl() {
   width_ = static_cast<int>(task_data->inputs_count[0]);
   height_ = static_cast<int>(task_data->inputs_count[1]);
 
@@ -50,11 +52,11 @@ bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::PreProces
   return true;
 }
 
-bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::ValidationImpl() {
+bool ConstructingConvexHull::ValidationImpl() {
   return task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0;
 }
 
-void matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::FindPoints() {
+void ConstructingConvexHull::FindPoints() {
   points_.clear();
 
   const int size = width_ * height_;
@@ -100,13 +102,26 @@ void matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::FindPoint
   }
 }
 
-bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::RunImpl() {
+bool ConstructingConvexHull::RunImpl() {
   FindPoints();
+
   if (points_.size() < 3) {
     output_ = points_;
     return true;
   }
 
+  auto [leftmost, rightmost] = FindExtremePoints();
+  std::stack<std::pair<Point, Point>> segment_stack;
+  std::set<Point> hull_set;
+
+  InitializeHull(leftmost, rightmost, hull_set, segment_stack);
+  ProcessAllSegments(segment_stack, hull_set);
+  DeleteDublecate(hull_set);
+
+  return true;
+}
+
+std::pair<Point, Point> ConstructingConvexHull::FindExtremePoints() {
   Point leftmost = points_[0];
   Point rightmost = points_[0];
 
@@ -119,14 +134,19 @@ bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::RunImpl()
     }
   }
 
-  std::stack<std::pair<Point, Point>> segment_stack;
-  std::set<Point> hull_set;
+  return {leftmost, rightmost};
+}
 
+void ConstructingConvexHull::InitializeHull(const Point& leftmost, const Point& rightmost, std::set<Point>& hull_set,
+                                            std::stack<std::pair<Point, Point>>& segment_stack) {
   hull_set.insert(leftmost);
   hull_set.insert(rightmost);
   segment_stack.emplace(leftmost, rightmost);
   segment_stack.emplace(rightmost, leftmost);
+}
 
+void ConstructingConvexHull::ProcessAllSegments(std::stack<std::pair<Point, Point>>& segment_stack,
+                                                std::set<Point>& hull_set) {
   int num_threads = ppc::util::GetPPCNumThreads();
   oneapi::tbb::task_arena arena(num_threads);
 
@@ -170,13 +190,9 @@ bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::RunImpl()
       segment_stack.emplace(best.second, b);
     }
   }
-
-  DeleteDublecate(hull_set);
-
-  return true;
 }
 
-void matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::DeleteDublecate(std::set<Point>& hull_set) {
+void ConstructingConvexHull::DeleteDublecate(std::set<Point>& hull_set) {
   std::vector<Point> temp_hull(hull_set.begin(), hull_set.end());
   std::vector<Point> final_hull;
 
@@ -212,7 +228,7 @@ void matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::DeleteDub
   output_ = final_hull;
 }
 
-bool matyunina_a_constructing_convex_hull_tbb::ConstructingConvexHull::PostProcessingImpl() {
+bool ConstructingConvexHull::PostProcessingImpl() {
   std::ranges::sort(output_, [](const Point& a, const Point& b) { return (a.x < b.x) || (a.x == b.x && a.y < b.y); });
 
   task_data->outputs_count.push_back(output_.size());

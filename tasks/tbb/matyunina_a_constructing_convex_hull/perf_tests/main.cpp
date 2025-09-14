@@ -41,8 +41,7 @@ TEST(matyunina_a_constructing_convex_hull_tbb, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto* point_array =
-      reinterpret_cast<matyunina_a_constructing_convex_hull_tbb::Point*>(task_data->outputs[0]);
+  auto* point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_tbb::Point*>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_tbb::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 
@@ -93,8 +92,7 @@ TEST(matyunina_a_constructing_convex_hull_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto* point_array =
-      reinterpret_cast<matyunina_a_constructing_convex_hull_tbb::Point*>(task_data->outputs[0]);
+  auto* point_array = reinterpret_cast<matyunina_a_constructing_convex_hull_tbb::Point*>(task_data->outputs[0]);
   std::vector<matyunina_a_constructing_convex_hull_tbb::Point> points(point_array,
                                                                       point_array + task_data->outputs_count[0]);
 
