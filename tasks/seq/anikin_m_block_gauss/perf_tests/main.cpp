@@ -7,8 +7,8 @@
 #include "seq/anikin_m_block_gauss/include/ops_seq.hpp"
 
 TEST(anikin_m_block_gauss_seq, test_pipeline_run) {
-  int n = 4000;
-  int m = 4000;
+  int n = 5000;
+  int m = 5000;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m);
   std::random_device rd;
@@ -55,8 +55,8 @@ TEST(anikin_m_block_gauss_seq, test_pipeline_run) {
 }
 
 TEST(anikin_m_block_gauss_seq, test_task_run) {
-  int n = 4000;
-  int m = 4000;
+  int n = 5000;
+  int m = 5000;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m);
   std::random_device rd;
