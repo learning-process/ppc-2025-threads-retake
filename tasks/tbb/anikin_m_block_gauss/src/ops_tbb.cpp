@@ -34,36 +34,33 @@ bool anikin_m_block_gauss_tbb::BlockGaussTBB::RunImpl() {
   const std::vector<std::vector<double>> kernel = {
       {1.0 / 16, 2.0 / 16, 1.0 / 16}, {2.0 / 16, 4.0 / 16, 2.0 / 16}, {1.0 / 16, 2.0 / 16, 1.0 / 16}};
 
-  tbb::parallel_for(
-      tbb::blocked_range2d<int>(0, xres_, 0, yres_),
-      [&](const tbb::blocked_range2d<int> &r) {
-        const int yres = yres_;
-        const int xres = xres_;
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, xres_, 0, yres_), [&](const tbb::blocked_range2d<int> &r) {
+    const int yres = yres_;
+    const int xres = xres_;
 
-        for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
-          for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
-            if (i == 0 || j == 0 || i == xres - 1 || j == yres - 1) {
-              output_[i * yres + j] = input_[i * yres + j];
-            } else {
-              double sum = 0.0;
-              sum += input_[(i - 1) * yres + (j - 1)] * kernel[0][0];
-              sum += input_[(i - 1) * yres + j] * kernel[0][1];
-              sum += input_[(i - 1) * yres + (j + 1)] * kernel[0][2];
+    for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
+      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
+        if (i == 0 || j == 0 || i == xres - 1 || j == yres - 1) {
+          output_[i * yres + j] = input_[i * yres + j];
+        } else {
+          double sum = 0.0;
+          sum += input_[(i - 1) * yres + (j - 1)] * kernel[0][0];
+          sum += input_[(i - 1) * yres + j] * kernel[0][1];
+          sum += input_[(i - 1) * yres + (j + 1)] * kernel[0][2];
 
-              sum += input_[i * yres + (j - 1)] * kernel[1][0];
-              sum += input_[i * yres + j] * kernel[1][1];
-              sum += input_[i * yres + (j + 1)] * kernel[1][2];
+          sum += input_[i * yres + (j - 1)] * kernel[1][0];
+          sum += input_[i * yres + j] * kernel[1][1];
+          sum += input_[i * yres + (j + 1)] * kernel[1][2];
 
-              sum += input_[(i + 1) * yres + (j - 1)] * kernel[2][0];
-              sum += input_[(i + 1) * yres + j] * kernel[2][1];
-              sum += input_[(i + 1) * yres + (j + 1)] * kernel[2][2];
+          sum += input_[(i + 1) * yres + (j - 1)] * kernel[2][0];
+          sum += input_[(i + 1) * yres + j] * kernel[2][1];
+          sum += input_[(i + 1) * yres + (j + 1)] * kernel[2][2];
 
-              output_[i * yres + j] = sum;
-            }
-          }
+          output_[i * yres + j] = sum;
         }
-      },
-      tbb::simple_partitioner());
+      }
+    }
+  });
 
   return true;
 }
