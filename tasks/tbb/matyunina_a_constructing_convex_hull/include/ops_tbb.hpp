@@ -8,14 +8,23 @@
 
 namespace matyunina_a_constructing_convex_hull_tbb {
 
+struct XCoord {
+  int value;
+  XCoord(int v = 0) : value(v) {}
+};
+struct YCoord {
+  int value;
+  YCoord(int v = 0) : value(v) {}
+};
+
 struct Point {
   int x, y;
-  Point(int x = 0, int y = 0) : x(x), y(y) {}
+  Point(XCoord x = {0}, YCoord y = {0}) : x(x.value), y(y.value) {}
   bool operator<(const Point& other) const;
   bool operator==(const Point& other) const;
-  static int orientation(Point& a, Point& b, Point& c);
-  static double distanceToLine(Point& a, Point& b, Point& c);
-  static double distance(const Point& p1, const Point& p2);
+  static int Orientation(Point& a, Point& b, Point& c);
+  static double DistanceToLine(Point& a, Point& b, Point& c);
+  static double Distance(const Point& p1, const Point& p2);
 };
 
 class ConstructingConvexHull : public ppc::core::Task {
@@ -28,10 +37,10 @@ class ConstructingConvexHull : public ppc::core::Task {
 
  private:
   void FindPoints();
-  void DeleteDublecate(std::set<Point>& hullSet);
+  void DeleteDublecate(std::set<Point>& hull_set);
   std::vector<int> input_;
-  std::vector<Point> points_{};
-  std::vector<Point> output_{};
+  std::vector<Point> points_;
+  std::vector<Point> output_;
   int width_{}, height_{};
 };
 
