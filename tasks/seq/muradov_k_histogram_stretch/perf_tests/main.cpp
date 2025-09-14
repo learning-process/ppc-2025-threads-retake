@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -13,9 +12,8 @@
 #include "seq/muradov_k_histogram_stretch/include/ops_seq.hpp"
 
 namespace {
-// Увеличивание нагрузки внутри тестов за счет дополнительных повторов валидации результатов.
 void ExtraCheck(const std::vector<int>& out) {
-  volatile int sum = 0;  // предотвращаем оптимизацию
+  volatile int sum = 0;
   for (int r = 0; r < 32; ++r) {
     for (int v : out) {
       sum += v & 1;
@@ -26,7 +24,7 @@ void ExtraCheck(const std::vector<int>& out) {
 }  // namespace
 
 TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
-  const int k_size = 120000;  // Увеличен размер для достижения порога времени > 1s
+  const int k_size = 120000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);
   std::mt19937 gen(42);
@@ -44,7 +42,7 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_seq::HistogramStretchSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 7;  // больше повторений
+  perf_attr->num_running = 7;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
@@ -57,9 +55,9 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto mm = std::ranges::minmax_element(out);
-  ASSERT_EQ(*mm.min, 0);
-  ASSERT_EQ(*mm.max, 255);
+  auto mm = std::minmax_element(out.begin(), out.end());
+  ASSERT_EQ(*mm.first, 0);
+  ASSERT_EQ(*mm.second, 255);
   ExtraCheck(out);
 }
 
@@ -95,8 +93,8 @@ TEST(muradov_k_histogram_stretch_seq, test_task_run) {
   analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  auto mm = std::ranges::minmax_element(out);
-  ASSERT_EQ(*mm.min, 0);
-  ASSERT_EQ(*mm.max, 255);
+  auto mm = std::minmax_element(out.begin(), out.end());
+  ASSERT_EQ(*mm.first, 0);
+  ASSERT_EQ(*mm.second, 255);
   ExtraCheck(out);
 }

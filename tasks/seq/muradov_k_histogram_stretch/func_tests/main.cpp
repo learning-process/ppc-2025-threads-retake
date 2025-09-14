@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cstdint>
 #include <memory>
-#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -42,7 +41,7 @@ TEST(muradov_k_histogram_stretch_seq, stretch_constant) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  EXPECT_TRUE(std::ranges::all_of(out, [](int v) { return v == 0; }));
+  EXPECT_TRUE(std::all_of(out.begin(), out.end(), [](int v) { return v == 0; }));
 }
 
 TEST(muradov_k_histogram_stretch_seq, validation_invalid_range) {
@@ -77,7 +76,7 @@ TEST(muradov_k_histogram_stretch_seq, output_min_zero_max_255) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  auto mm = std::ranges::minmax_element(out);
-  EXPECT_EQ(*mm.min, 0);
-  EXPECT_EQ(*mm.max, 255);
+  auto mm = std::minmax_element(out.begin(), out.end());
+  EXPECT_EQ(*mm.first, 0);
+  EXPECT_EQ(*mm.second, 255);
 }
