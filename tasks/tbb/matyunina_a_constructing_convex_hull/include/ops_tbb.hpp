@@ -1,7 +1,9 @@
 #pragma once
 
 #include <tbb/tbb.h>
+#include <oneapi/tbb/blocked_range.h>
 
+#include <cstddef>
 #include <set>
 #include <stack>
 #include <utility>
@@ -47,7 +49,7 @@ class ConstructingConvexHull : public ppc::core::Task {
   void ProcessAllSegments(std::stack<std::pair<Point, Point>>& segment_stack, std::set<Point>& hull_set);
   std::pair<double, Point> ProcessSegmentRange(Point& a, Point& b, const oneapi::tbb::blocked_range<std::size_t>& r,
                                                std::pair<double, Point> local);
-  std::pair<double, Point> CombineResults(const std::pair<double, Point>& x, const std::pair<double, Point>& y);
+  static std::pair<double, Point> CombineResults(const std::pair<double, Point>& x, const std::pair<double, Point>& y);
   std::vector<int> input_;
   std::vector<Point> points_;
   std::vector<Point> output_;
