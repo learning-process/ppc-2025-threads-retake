@@ -1,9 +1,10 @@
+#include "tbb/anikin_m_block_gauss/include/ops_tbb.hpp"
+
 #include <cmath>
 #include <vector>
 
 #include "oneapi/tbb/blocked_range2d.h"
 #include "oneapi/tbb/parallel_for.h"
-#include "tbb/anikin_m_block_gauss/include/ops_tbb.hpp"
 
 bool anikin_m_block_gauss_tbb::BlockGaussTBB::ValidationImpl() {
   if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
@@ -33,7 +34,7 @@ bool anikin_m_block_gauss_tbb::BlockGaussTBB::RunImpl() {
   const std::vector<std::vector<double>> kernel = {
       {1.0 / 16, 2.0 / 16, 1.0 / 16}, {2.0 / 16, 4.0 / 16, 2.0 / 16}, {1.0 / 16, 2.0 / 16, 1.0 / 16}};
 
-tbb::parallel_for(tbb::blocked_range2d<int>(0, xres_, 0, yres_), [&](const tbb::blocked_range2d<int> &r) {
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, xres_, 0, yres_), [&](const tbb::blocked_range2d<int> &r) {
     for (int i = 0; i < xres_; ++i) {
       for (int j = 0; j < yres_; ++j) {
         if (i == 0 || j == 0 || i == xres_ - 1 || j == yres_ - 1) {
