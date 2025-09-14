@@ -1,5 +1,8 @@
 #include "seq/anikin_m_block_gauss/include/ops_seq.hpp"
 
+#include <cmath>
+#include <vector>
+
 bool anikin_m_block_gauss_seq::BlockGaussSequential::ValidationImpl() {
   if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
     return false;
