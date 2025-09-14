@@ -1,11 +1,11 @@
 #pragma once
 
+#include <tbb/tbb.h>
+
 #include <set>
 #include <stack>
 #include <utility>
 #include <vector>
-
-#include <tbb/tbb.h>
 
 #include "core/task/include/task.hpp"
 
@@ -45,8 +45,8 @@ class ConstructingConvexHull : public ppc::core::Task {
   static void InitializeHull(const Point& leftmost, const Point& rightmost, std::set<Point>& hull_set,
                              std::stack<std::pair<Point, Point>>& segment_stack);
   void ProcessAllSegments(std::stack<std::pair<Point, Point>>& segment_stack, std::set<Point>& hull_set);
-  std::pair<double, Point> ProcessSegmentRange(Point& a, Point& b, 
-    const oneapi::tbb::blocked_range<std::size_t>& r, std::pair<double, Point> local);
+  std::pair<double, Point> ProcessSegmentRange(Point& a, Point& b, const oneapi::tbb::blocked_range<std::size_t>& r,
+                                               std::pair<double, Point> local);
   std::pair<double, Point> CombineResults(const std::pair<double, Point>& x, const std::pair<double, Point>& y);
   std::vector<int> input_;
   std::vector<Point> points_;

@@ -157,14 +157,11 @@ void ConstructingConvexHull::ProcessAllSegments(std::stack<std::pair<Point, Poin
 
     arena.execute([&] {
       best = oneapi::tbb::parallel_reduce(
-          oneapi::tbb::blocked_range<std::size_t>(0, points_.size()), 
-          std::pair<double, Point>{-1.0, Point{}},
+          oneapi::tbb::blocked_range<std::size_t>(0, points_.size()), std::pair<double, Point>{-1.0, Point{}},
           [&](const oneapi::tbb::blocked_range<std::size_t>& r, std::pair<double, Point> local) {
             return ProcessSegmentRange(a, b, r, local);
           },
-          [&](const std::pair<double, Point>& x, const std::pair<double, Point>& y) {
-            return CombineResults(x, y);
-          });
+          [&](const std::pair<double, Point>& x, const std::pair<double, Point>& y) { return CombineResults(x, y); });
     });
 
     if (best.first >= 0.0) {
@@ -175,11 +172,9 @@ void ConstructingConvexHull::ProcessAllSegments(std::stack<std::pair<Point, Poin
   }
 }
 
-std::pair<double, Point> ConstructingConvexHull::ProcessSegmentRange(
-    Point& a, Point& b, 
-    const oneapi::tbb::blocked_range<std::size_t>& r, 
-    std::pair<double, Point> local) {
-  
+std::pair<double, Point> ConstructingConvexHull::ProcessSegmentRange(Point& a, Point& b,
+                                                                     const oneapi::tbb::blocked_range<std::size_t>& r,
+                                                                     std::pair<double, Point> local) {
   for (std::size_t i = r.begin(); i != r.end(); ++i) {
     Point& p = points_[i];
     if (Point::Orientation(a, b, p) > 0) {
@@ -193,10 +188,8 @@ std::pair<double, Point> ConstructingConvexHull::ProcessSegmentRange(
   return local;
 }
 
-std::pair<double, Point> ConstructingConvexHull::CombineResults(
-    const std::pair<double, Point>& x, 
-    const std::pair<double, Point>& y) {
-  
+std::pair<double, Point> ConstructingConvexHull::CombineResults(const std::pair<double, Point>& x,
+                                                                const std::pair<double, Point>& y) {
   if (x.first > y.first) {
     return x;
   }
@@ -204,8 +197,7 @@ std::pair<double, Point> ConstructingConvexHull::CombineResults(
     return y;
   }
 
-  if (x.second.x < y.second.x || 
-      (x.second.x == y.second.x && x.second.y < y.second.y)) {
+  if (x.second.x < y.second.x || (x.second.x == y.second.x && x.second.y < y.second.y)) {
     return x;
   }
   return y;
