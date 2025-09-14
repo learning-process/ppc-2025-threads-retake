@@ -4,7 +4,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/anikin_m_lexic_check/include/ops_seq.hpp"
+#include "seq/anikin_m_block_gauss/include/ops_seq.hpp"
 
 TEST(anikin_m_block_gauss_seq, test_pipeline_run) {
   int n = 4000;

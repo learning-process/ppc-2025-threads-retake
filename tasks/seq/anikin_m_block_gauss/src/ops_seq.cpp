@@ -1,4 +1,4 @@
-#include "seq/anikin_m_lexic_check/include/ops_seq.hpp"
+#include "seq/anikin_m_block_gauss/include/ops_seq.hpp"
 
 bool anikin_m_block_gauss_seq::BlockGaussSequential::ValidationImpl() {
   if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
@@ -10,7 +10,7 @@ bool anikin_m_block_gauss_seq::BlockGaussSequential::ValidationImpl() {
   if (task_data->inputs_count[0] <= 0 || task_data->inputs_count[1] <= 0) {
     return false;
   }
-  return true; 
+  return true;
 }
 
 bool anikin_m_block_gauss_seq::BlockGaussSequential::PreProcessingImpl() {
@@ -25,9 +25,8 @@ bool anikin_m_block_gauss_seq::BlockGaussSequential::PreProcessingImpl() {
 }
 
 bool anikin_m_block_gauss_seq::BlockGaussSequential::RunImpl() {
-  const std::vector<std::vector<double>> kernel = { {1.0 / 16, 2.0 / 16, 1.0 / 16},
-                                                    {2.0 / 16, 4.0 / 16, 2.0 / 16},
-                                                    {1.0 / 16, 2.0 / 16, 1.0 / 16} };
+  const std::vector<std::vector<double>> kernel = {
+      {1.0 / 16, 2.0 / 16, 1.0 / 16}, {2.0 / 16, 4.0 / 16, 2.0 / 16}, {1.0 / 16, 2.0 / 16, 1.0 / 16}};
 
   for (int i = 0; i < xres; ++i) {
     for (int j = 0; j < yres; ++j) {

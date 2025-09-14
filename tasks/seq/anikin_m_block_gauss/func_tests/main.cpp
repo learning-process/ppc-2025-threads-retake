@@ -2,18 +2,13 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "seq/anikin_m_lexic_check/include/ops_seq.hpp"
+#include "seq/anikin_m_block_gauss/include/ops_seq.hpp"
 
 TEST(anikin_m_block_gauss_seq, zero_test) {
   int x = 5;
   int y = 5;
 
-  std::vector<double> image = {1, 1, 1, 1, 1,
-                               1, 1, 1, 1, 1,
-                               1, 1, 1, 1, 1,
-                               1, 1, 1, 1, 1,
-                               1, 1, 1, 1, 1};
-
+  std::vector<double> image = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   std::vector image_res(x * y, 0.0);
 
   // Create task_data
@@ -38,11 +33,7 @@ TEST(anikin_m_block_gauss_seq, calc_test) {
   int x = 5;
   int y = 5;
 
-  std::vector<double> image = {2, 2, 3, 2, 2,
-                               2, 2, 3, 2, 2,
-                               2, 2, 3, 2, 2,
-                               2, 2, 3, 2, 2,
-                               2, 2, 3, 2, 2};
+  std::vector<double> image = {2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2};
 
   std::vector image_res(x * y, 0.0);
 
@@ -62,11 +53,8 @@ TEST(anikin_m_block_gauss_seq, calc_test) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  std::vector<double> real_res = {2, 2, 3, 2, 2,
-                                  2, 2.25, 2.5, 2.25, 2,
-                                  2, 2.25, 2.5, 2.25, 2,
-                                  2, 2.25, 2.5, 2.25, 2,
-                                  2, 2, 3, 2, 2};
+  std::vector<double> real_res = {2,    2, 3, 2,    2,   2,    2.25, 2.5, 2.25, 2, 2, 2.25, 2.5,
+                                  2.25, 2, 2, 2.25, 2.5, 2.25, 2,    2,   2,    3, 2, 2};
 
   EXPECT_EQ(real_res, image_res);
 }
