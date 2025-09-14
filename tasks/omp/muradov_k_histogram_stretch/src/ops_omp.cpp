@@ -60,7 +60,7 @@ bool HistogramStretchOpenMP::RunImpl() {
   }
 
   const int range = max_val_ - min_val_;
-  static constexpr int kRepeat = 800;
+  static constexpr int kRepeat = 2000;
   for (int r = 0; r < kRepeat; ++r) {
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
