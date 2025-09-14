@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstddef>
 #include <set>
 #include <stack>
 #include <utility>
@@ -12,20 +13,15 @@
 
 using namespace matyunina_a_constructing_convex_hull_omp;
 
-bool Point::operator<(const Point& other) const {
-  return (x < other.x) || (x == other.x && y < other.y);
-}
-bool Point::operator==(const Point& other) const {
-  return x == other.x && y == other.y;
-}
+bool Point::operator<(const Point& other) const { return (x < other.x) || (x == other.x && y < other.y); }
+
+bool Point::operator==(const Point& other) const { return x == other.x && y == other.y; }
 
 int Point::Orientation(Point& a, Point& b, Point& c) {
   return ((b.x - a.x) * (c.y - a.y)) - ((b.y - a.y) * (c.x - a.x));
 }
 
-double Point::DistanceToLine(Point& a, Point& b, Point& c) {
-  return std::abs(Orientation(a, b, c));
-}
+double Point::DistanceToLine(Point& a, Point& b, Point& c) { return std::abs(Orientation(a, b, c)); }
 
 double Point::Distance(const Point& p1, const Point& p2) {
   double dx = p1.x - p2.x;
@@ -104,16 +100,20 @@ std::pair<Point, Point> ConstructingConvexHull::FindExtremePoints() {
   Point rightmost = points_[0];
 
   for (Point& p : points_) {
-    if (p.x < leftmost.x) leftmost = p;
-    if (p.x > rightmost.x) rightmost = p;
+    if (p.x < leftmost.x) {
+      leftmost = p;
+    }
+    if (p.x > rightmost.x) {
+      rightmost = p;
+    }
   }
-  
+
   return {leftmost, rightmost};
 }
 
-void ConstructingConvexHull::InitializeHull(const Point& leftmost, const Point& rightmost, 
-                                          std::set<Point>& hull_set, 
-                                          std::stack<std::pair<Point, Point>>& segment_stack) {
+void ConstructingConvexHull::InitializeHull(const Point& leftmost, const Point& rightmost, std::set<Point>& hull_set,
+                                            std::stack<std::pair<Point, Point>>& segment_stack) {
+
   hull_set.insert(leftmost);
   hull_set.insert(rightmost);
   segment_stack.emplace(leftmost, rightmost);
@@ -121,11 +121,11 @@ void ConstructingConvexHull::InitializeHull(const Point& leftmost, const Point& 
 }
 
 void ConstructingConvexHull::ProcessAllSegments(std::stack<std::pair<Point, Point>>& segment_stack,
-                                              std::set<Point>& hull_set) {
+                                                std::set<Point>& hull_set) {
   while (!segment_stack.empty()) {
     std::vector<std::pair<Point, Point>> segments_to_process;
     size_t batch_size = std::min(segment_stack.size(), (size_t)omp_get_max_threads() * 4);
-    
+
     for (size_t i = 0; i < batch_size && !segment_stack.empty(); ++i) {
       segments_to_process.push_back(segment_stack.top());
       segment_stack.pop();

@@ -40,9 +40,8 @@ class ConstructingConvexHull : public ppc::core::Task {
   void FindPoints();
   void DeleteDublecate(std::set<Point>& hull_set);
   std::pair<Point, Point> FindExtremePoints();
-  void InitializeHull(const Point& leftmost, const Point& rightmost, 
-                                          std::set<Point>& hull_set, 
-                                          std::stack<std::pair<Point, Point>>& segment_stack);
+  static void InitializeHull(const Point& leftmost, const Point& rightmost, std::set<Point>& hull_set,
+                      std::stack<std::pair<Point, Point>>& segment_stack);
   void ProcessAllSegments(std::stack<std::pair<Point, Point>>& segment_stack, std::set<Point>& hull_set);
   std::vector<int> input_;
   std::vector<Point> points_;
