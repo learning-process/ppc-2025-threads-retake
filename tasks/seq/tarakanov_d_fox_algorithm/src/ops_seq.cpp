@@ -50,11 +50,26 @@ bool TaskSequential::RunImpl() {
   std::vector<double> matrixC(sizeA * sizeA, 0.0);
   double* result = matrixC.data();
   
-  // Базовый алгоритм умножения матриц
-  for (size_t i = 0; i < sizeA; ++i) {
-    for (size_t j = 0; j < sizeA; ++j) {
-      for (size_t k = 0; k < sizeA; ++k) {
-        result[i * sizeA + j] += matrixA[i * sizeA + k] * matrixB[k * sizeA + j];
+  // Определяем размер блока
+  constexpr size_t blockSize = 2; // Оптимальный размер блока может зависеть от архитектуры
+  
+  // Блочная схема умножения матриц
+  for (size_t i = 0; i < sizeA; i += blockSize) {
+    for (size_t j = 0; j < sizeA; j += blockSize) {
+      for (size_t k = 0; k < sizeA; k += blockSize) {
+        // Границы блока
+        size_t iEnd = std::min(i + blockSize, sizeA);
+        size_t jEnd = std::min(j + blockSize, sizeA);
+        size_t kEnd = std::min(k + blockSize, sizeA);
+        
+        // Внутренние циклы для обработки элементов блока
+        for (size_t x = i; x < iEnd; ++x) {
+          for (size_t y = j; y < jEnd; ++y) {
+            for (size_t z = k; z < kEnd; ++z) {
+              result[x * sizeA + y] += matrixA[x * sizeA + z] * matrixB[z * sizeA + y];
+            }
+          }
+        }
       }
     }
   }
