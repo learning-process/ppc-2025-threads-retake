@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -122,7 +123,7 @@ bool leontev_n_graham_stl::GrahamStl::RunImpl() {
   if (threads < 1) {
     return false;
   }
-  std::vector<std::thread> stl_threads(threads); 
+  std::vector<std::thread> stl_threads(threads);
   size_t temp_size = (points.size() - 1) / threads;
   std::vector<std::vector<Point>> data(threads, std::vector<Point>(temp_size + 1));
   std::vector<std::vector<Point>> outputs(threads);
