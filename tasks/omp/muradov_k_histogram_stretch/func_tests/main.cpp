@@ -55,7 +55,9 @@ TEST(muradov_k_histogram_stretch_omp, invalid_range) {
 
 TEST(muradov_k_histogram_stretch_omp, full_range_identity) {
   std::vector<int> in(256);
-  for (int i = 0; i < 256; ++i) in[i] = i;
+  for (int i = 0; i < 256; ++i) {
+    in[i] = i;
+  }
   std::vector<int> out(in.size(), 0);
   auto td = MakeTD(in, out);
   muradov_k_histogram_stretch_omp::HistogramStretchOpenMP task(td);
@@ -84,7 +86,9 @@ TEST(muradov_k_histogram_stretch_omp, random_parallel) {
   std::mt19937 gen(42);
   std::uniform_int_distribution<int> dist(0, 255);
   std::vector<int> in(10000);
-  for (auto& v : in) v = dist(gen);
+  for (auto& v : in) {
+    v = dist(gen);
+  }
   std::vector<int> out(in.size(), 0);
   auto td = MakeTD(in, out);
   muradov_k_histogram_stretch_omp::HistogramStretchOpenMP task(td);

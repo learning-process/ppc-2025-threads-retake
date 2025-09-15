@@ -17,18 +17,28 @@ bool HistogramStretchOpenMP::PreProcessingImpl() {
 }
 
 bool HistogramStretchOpenMP::ValidationImpl() {
-  if (task_data->inputs_count.size() != 1 || task_data->outputs_count.size() != 1) return false;
-  if (task_data->inputs_count[0] == 0) return false;
-  if (task_data->inputs_count[0] != task_data->outputs_count[0]) return false;
+  if (task_data->inputs_count.size() != 1 || task_data->outputs_count.size() != 1) {
+    return false;
+  }
+  if (task_data->inputs_count[0] == 0) {
+    return false;
+  }
+  if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
+    return false;
+  }
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   for (size_t i = 0; i < task_data->inputs_count[0]; ++i) {
-    if (in_ptr[i] < 0 || in_ptr[i] > 255) return false;
+    if (in_ptr[i] < 0 || in_ptr[i] > 255) {
+      return false;
+    }
   }
   return true;
 }
 
 bool HistogramStretchOpenMP::RunImpl() {
-  if (input_image_.empty()) return false;
+  if (input_image_.empty()) {
+    return false;
+  }
 
   int global_min = 255;
   int global_max = 0;
@@ -39,13 +49,13 @@ bool HistogramStretchOpenMP::RunImpl() {
 #pragma omp for nowait
     for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
       int v = input_image_[i];
-      if (v < tmin) tmin = v;
-      if (v > tmax) tmax = v;
+      tmin = std::min(v, tmin);
+      tmax = std::max(v, tmax);
     }
 #pragma omp critical
     {
-      if (tmin < global_min) global_min = tmin;
-      if (tmax > global_max) global_max = tmax;
+      global_min = std::min(tmin, global_min);
+      global_max = std::max(tmax, global_max);
     }
   }
   min_val_ = global_min;
@@ -60,13 +70,12 @@ bool HistogramStretchOpenMP::RunImpl() {
   }
 
   const int range = max_val_ - min_val_;
-  static constexpr int kRepeat = 2000;
+  static constexpr int kRepeat = 2000;  // стабильное >1s
   for (int r = 0; r < kRepeat; ++r) {
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
       int stretched = (input_image_[i] - min_val_) * 255 / range;
-      if (stretched < 0) stretched = 0;
-      if (stretched > 255) stretched = 255;
+      stretched = std::clamp(stretched, 0, 255);
       output_image_[i] = stretched;
     }
   }

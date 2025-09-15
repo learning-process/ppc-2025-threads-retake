@@ -15,7 +15,9 @@ namespace {
 void ExtraWork(const std::vector<int>& v) {
   volatile int acc = 0;
   for (int r = 0; r < 16; ++r) {
-    for (int x : v) acc += x & 1;
+    for (int x : v) {
+      acc += x & 1;
+    }
   }
   (void)acc;
 }
@@ -23,10 +25,13 @@ void ExtraWork(const std::vector<int>& v) {
 
 TEST(muradov_k_histogram_stretch_omp, test_pipeline_run) {
   const int k_size = 120000;
-  std::vector<int> in(k_size), out(k_size, 0);
+  std::vector<int> in(k_size);
+  std::vector<int> out(k_size, 0);
   std::mt19937 gen(123);
   std::uniform_int_distribution<int> dist(0, 255);
-  for (int& x : in) x = dist(gen);
+  for (int& x : in) {
+    x = dist(gen);
+  }
 
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -58,10 +63,13 @@ TEST(muradov_k_histogram_stretch_omp, test_pipeline_run) {
 
 TEST(muradov_k_histogram_stretch_omp, test_task_run) {
   const int k_size = 120000;
-  std::vector<int> in(k_size), out(k_size, 0);
+  std::vector<int> in(k_size);
+  std::vector<int> out(k_size, 0);
   std::mt19937 gen(321);
   std::uniform_int_distribution<int> dist(0, 255);
-  for (int& x : in) x = dist(gen);
+  for (int& x : in) {
+    x = dist(gen);
+  }
 
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
