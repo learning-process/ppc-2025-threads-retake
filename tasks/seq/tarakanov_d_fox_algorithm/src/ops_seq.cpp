@@ -1,20 +1,25 @@
 #include "seq/tarakanov_d_fox_algorithm/include/ops_seq.hpp"
 
-bool tarakanov_d_fox_algorithm_seq::TaskSequential::PreProcessingImpl() {
-  // Init value for input and output
+namespace tarakanov_d_fox_algorithm_seq {
+
+bool TaskSequential::PreProcessingImpl() {
+  // TODO: Реализовать препроцессинг
   return true;
 }
 
-bool tarakanov_d_fox_algorithm_seq::TaskSequential::ValidationImpl() {
-  // Check equality of counts elements
+bool TaskSequential::ValidationImpl() {
+  // TODO: Реализовать валидацию
   return true;
 }
 
-bool tarakanov_d_fox_algorithm_seq::TaskSequential::RunImpl() {
-  // Multiply matrices
+bool TaskSequential::RunImpl() {
+  // TODO: Реализовать основной алгоритм
   return true;
 }
 
-bool tarakanov_d_fox_algorithm_seq::TaskSequential::PostProcessingImpl() {
+bool TaskSequential::PostProcessingImpl() {
+  // TODO: Реализовать постпроцессинг
   return true;
 }
+
+}  // namespace tarakanov_d_fox_algorithm_seq
