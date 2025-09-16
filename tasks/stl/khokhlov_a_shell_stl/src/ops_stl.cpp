@@ -2,15 +2,14 @@
 
 #include <algorithm>
 #include <random>
-#include <vector>
 #include <ranges>
 #include <thread>
+#include <vector>
 
 bool khokhlov_a_shell_stl::ShellStl::PreProcessingImpl() {
   input_.resize(task_data->inputs_count[0]);
-  std::ranges::copy(
-      std::views::counted(reinterpret_cast<int*>(task_data->inputs[0]), task_data->inputs_count[0]),
-      input_.begin());
+  std::ranges::copy(std::views::counted(reinterpret_cast<int*>(task_data->inputs[0]), task_data->inputs_count[0]),
+                    input_.begin());
   return true;
 }
 
@@ -78,9 +77,7 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
   return vec;
 }
 
-bool khokhlov_a_shell_stl::CheckSorted(const std::vector<int>& input) {
-  return std::ranges::is_sorted(input);
-}
+bool khokhlov_a_shell_stl::CheckSorted(const std::vector<int>& input) { return std::ranges::is_sorted(input); }
 
 std::vector<int> khokhlov_a_shell_stl::GenerateRandomVector(int size) {
   std::random_device rnd_device;
