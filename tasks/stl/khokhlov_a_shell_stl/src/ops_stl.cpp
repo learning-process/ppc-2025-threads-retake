@@ -3,21 +3,18 @@
 #include <algorithm>
 #include <execution>
 #include <random>
-#include <vector>
 #include <ranges>
 #include <thread>
+#include <vector>
 
 bool khokhlov_a_shell_stl::ShellStl::PreProcessingImpl() {
-  // Инициализация входных данных
   input_.resize(task_data->inputs_count[0]);
-  std::ranges::copy(
-      std::views::counted(reinterpret_cast<int*>(task_data->inputs[0]), task_data->inputs_count[0]),
-      input_.begin());
+  std::ranges::copy(std::views::counted(reinterpret_cast<int*>(task_data->inputs[0]), task_data->inputs_count[0]),
+                    input_.begin());
   return true;
 }
 
 bool khokhlov_a_shell_stl::ShellStl::ValidationImpl() {
-  // Проверка корректности входных и выходных данных
   return task_data->inputs_count.size() == 1 && task_data->inputs_count[0] > 0 &&
          task_data->outputs_count.size() == 1 && task_data->inputs_count[0] == task_data->outputs_count[0];
 }
@@ -28,7 +25,6 @@ bool khokhlov_a_shell_stl::ShellStl::RunImpl() {
 }
 
 bool khokhlov_a_shell_stl::ShellStl::PostProcessingImpl() {
-  // Копирование результатов в выходной буфер
   std::ranges::copy(input_, reinterpret_cast<int*>(task_data->outputs[0]));
   return true;
 }
@@ -39,7 +35,6 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
   int num_threads = std::thread::hardware_concurrency();
   int chunk_size = (n + num_threads - 1) / num_threads;
 
-  // Первая фаза: параллельная сортировка подмассивов
   std::vector<std::pair<int, int>> chunks;
   for (int i = 0; i < n; i += chunk_size) {
     chunks.emplace_back(i, std::min(i + chunk_size, n));
@@ -61,7 +56,6 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
     });
   }
 
-  // Вторая фаза: финальная сортировка всего массива
   for (int interval = n / 2; interval > 0; interval /= 2) {
     for (int i = interval; i < n; ++i) {
       int tmp = vec[i];
@@ -77,9 +71,7 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
   return vec;
 }
 
-bool khokhlov_a_shell_stl::CheckSorted(const std::vector<int>& input) {
-  return std::ranges::is_sorted(input);
-}
+bool khokhlov_a_shell_stl::CheckSorted(const std::vector<int>& input) { return std::ranges::is_sorted(input); }
 
 std::vector<int> khokhlov_a_shell_stl::GenerateRandomVector(int size) {
   std::random_device rnd_device;
