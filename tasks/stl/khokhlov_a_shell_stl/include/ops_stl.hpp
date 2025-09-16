@@ -17,7 +17,7 @@ class ShellStl : public ppc::core::Task {
 
  private:
   static std::vector<int> ShellSort(const std::vector<int>& input);
-  void ShellSortChunk(std::vector<int>& vec, int start, int end, int interval)
+  void ShellSortChunk(std::vector<int>& vec, int start, int end, int interval);
   std::vector<int> input_;
 };
 
