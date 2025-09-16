@@ -1,16 +1,16 @@
 #include "stl/khokhlov_a_shell_stl/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <execution>
 #include <random>
+#include <vector>
 #include <ranges>
 #include <thread>
-#include <vector>
 
 bool khokhlov_a_shell_stl::ShellStl::PreProcessingImpl() {
   input_.resize(task_data->inputs_count[0]);
-  std::ranges::copy(std::views::counted(reinterpret_cast<int*>(task_data->inputs[0]), task_data->inputs_count[0]),
-                    input_.begin());
+  std::ranges::copy(
+      std::views::counted(reinterpret_cast<int*>(task_data->inputs[0]), task_data->inputs_count[0]),
+      input_.begin());
   return true;
 }
 
@@ -29,6 +29,18 @@ bool khokhlov_a_shell_stl::ShellStl::PostProcessingImpl() {
   return true;
 }
 
+void ShellSortChunk(std::vector<int>& vec, int start, int end, int interval) {
+  for (int i = start + interval; i < end; ++i) {
+    int tmp = vec[i];
+    int j = i;
+    while (j >= start + interval && vec[j - interval] > tmp) {
+      vec[j] = vec[j - interval];
+      j -= interval;
+    }
+    vec[j] = tmp;
+  }
+}
+
 std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int>& input) {
   std::vector<int> vec(input);
   int n = static_cast<int>(vec.size());
@@ -41,19 +53,14 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
   }
 
   for (int interval = chunk_size / 2; interval > 0; interval /= 2) {
-    std::for_each(std::execution::par, chunks.begin(), chunks.end(), [&](const auto& chunk) {
-      int start = chunk.first;
-      int end = chunk.second;
-      for (int i = start + interval; i < end; ++i) {
-        int tmp = vec[i];
-        int j = i;
-        while (j >= start + interval && vec[j - interval] > tmp) {
-          vec[j] = vec[j - interval];
-          j -= interval;
-        }
-        vec[j] = tmp;
-      }
-    });
+    std::vector<std::thread> threads;
+    threads.reserve(chunks.size());
+    for (const auto& chunk : chunks) {
+      threads.emplace_back(ShellSortChunk, std::ref(vec), chunk.first, chunk.second, interval);
+    }
+    for (auto& thread : threads) {
+      thread.join();
+    }
   }
 
   for (int interval = n / 2; interval > 0; interval /= 2) {
@@ -71,7 +78,9 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
   return vec;
 }
 
-bool khokhlov_a_shell_stl::CheckSorted(const std::vector<int>& input) { return std::ranges::is_sorted(input); }
+bool khokhlov_a_shell_stl::CheckSorted(const std::vector<int>& input) {
+  return std::ranges::is_sorted(input);
+}
 
 std::vector<int> khokhlov_a_shell_stl::GenerateRandomVector(int size) {
   std::random_device rnd_device;
