@@ -15,11 +15,11 @@ bool TaskSequential::PreProcessingImpl() {
   std::vector<double> matrixB(size * size, 1.0);
 
   // Инициализируем данные для умножения
-  task_data_->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixA.data()));
-  task_data_->inputs_count.emplace_back(matrixA.size() * sizeof(double));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixA.data()));
+  task_data->inputs_count.emplace_back(matrixA.size() * sizeof(double));
 
-  task_data_->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrixB.data()));
-  task_data_->outputs_count.emplace_back(matrixB.size() * sizeof(double));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrixB.data()));
+  task_data->outputs_count.emplace_back(matrixB.size() * sizeof(double));
 
   return true;
 }
@@ -27,12 +27,12 @@ bool TaskSequential::PreProcessingImpl() {
 bool TaskSequential::ValidationImpl() {
   // Проверяем, что размеры матриц соответствуют для умножения
   // Для упрощения берем первые две матрицы
-  if (task_data_->inputs_count.size() < 2) {
+  if (task_data->inputs_count.size() < 2) {
     return false;
   }
 
-  size_t sizeA = task_data_->inputs_count[0] / sizeof(double);
-  size_t sizeB = task_data_->inputs_count[1] / sizeof(double);
+  size_t sizeA = task_data->inputs_count[0] / sizeof(double);
+  size_t sizeB = task_data->inputs_count[1] / sizeof(double);
 
   // Для матриц A (sizeA x sizeA) и B (sizeA x sizeA) результат будет (sizeA x sizeA)
   // Проверяем, что матрицы могут быть умножены
@@ -41,11 +41,11 @@ bool TaskSequential::ValidationImpl() {
 
 bool TaskSequential::RunImpl() {
   // Извлекаем матрицы A и B из task_data_
-  double* matrixA = reinterpret_cast<double*>(task_data_->inputs[0]);
-  double* matrixB = reinterpret_cast<double*>(task_data_->inputs[1]);
+  double* matrixA = reinterpret_cast<double*>(task_data->inputs[0]);
+  double* matrixB = reinterpret_cast<double*>(task_data->inputs[1]);
 
-  size_t sizeA = task_data_->inputs_count[0] / sizeof(double);
-  size_t sizeB = task_data_->inputs_count[1] / sizeof(double);
+  size_t sizeA = task_data->inputs_count[0] / sizeof(double);
+  size_t sizeB = task_data->inputs_count[1] / sizeof(double);
 
   // Создаем результирующую матрицу C
   std::vector<double> matrixC(sizeA * sizeA, 0.0);
@@ -76,8 +76,8 @@ bool TaskSequential::RunImpl() {
   }
 
   // Сохраняем результат в outputs
-  task_data_->outputs[0] = reinterpret_cast<uint8_t*>(result);
-  task_data_->outputs_count[0] = sizeA * sizeA * sizeof(double);
+  task_data->outputs[0] = reinterpret_cast<uint8_t*>(result);
+  task_data->outputs_count[0] = sizeA * sizeA * sizeof(double);
 
   return true;
 }
