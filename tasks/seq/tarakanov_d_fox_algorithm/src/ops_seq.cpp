@@ -45,7 +45,6 @@ bool TaskSequential::RunImpl() {
   double* matrixB = reinterpret_cast<double*>(task_data->inputs[1]);
 
   size_t sizeA = task_data->inputs_count[0] / sizeof(double);
-  size_t sizeB = task_data->inputs_count[1] / sizeof(double);
 
   // Создаем результирующую матрицу C
   std::vector<double> matrixC(sizeA * sizeA, 0.0);
