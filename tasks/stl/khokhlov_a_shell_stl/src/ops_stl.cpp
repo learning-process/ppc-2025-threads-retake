@@ -28,7 +28,7 @@ bool khokhlov_a_shell_stl::ShellStl::PostProcessingImpl() {
   return true;
 }
 
-void khokhlov_a_shell_stl::ShellStl::ShellSortChunk(std::vector<int>& vec, int start, int end, int interval) {
+static void khokhlov_a_shell_stl::ShellStl::ShellSortChunk(std::vector<int>& vec, int start, int end, int interval) {
   for (int i = start + interval; i < end; ++i) {
     int tmp = vec[i];
     int j = i;
