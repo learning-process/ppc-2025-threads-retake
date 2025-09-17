@@ -10,13 +10,17 @@
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
 TEST(golovkin_sentence_count_seq, test_pipeline_run) {
-  const int text_size = 1000000;
+  const int text_size = 100000000;
   std::string text;
   text.reserve(text_size);
 
   for (int i = 0; i < text_size; ++i) {
-    if (i % 100 == 0 && i > 0) {
+    if (i % 50 == 0 && i > 0) {
       text.push_back('.');
+    } else if (i % 25 == 0 && i > 0) {
+      text.push_back('?');
+    } else if (i % 33 == 0 && i > 0) {
+      text.push_back('!');
     } else {
       text.push_back('a' + (i % 26));
     }
@@ -49,13 +53,17 @@ TEST(golovkin_sentence_count_seq, test_pipeline_run) {
 }
 
 TEST(golovkin_sentence_count_seq, test_task_run) {
-  const int text_size = 1000000;
+  const int text_size = 100000000;
   std::string text;
   text.reserve(text_size);
 
   for (int i = 0; i < text_size; ++i) {
-    if (i % 100 == 0 && i > 0) {
+    if (i % 50 == 0 && i > 0) {
       text.push_back('.');
+    } else if (i % 25 == 0 && i > 0) {
+      text.push_back('?');
+    } else if (i % 33 == 0 && i > 0) {
+      text.push_back('!');
     } else {
       text.push_back('a' + (i % 26));
     }
