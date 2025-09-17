@@ -8,7 +8,7 @@
 golovkin_sentence_count_seq::SentenceCountSequential::SentenceCountSequential(ppc::core::TaskDataPtr task_data)
     : Task(std::move(task_data)) {}
 
-bool SentenceCountSequential::PreProcessingImpl() {
+bool golovkin_sentence_count_seq::SentenceCountSequential::PreProcessingImpl() {
   text_ = std::string(reinterpret_cast<char*>(task_data->inputs[0]));
   count_ = 0;
   return true;
