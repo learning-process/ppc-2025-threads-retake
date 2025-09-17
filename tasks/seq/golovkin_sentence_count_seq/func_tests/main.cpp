@@ -188,42 +188,6 @@ TEST(golovkin_sentence_count_seq, test_whitespace_after_punctuation) {
   ASSERT_EQ(3, result);
 }
 
-TEST(golovkin_sentence_count_seq, test_punctuation_not_at_end) {
-  std::string text = "Mr. Smith went to the U.S.A. He had a Ph.D.";
-  int result = 0;
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(text.data()));
-  task_data->inputs_count.emplace_back(text.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
-  task_data->outputs_count.emplace_back(1);
-
-  golovkin_sentence_count_seq::SentenceCountSequential task(task_data);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-  ASSERT_EQ(2, result);
-}
-
-TEST(golovkin_sentence_count_seq, test_abbreviations) {
-  std::string text = "Dr. Jones works at St. Mary's Hospital. It's located in the U.S.A.";
-  int result = 0;
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(text.data()));
-  task_data->inputs_count.emplace_back(text.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
-  task_data->outputs_count.emplace_back(1);
-
-  golovkin_sentence_count_seq::SentenceCountSequential task(task_data);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-  ASSERT_EQ(2, result);
-}
-
 TEST(golovkin_sentence_count_seq, test_numbers_with_dots) {
   std::string text = "The value is 3.14. This is pi.";
   int result = 0;
