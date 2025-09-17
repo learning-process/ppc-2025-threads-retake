@@ -30,11 +30,9 @@ bool golovkin_sentence_count_seq::SentenceCountSequential::RunImpl() {
       if (text_[i] == '.') {
         if (i > 0 && i + 1 < n && std::isdigit(text_[i - 1]) && std::isdigit(text_[i + 1])) {
           is_sentence_end = false;
-        }
-        else if (i > 0 && std::isalpha(text_[i - 1]) && i + 1 < n && std::isalpha(text_[i + 1])) {
+        } else if (i > 0 && std::isalpha(text_[i - 1]) && i + 1 < n && std::isalpha(text_[i + 1])) {
           is_sentence_end = false;
-        }
-        else if (i > 0 && text_[i - 1] != ' ' && i + 1 < n && text_[i + 1] != ' ') {
+        } else if (i > 0 && text_[i - 1] != ' ' && i + 1 < n && text_[i + 1] != ' ') {
           is_sentence_end = false;
         }
       }
