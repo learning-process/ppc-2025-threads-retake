@@ -1,6 +1,6 @@
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
-#include <algorithm>
+#include <cctype>
 #include <cstdint>
 #include <cstring>
 
@@ -16,14 +16,42 @@ bool golovkin_sentence_count_seq::SentenceCountSequential::PreProcessingImpl() {
 bool golovkin_sentence_count_seq::SentenceCountSequential::ValidationImpl() { return task_data->outputs_count[0] == 1; }
 
 bool golovkin_sentence_count_seq::SentenceCountSequential::RunImpl() {
-  for (size_t i = 0; i < text_.size(); ++i) {
-    if (text_[i] == '.' || text_[i] == '?' || text_[i] == '!') {
-      ++count_;
-      while (i + 1 < text_.size() && (text_[i + 1] == '.' || text_[i + 1] == '?' || text_[i + 1] == '!')) {
-        ++i;
+  size_t i = 0;
+  size_t n = text_.size();
+
+  while (i < n) {
+    while (i < n && text_[i] != '.' && text_[i] != '?' && text_[i] != '!') {
+      i++;
+    }
+
+    if (i < n) {
+      bool is_sentence_end = true;
+
+      if (text_[i] == '.') {
+        if (i > 0 && i + 1 < n && std::isdigit(text_[i - 1]) && std::isdigit(text_[i + 1])) {
+          is_sentence_end = false;
+        }
+        else if (i > 0 && std::isalpha(text_[i - 1]) && i + 1 < n && std::isalpha(text_[i + 1])) {
+          is_sentence_end = false;
+        }
+        else if (i > 0 && text_[i - 1] != ' ' && i + 1 < n && text_[i + 1] != ' ') {
+          is_sentence_end = false;
+        }
+      }
+
+      if (is_sentence_end) {
+        count_++;
+
+        char current_punct = text_[i];
+        while (i < n && (text_[i] == current_punct || text_[i] == '.' || text_[i] == '?' || text_[i] == '!')) {
+          i++;
+        }
+      } else {
+        i++;
       }
     }
   }
+
   return true;
 }
 
