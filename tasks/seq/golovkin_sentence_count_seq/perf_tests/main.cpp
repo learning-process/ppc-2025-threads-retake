@@ -1,25 +1,25 @@
-// Golovkin Maksim
 #include <gtest/gtest.h>
 
-#include <cstddef>
-#include <cstdint>
+#include <chrono>
 #include <memory>
+#include <string>
 #include <vector>
 
+#include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
 TEST(golovkin_sentence_count_seq, perf_test) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dist(32, 126);
-
   const int text_size = 1000000;
   std::string text;
   text.reserve(text_size);
 
   for (int i = 0; i < text_size; ++i) {
-    text.push_back(static_cast<char>(dist(gen)));
+    if (i % 100 == 0 && i > 0) {
+      text.push_back('.');
+    } else {
+      text.push_back('a' + (i % 26));
+    }
   }
 
   int result = 0;
@@ -30,33 +30,35 @@ TEST(golovkin_sentence_count_seq, perf_test) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data->outputs_count.emplace_back(1);
 
-  auto task = std::make_shared<nesterov_sentence_count_seq::SentenceCountSequential>(task_data);
+  auto task = std::make_shared<golovkin_sentence_count_seq::SentenceCountSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
-    static auto start_time = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start_time)
-        .count();
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
+
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
 TEST(golovkin_sentence_count_seq, perf_test) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dist(32, 126);
-
   const int text_size = 1000000;
   std::string text;
   text.reserve(text_size);
 
   for (int i = 0; i < text_size; ++i) {
-    text.push_back(static_cast<char>(dist(gen)));
+    if (i % 100 == 0 && i > 0) {
+      text.push_back('.');
+    } else {
+      text.push_back('a' + (i % 26));
+    }
   }
 
   int result = 0;
@@ -67,17 +69,19 @@ TEST(golovkin_sentence_count_seq, perf_test) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data->outputs_count.emplace_back(1);
 
-  auto task = std::make_shared<nesterov_sentence_count_seq::SentenceCountSequential>(task_data);
+  auto task = std::make_shared<golovkin_sentence_count_seq::SentenceCountSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
-    static auto start_time = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start_time)
-        .count();
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
+
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);

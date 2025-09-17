@@ -1,4 +1,3 @@
-// Golovkin Maksim
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
 #include <algorithm>
@@ -14,9 +13,7 @@ bool golovkin_sentence_count_seq::SentenceCountSequential::PreProcessingImpl() {
   return true;
 }
 
-bool golovkin_sentence_count_seq::SentenceCountSequential::ValidationImpl() {
-  return !text_.empty() && task_data->outputs_count[0] == 1;
-}
+bool golovkin_sentence_count_seq::SentenceCountSequential::ValidationImpl() { return task_data->outputs_count[0] == 1; }
 
 bool golovkin_sentence_count_seq::SentenceCountSequential::RunImpl() {
   for (size_t i = 0; i < text_.size(); ++i) {

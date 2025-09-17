@@ -19,4 +19,5 @@ class SentenceCountSequential : public ppc::core::Task {
   std::string text_;
   int count_{};
 };
+
 }  // namespace golovkin_sentence_count_seq
