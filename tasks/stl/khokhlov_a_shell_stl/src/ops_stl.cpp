@@ -4,6 +4,8 @@
 #include <random>
 #include <ranges>
 #include <thread>
+#include <utility>
+#include <functional>
 #include <vector>
 
 bool khokhlov_a_shell_stl::ShellStl::PreProcessingImpl() {
@@ -43,7 +45,7 @@ void khokhlov_a_shell_stl::ShellStl::ShellSortChunk(std::vector<int>& vec, int s
 std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int>& input) {
   std::vector<int> vec(input);
   int n = static_cast<int>(vec.size());
-  int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = std::thread::hardware_concurrency();
   int chunk_size = (n + num_threads - 1) / num_threads;
 
   std::vector<std::pair<int, int>> chunks;
