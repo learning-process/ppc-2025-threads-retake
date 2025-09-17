@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
-TEST(golovkin_sentence_count_seq, perf_test) {
+TEST(golovkin_sentence_count_seq, test_pipeline_run) {
   const int text_size = 1000000;
   std::string text;
   text.reserve(text_size);
@@ -48,7 +48,7 @@ TEST(golovkin_sentence_count_seq, perf_test) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(golovkin_sentence_count_seq, perf_test) {
+TEST(golovkin_sentence_count_seq, test_task_run) {
   const int text_size = 1000000;
   std::string text;
   text.reserve(text_size);
