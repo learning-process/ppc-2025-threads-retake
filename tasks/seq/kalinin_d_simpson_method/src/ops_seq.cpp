@@ -116,4 +116,3 @@ double SimpsonNDSequential::EvaluateFunction(const std::vector<double>& point) c
 }
 
 }  // namespace kalinin_d_simpson_method_seq
-

@@ -19,9 +19,9 @@ class SimpsonNDSequential : public ppc::core::Task {
 
  private:
   // Parameters
-  int dimension_{};        // number of dimensions
-  int segments_per_dim_{}; // must be even
-  int function_id_{};      // which integrand to use
+  int dimension_{};         // number of dimensions
+  int segments_per_dim_{};  // must be even
+  int function_id_{};       // which integrand to use
 
   // Bounds
   std::vector<double> lower_bounds_;

@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <array>
 #include <deque>
 #include <memory>
 #include <vector>
@@ -13,11 +13,8 @@
 
 namespace {
 
-std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& lower,
-                                                  const std::vector<double>& upper,
-                                                  int segments_per_dim,
-                                                  int function_id,
-                                                  double* result_ptr) {
+std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& lower, const std::vector<double>& upper,
+                                                  int segments_per_dim, int function_id, double* result_ptr) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   auto* lower_ptr = const_cast<double*>(lower.data());
   auto* upper_ptr = const_cast<double*>(upper.data());
@@ -248,4 +245,3 @@ TEST(kalinin_d_simpson_method_seq, four_dim_constant_hyperrectangle) {
   task.PostProcessing();
   EXPECT_NEAR(res, 8.0, 1e-8);
 }
-

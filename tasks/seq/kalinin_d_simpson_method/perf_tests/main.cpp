@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
+#include <array>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <array>
 #include <deque>
 #include <memory>
 #include <vector>
@@ -14,11 +14,8 @@
 
 namespace {
 
-std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& lower,
-                                                  const std::vector<double>& upper,
-                                                  int segments_per_dim,
-                                                  int function_id,
-                                                  double* result_ptr) {
+std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& lower, const std::vector<double>& upper,
+                                                  int segments_per_dim, int function_id, double* result_ptr) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   auto* lower_ptr = const_cast<double*>(lower.data());
   auto* upper_ptr = const_cast<double*>(upper.data());
