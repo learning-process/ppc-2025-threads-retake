@@ -1,7 +1,7 @@
-// ops_seq.hpp
+// Golovkin
 #pragma once
 
-#include <cstddef>  // Добавлен для size_t
+#include <cstddef>
 #include <string>
 
 #include "core/task/include/task.hpp"

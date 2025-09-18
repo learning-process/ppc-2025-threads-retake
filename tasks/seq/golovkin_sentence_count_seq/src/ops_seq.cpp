@@ -1,3 +1,4 @@
+//Golovkin
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
 #include <cctype>
