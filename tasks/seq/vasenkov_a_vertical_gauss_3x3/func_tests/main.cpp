@@ -24,9 +24,7 @@ std::vector<uint8_t> GenerateRandomImage(int width, int height) {
 }
 
 std::vector<float> GenerateGaussianKernel() {
-  return {1.0F / 16, 2.0F / 16, 1.0F / 16,
-          2.0F / 16, 4.0F / 16, 2.0F / 16,
-          1.0F / 16, 2.0F / 16, 1.0F / 16};
+  return {1.0F / 16, 2.0F / 16, 1.0F / 16, 2.0F / 16, 4.0F / 16, 2.0F / 16, 1.0F / 16, 2.0F / 16, 1.0F / 16};
 }
 
 struct RGB {

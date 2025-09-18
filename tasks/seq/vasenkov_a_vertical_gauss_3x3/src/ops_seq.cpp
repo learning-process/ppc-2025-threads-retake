@@ -1,10 +1,11 @@
 #include "seq/vasenkov_a_vertical_gauss_3x3/include/ops_seq.hpp"
 
+#include <immintrin.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <immintrin.h>
 
 bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::PreProcessingImpl() {
   img_width_ = static_cast<int32_t>(task_data->inputs_count[0]);
@@ -45,17 +46,15 @@ bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::RunImpl() {
       const int right_idx = base_idx + kCHANNELS;
 
       for (int c = 0; c < kCHANNELS; ++c) {
-        float sum = (
-            (static_cast<float>(source_img_[top_idx + left_idx + c]) * kernel[0]) + 
-            (static_cast<float>(source_img_[top_idx + base_idx + c]) * kernel[1]) +
-            (static_cast<float>(source_img_[top_idx + right_idx + c]) * kernel[2]) + 
-            (static_cast<float>(source_img_[base_idx + left_idx + c]) * kernel[3]) +
-            (static_cast<float>(source_img_[base_idx + c]) * kernel[4]) + 
-            (static_cast<float>(source_img_[base_idx + right_idx + c]) * kernel[5]) +
-            (static_cast<float>(source_img_[bottom_idx + left_idx + c]) * kernel[6]) + 
-            (static_cast<float>(source_img_[bottom_idx + base_idx + c]) * kernel[7]) +
-            (static_cast<float>(source_img_[bottom_idx + right_idx + c]) * kernel[8])
-        );
+        float sum = ((static_cast<float>(source_img_[top_idx + left_idx + c]) * kernel[0]) +
+                     (static_cast<float>(source_img_[top_idx + base_idx + c]) * kernel[1]) +
+                     (static_cast<float>(source_img_[top_idx + right_idx + c]) * kernel[2]) +
+                     (static_cast<float>(source_img_[base_idx + left_idx + c]) * kernel[3]) +
+                     (static_cast<float>(source_img_[base_idx + c]) * kernel[4]) +
+                     (static_cast<float>(source_img_[base_idx + right_idx + c]) * kernel[5]) +
+                     (static_cast<float>(source_img_[bottom_idx + left_idx + c]) * kernel[6]) +
+                     (static_cast<float>(source_img_[bottom_idx + base_idx + c]) * kernel[7]) +
+                     (static_cast<float>(source_img_[bottom_idx + right_idx + c]) * kernel[8]));
 
         filtered_img_[base_idx + c] = static_cast<uint8_t>(std::clamp(std::round(sum), 0.0F, 255.0F));
       }
