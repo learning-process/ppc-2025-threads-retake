@@ -4,8 +4,10 @@
 #include <cstddef>
 #include <utility>
 
+#include "core/task/include/task.hpp"
+
 golovkin_sentence_count_seq::SentenceCountSequential::SentenceCountSequential(ppc::core::TaskDataPtr task_data)
-    : Task(std::move(task_data)) {}
+    : ppc::core::Task(std::move(task_data)) {}
 
 bool golovkin_sentence_count_seq::SentenceCountSequential::PreProcessingImpl() {
   text_ = std::string(reinterpret_cast<char*>(task_data->inputs[0]));
@@ -15,38 +17,45 @@ bool golovkin_sentence_count_seq::SentenceCountSequential::PreProcessingImpl() {
 
 bool golovkin_sentence_count_seq::SentenceCountSequential::ValidationImpl() { return task_data->outputs_count[0] == 1; }
 
+namespace {
+bool IsSentenceEnd(const std::string& text, size_t i, size_t n) {
+  if (text[i] != '.') return true;
+
+  if (i > 0 && i + 1 < n) {
+    const unsigned char prev = static_cast<unsigned char>(text[i - 1]);
+    const unsigned char next = static_cast<unsigned char>(text[i + 1]);
+
+    if (std::isdigit(prev) && std::isdigit(next)) return false;
+    if (std::isalpha(prev) && std::isalpha(next)) return false;
+    if (text[i - 1] != ' ' && text[i + 1] != ' ') return false;
+  }
+
+  return true;
+}
+}  // namespace
+
 bool golovkin_sentence_count_seq::SentenceCountSequential::RunImpl() {
   size_t i = 0;
-  size_t n = text_.size();
+  const size_t n = text_.size();
 
   while (i < n) {
     while (i < n && text_[i] != '.' && text_[i] != '?' && text_[i] != '!') {
-      i++;
+      ++i;
     }
 
-    if (i < n) {
-      bool is_sentence_end = true;
+    if (i >= n) break;
 
-      if (text_[i] == '.') {
-        if (i > 0 && i + 1 < n && std::isdigit(text_[i - 1]) && std::isdigit(text_[i + 1])) {
-          is_sentence_end = false;
-        } else if (i > 0 && std::isalpha(text_[i - 1]) && i + 1 < n && std::isalpha(text_[i + 1])) {
-          is_sentence_end = false;
-        } else if (i > 0 && text_[i - 1] != ' ' && i + 1 < n && text_[i + 1] != ' ') {
-          is_sentence_end = false;
-        }
+    const bool is_sentence_end = IsSentenceEnd(text_, i, n);
+
+    if (is_sentence_end) {
+      ++count_;
+      const char current_punct = text_[i];
+
+      while (i < n && (text_[i] == '.' || text_[i] == '?' || text_[i] == '!')) {
+        ++i;
       }
-
-      if (is_sentence_end) {
-        count_++;
-
-        char current_punct = text_[i];
-        while (i < n && (text_[i] == current_punct || text_[i] == '.' || text_[i] == '?' || text_[i] == '!')) {
-          i++;
-        }
-      } else {
-        i++;
-      }
+    } else {
+      ++i;
     }
   }
 
