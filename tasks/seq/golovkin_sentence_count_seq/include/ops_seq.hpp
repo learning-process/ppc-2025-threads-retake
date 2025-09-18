@@ -1,7 +1,7 @@
 // ops_seq.hpp
 #pragma once
 
-#include <cstddef>  // Добавлен для size_t
+#include <cstddef>  // Р”РѕР±Р°РІР»РµРЅ РґР»СЏ size_t
 #include <string>
 
 #include "core/task/include/task.hpp"
