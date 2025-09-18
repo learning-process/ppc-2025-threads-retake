@@ -1,10 +1,10 @@
 #include "seq/guseynov_e_sparse_matrix_multiply_crs/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <iostream>
 #include <utility>
 #include <vector>
-#include <iostream>
-#include <cmath>
 
 namespace guseynov_e_sparse_matrix_multiply_crs {
 
@@ -50,7 +50,6 @@ bool is_crs(const CRSMatrix& M) {
 
 }  // namespace guseynov_e_sparse_matrix_multiply_crs
 
-
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PreProcessingImpl() {
   A_mat_ = reinterpret_cast<CRSMatrix*>(task_data->inputs[0]);
   B_mat_ = reinterpret_cast<CRSMatrix*>(task_data->inputs[1]);
@@ -60,8 +59,8 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PreProcessi
 }
 
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::ValidationImpl() {
-  if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1 ||
-      !task_data->inputs_count.empty() || !task_data->outputs_count.empty())
+  if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1 || !task_data->inputs_count.empty() ||
+      !task_data->outputs_count.empty())
     return false;
 
   auto* A = reinterpret_cast<CRSMatrix*>(task_data->inputs[0]);
@@ -112,7 +111,7 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::RunImpl() {
 
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PostProcessingImpl() {
   CRSMatrix* output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
-  
+
   output->n_rows = Result_->n_rows;
   output->n_cols = Result_->n_cols;
   output->pointer = Result_->pointer;

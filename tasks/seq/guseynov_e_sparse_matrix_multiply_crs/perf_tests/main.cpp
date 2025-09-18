@@ -2,8 +2,8 @@
 
 #include <chrono>
 #include <cstdint>
-#include <random>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -52,7 +52,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_pipeline_run) {
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&Result));
 
-   // Create Task
+  // Create Task
   auto test_task_sequential =
       std::make_shared<guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial>(task_data_seq);
 
@@ -87,7 +87,8 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&Result));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
