@@ -2,7 +2,6 @@
 
 #include <cctype>
 #include <cstdint>
-#include <cstring>
 
 golovkin_sentence_count_seq::SentenceCountSequential::SentenceCountSequential(ppc::core::TaskDataPtr task_data)
     : Task(std::move(task_data)) {}
