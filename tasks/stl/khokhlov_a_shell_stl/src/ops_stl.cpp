@@ -49,7 +49,7 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
   unsigned int chunk_size = (n + num_threads - 1) / num_threads;
 
   std::vector<std::pair<int, int>> chunks;
-  for (int i = 0; i < n; i += chunk_size) {
+  for (int i = 0; i < n; i += int(chunk_size)) {
     chunks.emplace_back(i, std::min(int(i + chunk_size), n));
   }
 
