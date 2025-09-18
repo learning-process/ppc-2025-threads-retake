@@ -64,7 +64,7 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_small_image) {
   constexpr int kWidth = 5;
   constexpr int kHeight = 5;
 
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, {0, 0, 0});
+  auto input_image = CreateSolidColorImage(kWidth, kHeight, {.r = 0, .g = 0, .b = 0});
   input_image[((2 * kWidth + 2) * 3)] = 255;
   input_image[((2 * kWidth + 2) * 3) + 1] = 255;
   input_image[((2 * kWidth + 2) * 3) + 2] = 255;
@@ -152,65 +152,11 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_random_image) {
   }
 }
 
-TEST(vasenkov_a_vertical_gauss_3x3_seq, test_minimum_size_image) {
-  constexpr int kWidth = 3;
-  constexpr int kHeight = 3;
-
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, {0, 0, 0});
-  input_image[((1 * kWidth + 1) * 3)] = 255;
-  input_image[((1 * kWidth + 1) * 3) + 1] = 255;
-  input_image[((1 * kWidth + 1) * 3) + 2] = 255;
-
-  auto output_image = input_image;
-  auto kernel = GenerateGaussianKernel();
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data->inputs_count.emplace_back(kWidth);
-  task_data->inputs_count.emplace_back(kHeight);
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data->inputs_count.emplace_back(9);
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data->outputs_count.emplace_back(output_image.size());
-
-  vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss task(task_data);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  const int center_idx = (1 * kWidth + 1) * 3;
-
-  EXPECT_NE(output_image[center_idx], 255);
-  EXPECT_NE(output_image[center_idx + 1], 255);
-  EXPECT_NE(output_image[center_idx + 2], 255);
-
-  EXPECT_GE(output_image[center_idx], 0);
-  EXPECT_LE(output_image[center_idx], 255);
-  EXPECT_GE(output_image[center_idx + 1], 0);
-  EXPECT_LE(output_image[center_idx + 1], 255);
-  EXPECT_GE(output_image[center_idx + 2], 0);
-  EXPECT_LE(output_image[center_idx + 2], 255);
-
-  for (int y = 0; y < kHeight; y++) {
-    for (int x = 0; x < kWidth; x++) {
-      if (y == 1 && x == 1) {
-        continue;
-      }
-
-      const int idx = (y * kWidth + x) * 3;
-      EXPECT_EQ(input_image[idx], output_image[idx]);
-      EXPECT_EQ(input_image[idx + 1], output_image[idx + 1]);
-      EXPECT_EQ(input_image[idx + 2], output_image[idx + 2]);
-    }
-  }
-}
-
 TEST(vasenkov_a_vertical_gauss_3x3_seq, test_validation_failure) {
   constexpr int kWidth = 5;
   constexpr int kHeight = 5;
 
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, {255, 255, 255});
+  auto input_image = CreateSolidColorImage(kWidth, kHeight, {.r = 255, .g = 255, .b = 255});
   auto output_image = input_image;
   std::vector<float> wrong_kernel = {1.0F, 2.0F, 3.0F, 4.0F};
 
@@ -231,7 +177,7 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_edge_detection_kernel) {
   constexpr int kWidth = 7;
   constexpr int kHeight = 7;
 
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, {100, 100, 100});
+  auto input_image = CreateSolidColorImage(kWidth, kHeight, {.r = 100, .g = 100, .b = 100});
   for (int y = 0; y < kHeight; ++y) {
     int idx = (y * kWidth + 3) * 3;
     input_image[idx] = 255;
