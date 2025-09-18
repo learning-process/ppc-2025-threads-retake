@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,7 +23,7 @@ TEST(golovkin_sentence_count_seq, test_pipeline_run) {
     } else if (i % 33 == 0 && i > 0) {
       text.push_back('!');
     } else {
-      text.push_back('a' + (i % 26));
+      text.push_back(static_cast<char>('a' + (i % 26)));
     }
   }
 
@@ -65,7 +66,7 @@ TEST(golovkin_sentence_count_seq, test_task_run) {
     } else if (i % 33 == 0 && i > 0) {
       text.push_back('!');
     } else {
-      text.push_back('a' + (i % 26));
+      text.push_back(static_cast<char>('a' + (i % 26)));
     }
   }
 

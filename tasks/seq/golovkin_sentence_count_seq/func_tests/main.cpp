@@ -1,14 +1,15 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
 TEST(golovkin_sentence_count_seq, test_empty_string) {
-  std::string text = "";
+  std::string text;
   int result = 0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();

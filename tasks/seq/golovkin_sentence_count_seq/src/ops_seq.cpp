@@ -1,7 +1,8 @@
 #include "seq/golovkin_sentence_count_seq/include/ops_seq.hpp"
 
 #include <cctype>
-#include <cstdint>
+#include <utility>
+#include <cstddef>
 
 golovkin_sentence_count_seq::SentenceCountSequential::SentenceCountSequential(ppc::core::TaskDataPtr task_data)
     : Task(std::move(task_data)) {}
