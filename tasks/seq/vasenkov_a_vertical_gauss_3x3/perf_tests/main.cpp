@@ -11,14 +11,14 @@
 #include "seq/vasenkov_a_vertical_gauss_3x3/include/ops_seq.hpp"
 
 namespace vasenkov_a_gauss_perf_test {
-std::vector<uint8_t> generate_performance_test_image(int width, int height);
-std::vector<float> generate_gaussian_kernel();
+  static std::vector<uint8_t> Generate_performance_test_image(int width, int height);
+  static std::vector<float> Generate_gaussian_kernel();
 }  // namespace vasenkov_a_gauss_perf_test
 
 namespace vasenkov_a_gauss_perf_test {
 
-std::vector<uint8_t> generate_performance_test_image(int width, int height) {
-  std::vector<uint8_t> image(width * height * 3);
+std::vector<uint8_t> Generate_performance_test_image(int width, int height) {
+  static std::vector<uint8_t> image(width * height * 3);
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -50,24 +50,25 @@ std::vector<uint8_t> generate_performance_test_image(int width, int height) {
   return image;
 }
 
-std::vector<float> generate_gaussian_kernel() {
-  return {1.0f / 16, 2.0f / 16, 1.0f / 16, 2.0f / 16, 4.0f / 16, 2.0f / 16, 1.0f / 16, 2.0f / 16, 1.0f / 16};
+  static std::vector<float> Generate_gaussian_kernel() {
+  return {1.0F / 16, 2.0F / 16, 1.0F / 16, 2.0F / 16, 4.0F / 16, 2.0F / 16, 1.0F / 16, 2.0F / 16, 1.0F / 16};
+
 }
 
 }  // namespace vasenkov_a_gauss_perf_test
 
 TEST(vasenkov_a_vertical_gauss_3x3_seq, test_pipeline_run) {
-  constexpr int width = 4000;
-  constexpr int height = 4000;
+  constexpr int kWidth = 4000;
+  constexpr int kheight = 4000;
 
-  auto input_image = vasenkov_a_gauss_perf_test::generate_performance_test_image(width, height);
+  auto input_image = vasenkov_a_gauss_perf_test::Generate_performance_test_image(kWidth, kheight);
   auto output_image = input_image;
-  auto kernel = vasenkov_a_gauss_perf_test::generate_gaussian_kernel();
+  auto kernel = vasenkov_a_gauss_perf_test::Generate_gaussian_kernel();
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data->inputs_count.emplace_back(width);
-  task_data->inputs_count.emplace_back(height);
+  task_data->inputs_count.emplace_back(kWidth);
+  task_data->inputs_count.emplace_back(kheight);
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
   task_data->inputs_count.emplace_back(9);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
@@ -101,17 +102,17 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_pipeline_run) {
 }
 
 TEST(vasenkov_a_vertical_gauss_3x3_seq, test_task_run) {
-  constexpr int width = 4000;
-  constexpr int height = 4000;
+  constexpr int kWidth = 4000;
+  constexpr int kheight = 4000;
 
-  auto input_image = vasenkov_a_gauss_perf_test::generate_performance_test_image(width, height);
+  auto input_image = vasenkov_a_gauss_perf_test::Generate_performance_test_image(kWidth, kheight);
   auto output_image = input_image;
-  auto kernel = vasenkov_a_gauss_perf_test::generate_gaussian_kernel();
+  auto kernel = vasenkov_a_gauss_perf_test::Generate_gaussian_kernel();
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data->inputs_count.emplace_back(width);
-  task_data->inputs_count.emplace_back(height);
+  task_data->inputs_count.emplace_back(kWidth);
+  task_data->inputs_count.emplace_back(kheight);
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
   task_data->inputs_count.emplace_back(9);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));

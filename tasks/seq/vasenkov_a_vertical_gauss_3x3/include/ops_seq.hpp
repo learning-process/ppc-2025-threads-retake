@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <vector>
+#include <cstdint>
 
 #include "core/task/include/task.hpp"
 
@@ -19,7 +20,7 @@ class VerticalGauss : public ppc::core::Task {
   int32_t img_width_, img_height_;
   std::vector<uint8_t> source_img_, filtered_img_;
   std::vector<float> filter_kernel_;
-  static constexpr int CHANNELS = 3;
+  static constexpr int kCHANNELS = 3;
 };
 
 }  // namespace vasenkov_a_vertical_gauss_3x3_seq
