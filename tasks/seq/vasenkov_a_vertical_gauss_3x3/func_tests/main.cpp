@@ -29,12 +29,18 @@ std::vector<float> GenerateGaussianKernel() {
           1.0F / 16, 2.0F / 16, 1.0F / 16};
 }
 
-std::vector<uint8_t> CreateSolidColorImage(int width, int height, uint8_t r, uint8_t g, uint8_t b) {
+struct RGB {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+};
+
+std::vector<uint8_t> CreateSolidColorImage(int width, int height, RGB color) {
   std::vector<uint8_t> image(width * height * 3);
   for (int i = 0; i < width * height; ++i) {
-    image[(i * 3)] = r;
-    image[(i * 3) + 1] = g;
-    image[(i * 3) + 2] = b;
+    image[(i * 3)] = color.r;
+    image[(i * 3) + 1] = color.g;
+    image[(i * 3) + 2] = color.b;
   }
   return image;
 }
@@ -58,7 +64,7 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_small_image) {
   constexpr int kWidth = 5;
   constexpr int kHeight = 5;
 
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, 0, 0, 0);
+  auto input_image = CreateSolidColorImage(kWidth, kHeight, {0, 0, 0});
   input_image[((2 * kWidth + 2) * 3)] = 255;
   input_image[((2 * kWidth + 2) * 3) + 1] = 255;
   input_image[((2 * kWidth + 2) * 3) + 2] = 255;
@@ -150,7 +156,7 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_minimum_size_image) {
   constexpr int kWidth = 3;
   constexpr int kHeight = 3;
 
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, 0, 0, 0);
+  auto input_image = CreateSolidColorImage(kWidth, kHeight, {0, 0, 0});
   input_image[((1 * kWidth + 1) * 3)] = 255;
   input_image[((1 * kWidth + 1) * 3) + 1] = 255;
   input_image[((1 * kWidth + 1) * 3) + 2] = 255;
@@ -188,7 +194,9 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_minimum_size_image) {
 
   for (int y = 0; y < kHeight; y++) {
     for (int x = 0; x < kWidth; x++) {
-      if (y == 1 && x == 1) continue;
+      if (y == 1 && x == 1) {
+        continue;
+      }
 
       const int idx = (y * kWidth + x) * 3;
       EXPECT_EQ(input_image[idx], output_image[idx]);
@@ -202,7 +210,7 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_validation_failure) {
   constexpr int kWidth = 5;
   constexpr int kHeight = 5;
 
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, 255, 255, 255);
+  auto input_image = CreateSolidColorImage(kWidth, kHeight, {255, 255, 255});
   auto output_image = input_image;
   std::vector<float> wrong_kernel = {1.0F, 2.0F, 3.0F, 4.0F};
 
@@ -223,7 +231,7 @@ TEST(vasenkov_a_vertical_gauss_3x3_seq, test_edge_detection_kernel) {
   constexpr int kWidth = 7;
   constexpr int kHeight = 7;
 
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, 100, 100, 100);
+  auto input_image = CreateSolidColorImage(kWidth, kHeight, {100, 100, 100});
   for (int y = 0; y < kHeight; ++y) {
     int idx = (y * kWidth + 3) * 3;
     input_image[idx] = 255;
