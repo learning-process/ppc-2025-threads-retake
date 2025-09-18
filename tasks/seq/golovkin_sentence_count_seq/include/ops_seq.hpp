@@ -1,9 +1,13 @@
+// ops_seq.hpp
 #pragma once
+
+#include <cstddef>  // Добавлен для size_t
 #include <string>
 
 #include "core/task/include/task.hpp"
 
 namespace golovkin_sentence_count_seq {
+
 class SentenceCountSequential : public ppc::core::Task {
  public:
   explicit SentenceCountSequential(ppc::core::TaskDataPtr task_data);
@@ -13,8 +17,9 @@ class SentenceCountSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  bool IsAbbreviation(size_t i, size_t n) const;
+  [[nodiscard]] bool IsAbbreviation(size_t i, size_t n) const;
   std::string text_;
   int count_{};
 };
+
 }  // namespace golovkin_sentence_count_seq

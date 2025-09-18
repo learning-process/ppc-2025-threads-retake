@@ -19,15 +19,23 @@ bool golovkin_sentence_count_seq::SentenceCountSequential::ValidationImpl() { re
 
 namespace {
 bool IsSentenceEnd(const std::string& text, size_t i, size_t n) {
-  if (text[i] != '.') return true;
+  if (text[i] != '.') {
+    return true;
+  }
 
   if (i > 0 && i + 1 < n) {
-    const unsigned char prev = static_cast<unsigned char>(text[i - 1]);
-    const unsigned char next = static_cast<unsigned char>(text[i + 1]);
+    const auto prev = static_cast<unsigned char>(text[i - 1]);
+    const auto next = static_cast<unsigned char>(text[i + 1]);
 
-    if (std::isdigit(prev) && std::isdigit(next)) return false;
-    if (std::isalpha(prev) && std::isalpha(next)) return false;
-    if (text[i - 1] != ' ' && text[i + 1] != ' ') return false;
+    if ((std::isdigit(prev) != 0) && (std::isdigit(next) != 0)) {
+      return false;
+    }
+    if ((std::isalpha(prev) != 0) && (std::isalpha(next) != 0)) {
+      return false;
+    }
+    if (text[i - 1] != ' ' && text[i + 1] != ' ') {
+      return false;
+    }
   }
 
   return true;
@@ -43,14 +51,14 @@ bool golovkin_sentence_count_seq::SentenceCountSequential::RunImpl() {
       ++i;
     }
 
-    if (i >= n) break;
+    if (i >= n) {
+      break;
+    }
 
     const bool is_sentence_end = IsSentenceEnd(text_, i, n);
 
     if (is_sentence_end) {
       ++count_;
-      const char current_punct = text_[i];
-
       while (i < n && (text_[i] == '.' || text_[i] == '?' || text_[i] == '!')) {
         ++i;
       }
@@ -65,4 +73,27 @@ bool golovkin_sentence_count_seq::SentenceCountSequential::RunImpl() {
 bool golovkin_sentence_count_seq::SentenceCountSequential::PostProcessingImpl() {
   reinterpret_cast<int*>(task_data->outputs[0])[0] = count_;
   return true;
+}
+
+bool golovkin_sentence_count_seq::SentenceCountSequential::IsAbbreviation(size_t i, size_t n) const {
+  if (text_[i] != '.') {
+    return false;
+  }
+
+  if (i > 0 && i + 1 < n) {
+    const auto prev = static_cast<unsigned char>(text_[i - 1]);
+    const auto next = static_cast<unsigned char>(text_[i + 1]);
+
+    if ((std::isdigit(prev) != 0) && (std::isdigit(next) != 0)) {
+      return true;
+    }
+    if ((std::isalpha(prev) != 0) && (std::isalpha(next) != 0)) {
+      return true;
+    }
+    if (text_[i - 1] != ' ' && text_[i + 1] != ' ') {
+      return true;
+    }
+  }
+
+  return false;
 }
