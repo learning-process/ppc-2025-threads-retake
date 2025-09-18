@@ -107,7 +107,7 @@ bool RadixBatcherSortSequential::RunImpl() {
   std::vector<double> padded = sorted;
   if (pow2 != n) padded.resize(pow2, std::numeric_limits<double>::infinity());
   OddEvenMergeSort(padded, 0, static_cast<int>(padded.size()));
-  output_.assign(padded.begin(), padded.begin() + static_cast<long>(n));
+  output_.assign(padded.begin(), padded.begin() + static_cast<ptrdiff_t>(n));
   return true;
 }
 
