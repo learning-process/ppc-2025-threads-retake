@@ -1,11 +1,11 @@
 #include "stl/khokhlov_a_shell_stl/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <functional>
 #include <random>
 #include <ranges>
 #include <thread>
 #include <utility>
-#include <functional>
 #include <vector>
 
 bool khokhlov_a_shell_stl::ShellStl::PreProcessingImpl() {
@@ -46,10 +46,10 @@ std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int
   std::vector<int> vec(input);
   int n = static_cast<int>(vec.size());
   unsigned int num_threads = std::thread::hardware_concurrency();
-  int chunk_size = (n + num_threads - 1) / num_threads;
+  unsigned int chunk_size = (n + num_threads - 1) / num_threads;
 
   std::vector<std::pair<int, int>> chunks;
-  for (int i = 0; i < n; i += chunk_size) {
+  for (unsigned int i = 0; i < n; i += chunk_size) {
     chunks.emplace_back(i, std::min(i + chunk_size, n));
   }
 
