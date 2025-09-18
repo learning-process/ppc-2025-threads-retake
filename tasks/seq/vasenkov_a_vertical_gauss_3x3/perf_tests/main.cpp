@@ -39,6 +39,7 @@ std::vector<uint8_t> generate_performance_test_image(int width, int height) {
         image[idx + 1] = 255;
         image[idx + 2] = 255;
       }
+      
       if (x == width / 2) {
         image[idx] = 0;
         image[idx + 1] = 255;
