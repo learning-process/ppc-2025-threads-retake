@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <utility>
 #include <vector>
-#include <cstdint>
 
 #include "core/task/include/task.hpp"
 

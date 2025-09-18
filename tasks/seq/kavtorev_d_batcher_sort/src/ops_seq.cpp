@@ -92,9 +92,7 @@ bool RadixBatcherSortSequential::PreProcessingImpl() {
   return true;
 }
 
-bool RadixBatcherSortSequential::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
-}
+bool RadixBatcherSortSequential::ValidationImpl() { return task_data->inputs_count[0] == task_data->outputs_count[0]; }
 
 bool RadixBatcherSortSequential::RunImpl() {
   if (input_.empty()) return true;

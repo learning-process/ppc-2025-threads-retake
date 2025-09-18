@@ -14,7 +14,7 @@
 using kavtorev_d_batcher_sort_seq::RadixBatcherSortSequential;
 
 TEST(kavtorev_d_batcher_sort_seq, perf_pipeline_run) {
-  constexpr size_t kCount = 100000; 
+  constexpr size_t kCount = 100000;
   std::vector<double> in(kCount), out(kCount);
   std::mt19937 gen(123);
   std::uniform_real_distribution<double> d(-1e6, 1e6);
