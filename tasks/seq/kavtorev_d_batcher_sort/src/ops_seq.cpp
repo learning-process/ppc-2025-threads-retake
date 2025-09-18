@@ -25,7 +25,7 @@ inline uint64_t RadixBatcherSortSequential::ToOrderedUint64(double value) {
 }
 
 inline double RadixBatcherSortSequential::FromOrderedUint64(uint64_t key) {
-  if ((key >> 63) == 0) {
+  if ((key >> 63) != 0) {
     key ^= (uint64_t{1} << 63);
   } else {
     key = ~key;
