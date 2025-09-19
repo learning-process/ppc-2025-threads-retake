@@ -52,7 +52,7 @@ void CompareValues(const CRSMatrix& result, const CRSMatrix& expected) {
   }
 }
 
-void compare_matrices(const CRSMatrix& result, const CRSMatrix& expected) {
+void CompareMatrices(const CRSMatrix& result, const CRSMatrix& expected) {
   CompareDimensions(result, expected);
   CompareStructure(result, expected);
   CompareValues(result, expected);
@@ -73,7 +73,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs, test_square_matrix_by_itself) {
                      .pointer = {0, 4, 7, 12, 17, 19},
                      .col_indexes = {0, 1, 2, 3, 0, 1, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 4}};
 
-  compare_matrices(RunTask({.left = a, .right = b}), expected);
+  CompareMatrices(RunTask({.left = a, .right = b}), expected);
 }
 
 TEST(guseynov_e_sparse_matrix_multiply_crs, test_square_matrix) {
@@ -94,16 +94,16 @@ TEST(guseynov_e_sparse_matrix_multiply_crs, test_square_matrix) {
                      .pointer = {0, 3, 6, 9, 10},
                      .col_indexes = {0, 1, 3, 0, 1, 2, 0, 1, 2, 3}};
 
-  compare_matrices(RunTask({.left = a, .right = b}), expected);
+  CompareMatrices(RunTask({.left = a, .right = b}), expected);
 }
 
 TEST(guseynov_e_sparse_matrix_multiply_crs, test_non_square_matrix) {
   CRSMatrix a{.n_rows = 2, .n_cols = 3, .non_zero_values = {1, 2, 3}, .pointer = {0, 2, 3}, .col_indexes = {0, 2, 1}};
   CRSMatrix b{
-      .n_rows = 3, .n_cols = 3, .pointer = {0, 2, 3, 4}, .col_indexes = {0, 2, 1, 1}, .non_zero_values = {4, 7, 6, 8}};
+      .n_rows = 3, .n_cols = 3, .non_zero_values = {4, 7, 6, 8}, .pointer = {0, 2, 3, 4}, .col_indexes = {0, 2, 1, 1}};
 
   CRSMatrix expected{
       .n_rows = 2, .n_cols = 3, .non_zero_values = {4, 16, 7, 18}, .pointer = {0, 3, 4}, .col_indexes = {0, 1, 2, 1}};
 
-  compare_matrices(RunTask({.left = a, .right = b}), expected);
+  CompareMatrices(RunTask({.left = a, .right = b}), expected);
 }
