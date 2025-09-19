@@ -123,8 +123,7 @@ bool SimpsonIntegralSequential::PostProcessingImpl() {
   return true;
 }
 
-double SimpsonIntegralSequential::SimpsonRecursive(int dim_index,
-    const std::vector<double>& current_point) {
+double SimpsonIntegralSequential::SimpsonRecursive(int dim_index, const std::vector<double>& current_point) {
   if (dim_index == dimensions_) {
     return integrand_function_(current_point);
   }
