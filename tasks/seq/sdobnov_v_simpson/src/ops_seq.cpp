@@ -118,7 +118,7 @@ bool SimpsonIntegralSequential::PostProcessingImpl() {
     return false;
   }
 
-  auto *output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   *output_ptr = result_;
   return true;
 }
