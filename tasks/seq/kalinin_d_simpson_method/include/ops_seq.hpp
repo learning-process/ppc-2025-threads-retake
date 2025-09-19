@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <utility>
 #include <vector>
 
@@ -31,7 +30,7 @@ class SimpsonNDSequential : public ppc::core::Task {
   double result_{};
 
   // Helpers
-  double EvaluateFunction(const std::vector<double>& point) const;
+  [[nodiscard]] double EvaluateFunction(const std::vector<double>& point) const;
 };
 
 }  // namespace kalinin_d_simpson_method_seq

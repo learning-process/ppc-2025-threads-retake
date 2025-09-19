@@ -2,7 +2,6 @@
 
 #include <array>
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <memory>
@@ -20,9 +19,9 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& low
   auto* lower_ptr = const_cast<double*>(lower.data());
   auto* upper_ptr = const_cast<double*>(upper.data());
   // Persist params storage to avoid dangling pointer and keep addresses stable
-  static thread_local std::deque<std::array<int, 2>> kParamsStorage;
-  kParamsStorage.emplace_back(std::array<int, 2>{segments_per_dim, function_id});
-  int* params_ptr = kParamsStorage.back().data();
+  static thread_local std::deque<std::array<int, 2>> k_params_storage;
+  k_params_storage.emplace_back(std::array<int, 2>{segments_per_dim, function_id});
+  int* params_ptr = k_params_storage.back().data();
 
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(lower_ptr));
   task_data->inputs_count.emplace_back(lower.size());

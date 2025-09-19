@@ -1,12 +1,10 @@
 #include "seq/kalinin_d_simpson_method/include/ops_seq.hpp"
 
-#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 namespace kalinin_d_simpson_method_seq {
-
+namespace {
 static double EvaluateById(int id, const std::vector<double>& x) {
   switch (id) {
     case 0: {
@@ -14,23 +12,30 @@ static double EvaluateById(int id, const std::vector<double>& x) {
     }
     case 1: {
       double s = 0.0;
-      for (double v : x) s += v;
+      for (double v : x) {
+        s += v;
+      }
       return s;
     }
     case 2: {
       double p = 1.0;
-      for (double v : x) p *= v;
+      for (double v : x) {
+        p *= v;
+      }
       return p;
     }
     case 3: {
       double s = 0.0;
-      for (double v : x) s += v * v;
+      for (double v : x) {
+        s += v * v;
+      }
       return s;
     }
     default:
       return 0.0;
   }
 }
+}  // namespace
 
 bool SimpsonNDSequential::PreProcessingImpl() {
   dimension_ = static_cast<int>(task_data->inputs_count[0]);
@@ -48,24 +53,40 @@ bool SimpsonNDSequential::PreProcessingImpl() {
 }
 
 bool SimpsonNDSequential::ValidationImpl() {
-  if (task_data->inputs_count.size() < 3) return false;
-  if (task_data->outputs_count.size() < 1) return false;
-  if (task_data->outputs_count[0] != 1) return false;
+  if (task_data->inputs_count.size() < 3) {
+    return false;
+  }
+  if (task_data->outputs_count.empty()) {
+    return false;
+  }
+  if (task_data->outputs_count[0] != 1) {
+    return false;
+  }
 
   const int dim = static_cast<int>(task_data->inputs_count[0]);
-  if (dim <= 0) return false;
-  if (static_cast<int>(task_data->inputs_count[1]) != dim) return false;
-  if (task_data->inputs_count[2] != 2) return false;
+  if (dim <= 0) {
+    return false;
+  }
+  if (static_cast<int>(task_data->inputs_count[1]) != dim) {
+    return false;
+  }
+  if (task_data->inputs_count[2] != 2) {
+    return false;
+  }
 
   const double* lb = reinterpret_cast<double*>(task_data->inputs[0]);
   const double* ub = reinterpret_cast<double*>(task_data->inputs[1]);
   for (int i = 0; i < dim; ++i) {
-    if (!(ub[i] > lb[i])) return false;
+    if (!(ub[i] > lb[i])) {
+      return false;
+    }
   }
 
   const int* params = reinterpret_cast<int*>(task_data->inputs[2]);
   const int segments = params[0];
-  if (segments <= 0 || (segments % 2) != 0) return false;
+  if (segments <= 0 || (segments % 2) != 0) {
+    return false;
+  }
   return true;
 }
 
@@ -78,7 +99,7 @@ bool SimpsonNDSequential::RunImpl() {
   std::vector<int> idx(dimension_, 0);
   std::vector<double> x(dimension_, 0.0);
   const long long points_per_dim = static_cast<long long>(segments_per_dim_) + 1;
-  const long long total_points = static_cast<long long>(std::pow(points_per_dim, dimension_));
+  const auto total_points = static_cast<long long>(std::pow(points_per_dim, dimension_));
 
   for (long long linear = 0; linear < total_points; ++linear) {
     long long tmp = linear;
