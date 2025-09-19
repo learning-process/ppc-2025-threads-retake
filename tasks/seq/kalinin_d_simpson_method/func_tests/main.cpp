@@ -130,7 +130,8 @@ TEST(kalinin_d_simpson_method_seq, two_dim_product_unit_square) {
 
 // 2D: f(x,y)=x^2+y^2 on [0,1]^2 => 2/3
 TEST(kalinin_d_simpson_method_seq, two_dim_sum_squares_unit_square) {
-  std::vector<double> a{0.0, 0.0} : std::vector<double> b{1.0, 1.0};
+  std::vector<double> a{0.0, 0.0};
+  std::vector<double> b{1.0, 1.0};
   int n = 100;
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 3, &res);
