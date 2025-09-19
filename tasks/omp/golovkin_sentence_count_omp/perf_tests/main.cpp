@@ -1,4 +1,4 @@
-// Golovkin
+// Golovkins
 #include <gtest/gtest.h>
 
 #include <chrono>
