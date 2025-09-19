@@ -1,7 +1,7 @@
 #include "seq/kalinin_d_simpson_method/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 namespace kalinin_d_simpson_method_seq {
