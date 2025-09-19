@@ -44,7 +44,7 @@ bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::RunImpl() {
         const int left_idx = base_pixel_idx - kCHANNELS + c;
         const int center_idx = base_pixel_idx + c;
         const int right_idx = base_pixel_idx + kCHANNELS + c;
-        
+
         const int top_left_idx = top_pixel_idx - kCHANNELS + c;
         const int top_center_idx = top_pixel_idx + c;
         const int top_right_idx = top_pixel_idx + kCHANNELS + c;
@@ -53,17 +53,15 @@ bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::RunImpl() {
         const int bottom_center_idx = bottom_pixel_idx + c;
         const int bottom_right_idx = bottom_pixel_idx + kCHANNELS + c;
 
-        float sum = (
-            (static_cast<float>(source_img_[top_left_idx]) * kernel[0]) + 
-            (static_cast<float>(source_img_[top_center_idx]) * kernel[1]) +
-            (static_cast<float>(source_img_[top_right_idx]) * kernel[2]) + 
-            (static_cast<float>(source_img_[left_idx]) * kernel[3]) +
-            (static_cast<float>(source_img_[center_idx]) * kernel[4]) + 
-            (static_cast<float>(source_img_[right_idx]) * kernel[5]) +
-            (static_cast<float>(source_img_[bottom_left_idx]) * kernel[6]) + 
-            (static_cast<float>(source_img_[bottom_center_idx]) * kernel[7]) +
-            (static_cast<float>(source_img_[bottom_right_idx]) * kernel[8])
-        );
+        float sum = ((static_cast<float>(source_img_[top_left_idx]) * kernel[0]) +
+                     (static_cast<float>(source_img_[top_center_idx]) * kernel[1]) +
+                     (static_cast<float>(source_img_[top_right_idx]) * kernel[2]) +
+                     (static_cast<float>(source_img_[left_idx]) * kernel[3]) +
+                     (static_cast<float>(source_img_[center_idx]) * kernel[4]) +
+                     (static_cast<float>(source_img_[right_idx]) * kernel[5]) +
+                     (static_cast<float>(source_img_[bottom_left_idx]) * kernel[6]) +
+                     (static_cast<float>(source_img_[bottom_center_idx]) * kernel[7]) +
+                     (static_cast<float>(source_img_[bottom_right_idx]) * kernel[8]));
 
         filtered_img_[center_idx] = static_cast<uint8_t>(std::clamp(std::round(sum), 0.0F, 255.0F));
       }
