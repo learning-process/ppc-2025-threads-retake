@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -27,7 +26,7 @@ class SimpsonIntegralSequential : public ppc::core::Task {
 
   Func integrand_function_{nullptr};
 
-  double SimpsonRecursive(int dim_index, std::vector<double> current_point);
+  double SimpsonRecursive(int dim_index, const std::vector<double>& current_point);
 };
 
 }  // namespace sdobnov_v_simpson

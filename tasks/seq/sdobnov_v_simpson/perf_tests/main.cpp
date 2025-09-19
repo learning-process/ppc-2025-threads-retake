@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -11,9 +10,11 @@
 #include "core/task/include/task.hpp"
 #include "seq/sdobnov_v_simpson/include/ops_seq.hpp"
 
-double test_function_2d(std::vector<double> point) {
-  if (point.size() != 2) return 0.0;
-  return point[0] * point[0] + point[1] * point[1];
+double static TestFunction2d(std::vector<double> point) {
+  if (point.size() != 2) {
+    return 0.0;
+  }
+  return (point[0] * point[0]) + (point[1] * point[1]);
 }
 
 TEST(sdobnov_v_simpson, test_pipeline_run) {
@@ -38,7 +39,7 @@ TEST(sdobnov_v_simpson, test_pipeline_run) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(n_points)));
   task_data->inputs_count.emplace_back(2 * sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(test_function_2d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(TestFunction2d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
@@ -88,7 +89,7 @@ TEST(sdobnov_v_simpson, test_task_run) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(n_points)));
   task_data->inputs_count.emplace_back(2 * sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(test_function_2d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(TestFunction2d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));

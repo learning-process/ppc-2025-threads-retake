@@ -1,9 +1,7 @@
-#include <cmath>
-#include <cstddef>
-#include <iostream>
-#include <vector>
-
 #include "seq/sdobnov_v_simpson/include/ops_seq.hpp"
+
+#include <cmath>
+#include <vector>
 
 namespace sdobnov_v_simpson {
 
@@ -104,7 +102,9 @@ bool SimpsonIntegralSequential::RunImpl() {
   double coefficient = 1.0;
   for (int i = 0; i < dimensions_; ++i) {
     int n = n_points_[i];
-    if (n % 2 != 0) n++;
+    if (n % 2 != 0) {
+      n++;
+    }
     double h = (upper_bounds_[i] - lower_bounds_[i]) / n;
     coefficient *= h / 3.0;
   }
@@ -118,12 +118,13 @@ bool SimpsonIntegralSequential::PostProcessingImpl() {
     return false;
   }
 
-  double* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  auto output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   *output_ptr = result_;
   return true;
 }
 
-double SimpsonIntegralSequential::SimpsonRecursive(int dim_index, std::vector<double> current_point) {
+double SimpsonIntegralSequential::SimpsonRecursive(int dim_index,
+    const std::vector<double>& current_point) {
   if (dim_index == dimensions_) {
     return integrand_function_(current_point);
   }
@@ -131,13 +132,15 @@ double SimpsonIntegralSequential::SimpsonRecursive(int dim_index, std::vector<do
   double a = lower_bounds_[dim_index];
   double b = upper_bounds_[dim_index];
   int n = n_points_[dim_index];
-  if (n % 2 != 0) n++;
+  if (n % 2 != 0) {
+    n++;
+  }
   double h = (b - a) / n;
 
   double sum = 0.0;
   for (int i = 0; i <= n; i++) {
-    double x = a + i * h;
-    double weight;
+    double x = a + (i * h);
+    double weight = NAN;
     if (i == 0 || i == n) {
       weight = 1;
     } else if (i % 2 == 0) {
