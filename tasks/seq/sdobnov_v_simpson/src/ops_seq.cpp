@@ -118,7 +118,7 @@ bool SimpsonIntegralSequential::PostProcessingImpl() {
     return false;
   }
 
-  auto output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  auto *output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   *output_ptr = result_;
   return true;
 }
@@ -155,6 +155,27 @@ double SimpsonIntegralSequential::SimpsonRecursive(int dim_index, const std::vec
   }
 
   return sum;
+}
+
+double SimpsonIntegralSequential::TestFunction2d(std::vector<double> point) {
+  if (point.size() != 2) {
+    return 0.0;
+  }
+  return (point[0] * point[0]) + (point[1] * point[1]);
+}
+
+double SimpsonIntegralSequential::LinearFunction1d(std::vector<double> point) {
+  if (point.empty()) {
+    return 0.0;
+  }
+  return point[0];
+}
+
+double SimpsonIntegralSequential::Gaussian2d(std::vector<double> point) {
+  if (point.size() != 2) {
+    return 0.0;
+  }
+  return exp(-((point[0] * point[0]) + (point[1] * point[1])));
 }
 
 }  // namespace sdobnov_v_simpson
