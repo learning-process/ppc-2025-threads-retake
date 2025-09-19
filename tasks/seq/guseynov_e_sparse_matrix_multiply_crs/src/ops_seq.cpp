@@ -1,6 +1,8 @@
 #include "seq/guseynov_e_sparse_matrix_multiply_crs/include/ops_seq.hpp"
 
+#include <cmath>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 namespace guseynov_e_sparse_matrix_multiply_crs {
@@ -38,7 +40,8 @@ bool IsCrs(const CRSMatrix& m) {
   }
 
   size_t non_zero_elems_count = m.non_zero_values.size();
-  if (m.col_indexes.size() != size_t(non_zero_elems_count) || m.pointer[m.n_rows] != non_zero_elems_count) {
+  if (m.col_indexes.size() != non_zero_elems_count ||
+      static_cast<size_t>(m.pointer[m.n_rows]) != non_zero_elems_count) {
     return false;
   }
 
@@ -51,7 +54,7 @@ bool IsCrs(const CRSMatrix& m) {
       return false;
     }
   }
-  for (int i = 0; i < non_zero_elems_count; i++) {
+  for (size_t i = 0; i < non_zero_elems_count; i++) {
     if (m.col_indexes[i] < 0 || m.col_indexes[i] >= m.n_cols) {
       return false;
     }
@@ -92,6 +95,7 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::ValidationI
 
   return true;
 }
+
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::RunImpl() {
   *B_mat_ = T(*B_mat_);
 
@@ -129,7 +133,7 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::RunImpl() {
 }
 
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PostProcessingImpl() {
-  auto output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
+  auto* output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
 
   output->n_rows = Result_->n_rows;
   output->n_cols = Result_->n_cols;
@@ -139,3 +143,4 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PostProcess
 
   return true;
 }
+}  // namespace guseynov_e_sparse_matrix_multiply_crs
