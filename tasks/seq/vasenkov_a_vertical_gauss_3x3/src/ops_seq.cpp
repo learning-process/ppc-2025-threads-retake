@@ -1,7 +1,5 @@
 #include "seq/vasenkov_a_vertical_gauss_3x3/include/ops_seq.hpp"
 
-#include <immintrin.h>
-
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
