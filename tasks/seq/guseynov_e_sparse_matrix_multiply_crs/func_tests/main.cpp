@@ -65,7 +65,11 @@ TEST(guseynov_e_sparse_matrix_multiply_crs, test_square_matrix_by_itself) {
               .non_zero_values = {1, -1, -3, -2, 5, 4, 6, 4, -4, 2, 7, 8, -5},
               .pointer = {0, 3, 5, 8, 11, 13},
               .col_indexes = {0, 1, 3, 0, 1, 2, 3, 4, 0, 2, 3, 1, 4}};
-  const CRSMatrix& b = a;
+  CRSMatrix b{.n_rows = 5,
+              .n_cols = 5,
+              .non_zero_values = {1, -1, -3, -2, 5, 4, 6, 4, -4, 2, 7, 8, -5},
+              .pointer = {0, 3, 5, 8, 11, 13},
+              .col_indexes = {0, 1, 3, 0, 1, 2, 3, 4, 0, 2, 3, 1, 4}};
 
   CRSMatrix expected{.n_rows = 5,
                      .n_cols = 5,
