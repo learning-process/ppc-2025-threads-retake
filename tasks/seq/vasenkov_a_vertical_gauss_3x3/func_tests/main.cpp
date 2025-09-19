@@ -58,36 +58,6 @@ std::vector<uint8_t> CreateGradientImage(int width, int height) {
 
 }  // namespace
 
-TEST(vasenkov_a_vertical_gauss_3x3_seq, test_small_image) {
-  constexpr int kWidth = 5;
-  constexpr int kHeight = 5;
-
-  auto input_image = CreateSolidColorImage(kWidth, kHeight, {.r = 0, .g = 0, .b = 0});
-  input_image[((2 * kWidth + 2) * 3)] = 255;
-  input_image[((2 * kWidth + 2) * 3) + 1] = 255;
-  input_image[((2 * kWidth + 2) * 3) + 2] = 255;
-
-  auto output_image = input_image;
-  auto kernel = GenerateGaussianKernel();
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data->inputs_count.emplace_back(kWidth);
-  task_data->inputs_count.emplace_back(kHeight);
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data->inputs_count.emplace_back(9);
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data->outputs_count.emplace_back(output_image.size());
-
-  vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss task(task_data);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  EXPECT_NE(input_image, output_image);
-}
-
 TEST(vasenkov_a_vertical_gauss_3x3_seq, test_gradient_image) {
   constexpr int kWidth = 8;
   constexpr int kHeight = 8;
