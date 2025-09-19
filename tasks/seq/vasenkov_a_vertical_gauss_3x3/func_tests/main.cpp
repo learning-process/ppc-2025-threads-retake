@@ -43,19 +43,6 @@ std::vector<uint8_t> CreateSolidColorImage(int width, int height, RGB color) {
   return image;
 }
 
-std::vector<uint8_t> CreateGradientImage(int width, int height) {
-  std::vector<uint8_t> image(width * height * 3);
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      int idx = (y * width + x) * 3;
-      image[idx] = static_cast<uint8_t>((x * 255) / width);
-      image[idx + 1] = static_cast<uint8_t>((y * 255) / height);
-      image[idx + 2] = static_cast<uint8_t>(((x + y) * 255) / (width + height));
-    }
-  }
-  return image;
-}
-
 }  // namespace
 
 TEST(vasenkov_a_vertical_gauss_3x3_seq, test_random_image) {
