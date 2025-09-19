@@ -8,27 +8,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/sdobnov_v_simpson/include/ops_seq.hpp"
 
-double static TestFunction2d(std::vector<double> point) {
-  if (point.size() != 2) {
-    return 0.0;
-  }
-  return (point[0] * point[0]) + (point[1] * point[1]);
-}
-
-double static LinearFunction1d(std::vector<double> point) {
-  if (point.empty()) {
-    return 0.0;
-  }
-  return point[0];
-}
-
-double static Gaussian2d(std::vector<double> point) {
-  if (point.size() != 2) {
-    return 0.0;
-  }
-  return exp(-((point[0] * point[0]) + (point[1] * point[1])));
-}
-
 TEST(sdobnov_v_simpson, test_2d_integral_x_squared_plus_y_squared) {
   const int dimensions = 2;
   const double lower_bounds[2] = {0.0, 0.0};
