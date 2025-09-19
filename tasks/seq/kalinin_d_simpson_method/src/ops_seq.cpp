@@ -1,11 +1,12 @@
 #include "seq/kalinin_d_simpson_method/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 namespace kalinin_d_simpson_method_seq {
 namespace {
-static double EvaluateById(int id, const std::vector<double>& x) {
+double EvaluateById(int id, const std::vector<double>& x) {
   switch (id) {
     case 0: {
       return 1.0;
@@ -84,10 +85,7 @@ bool SimpsonNDSequential::ValidationImpl() {
 
   const int* params = reinterpret_cast<int*>(task_data->inputs[2]);
   const int segments = params[0];
-  if (segments <= 0 || (segments % 2) != 0) {
-    return false;
-  }
-  return true;
+  return segments > 0 && (segments % 2) == 0;
 }
 
 bool SimpsonNDSequential::RunImpl() {

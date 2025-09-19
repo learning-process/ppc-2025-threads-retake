@@ -2,6 +2,7 @@
 
 #include <array>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <memory>
@@ -38,7 +39,9 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& low
 }  // namespace
 
 TEST(kalinin_d_simpson_method_seq, perf_pipeline_run_unit_cube_linear_sum) {
-  std::vector<double> a{0.0, 0.0, 0.0}, b{1.0, 1.0, 1.0};
+  std::vector<double> a{0.0, 0.0, 0.0};
+  std::vector<double> b{1.0, 1.0, 1.0};
+
   int n = 60;  // even, moderate grid size
   double result = 0.0;
   auto task_data = MakeTaskData(a, b, n, 1, &result);
