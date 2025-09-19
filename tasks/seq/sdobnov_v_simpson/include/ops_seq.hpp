@@ -8,6 +8,9 @@
 namespace sdobnov_v_simpson {
 
 using Func = double (*)(std::vector<double>);
+double TestFunction2d(std::vector<double> point);
+double LinearFunction1d(std::vector<double> point);
+double Gaussian2d(std::vector<double> point);
 
 class SimpsonIntegralSequential : public ppc::core::Task {
  public:
@@ -27,9 +30,6 @@ class SimpsonIntegralSequential : public ppc::core::Task {
   Func integrand_function_{nullptr};
 
   double SimpsonRecursive(int dim_index, const std::vector<double>& current_point);
-  double TestFunction2d(std::vector<double> point);
-  double LinearFunction1d(std::vector<double> point);
-  double Gaussian2d(std::vector<double> point);
 };
 
 }  // namespace sdobnov_v_simpson

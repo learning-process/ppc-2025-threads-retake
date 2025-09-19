@@ -157,21 +157,21 @@ double SimpsonIntegralSequential::SimpsonRecursive(int dim_index, const std::vec
   return sum;
 }
 
-double SimpsonIntegralSequential::TestFunction2d(std::vector<double> point) {
+double TestFunction2d(std::vector<double> point) {
   if (point.size() != 2) {
     return 0.0;
   }
   return (point[0] * point[0]) + (point[1] * point[1]);
 }
 
-double SimpsonIntegralSequential::LinearFunction1d(std::vector<double> point) {
+double LinearFunction1d(std::vector<double> point) {
   if (point.empty()) {
     return 0.0;
   }
   return point[0];
 }
 
-double SimpsonIntegralSequential::Gaussian2d(std::vector<double> point) {
+double Gaussian2d(std::vector<double> point) {
   if (point.size() != 2) {
     return 0.0;
   }

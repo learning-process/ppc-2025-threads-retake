@@ -24,7 +24,7 @@ TEST(sdobnov_v_simpson, test_2d_integral_x_squared_plus_y_squared) {
   task_data->inputs_count.emplace_back(2 * sizeof(double));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(n_points)));
   task_data->inputs_count.emplace_back(2 * sizeof(int));
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(TestFunction2d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(sdobnov_v_simpson::TestFunction2d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data->outputs_count.emplace_back(sizeof(double));
@@ -92,7 +92,7 @@ TEST(sdobnov_v_simpson, validation_fails_with_invalid_dimensions) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(points));
   task_data->inputs_count.emplace_back(sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&Gaussian2d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(sdobnov_v_simpson::Gaussian2d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   double result = 0.0;
@@ -121,7 +121,7 @@ TEST(sdobnov_v_simpson, validation_fails_with_wrong_array_sizes) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(points));
   task_data->inputs_count.emplace_back(sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&Gaussian2d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(sdobnov_v_simpson::Gaussian2d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   double result = 0.0;
@@ -183,7 +183,7 @@ TEST(sdobnov_v_simpson, preprocessing_fails_with_invalid_points) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&points));
   task_data->inputs_count.emplace_back(sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&LinearFunction1d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(sdobnov_v_simpson::LinearFunction1d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   double result = 0.0;
@@ -217,7 +217,7 @@ TEST(sdobnov_v_simpson, test_1d_integral_linear_function) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&n_points)));
   task_data->inputs_count.emplace_back(sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&LinearFunction1d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(sdobnov_v_simpson::LinearFunction1d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
@@ -258,7 +258,7 @@ TEST(sdobnov_v_simpson, test_gaussian_2d_integral) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(n_points)));
   task_data->inputs_count.emplace_back(2 * sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&Gaussian2d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(sdobnov_v_simpson::Gaussian2d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
@@ -300,7 +300,7 @@ TEST(sdobnov_v_simpson, test_single_point_integration) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&n_points)));
   task_data->inputs_count.emplace_back(sizeof(int));
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&LinearFunction1d));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(sdobnov_v_simpson::LinearFunction1d));
   task_data->inputs_count.emplace_back(sizeof(double (*)(std::vector<double>)));
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
