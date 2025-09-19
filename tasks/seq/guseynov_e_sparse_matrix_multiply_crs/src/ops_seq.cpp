@@ -1,24 +1,22 @@
 #include "seq/guseynov_e_sparse_matrix_multiply_crs/include/ops_seq.hpp"
 
-#include <algorithm>
-#include <cmath>
-#include <iostream>
-#include <utility>
+#include <cstddef>
 #include <vector>
 
 namespace guseynov_e_sparse_matrix_multiply_crs {
 
-CRSMatrix T(const CRSMatrix& M) {
+namespace {
+CRSMatrix T(const CRSMatrix& m) {
   CRSMatrix temp_matrix;
-  temp_matrix.n_rows = M.n_cols;
-  temp_matrix.n_cols = M.n_rows;
+  temp_matrix.n_rows = m.n_cols;
+  temp_matrix.n_cols = m.n_rows;
   temp_matrix.pointer.assign(temp_matrix.n_rows + 1, 0);
 
   std::vector<std::vector<std::pair<int, double>>> temp(temp_matrix.n_rows);
-  for (int i = 0; i < M.n_rows; i++) {
-    for (int k = M.pointer[i]; k < M.pointer[i + 1]; k++) {
-      int j = M.col_indexes[k];
-      temp[j].emplace_back(i, M.non_zero_values[k]);
+  for (int i = 0; i < m.n_rows; i++) {
+    for (int k = m.pointer[i]; k < m.pointer[i + 1]; k++) {
+      int j = m.col_indexes[k];
+      temp[j].emplace_back(i, m.non_zero_values[k]);
     }
   }
 
@@ -34,21 +32,33 @@ CRSMatrix T(const CRSMatrix& M) {
   return temp_matrix;
 }
 
-bool is_crs(const CRSMatrix& M) {
-  if (M.pointer.size() != size_t(M.n_rows + 1)) return false;
-  int non_zero_elems_count = M.non_zero_values.size();
-  if (M.col_indexes.size() != size_t(non_zero_elems_count) || M.pointer[M.n_rows] != non_zero_elems_count) return false;
-  if (M.pointer[0] != 0) return false;
-  for (int i = 1; i <= M.n_rows; i++) {
-    if (M.pointer[i] < M.pointer[i - 1]) return false;
+bool IsCrs(const CRSMatrix& m) {
+  if (m.pointer.size() != static_cast<size_t>(m.n_rows) + 1) {
+    return false;
+  }
+
+  size_t non_zero_elems_count = m.non_zero_values.size();
+  if (m.col_indexes.size() != size_t(non_zero_elems_count) || m.pointer[m.n_rows] != non_zero_elems_count) {
+    return false;
+  }
+
+  if (m.pointer[0] != 0) {
+    return false;
+  }
+
+  for (int i = 1; i <= m.n_rows; i++) {
+    if (m.pointer[i] < m.pointer[i - 1]) {
+      return false;
+    }
   }
   for (int i = 0; i < non_zero_elems_count; i++) {
-    if (M.col_indexes[i] < 0 || M.col_indexes[i] >= M.n_cols) return false;
+    if (m.col_indexes[i] < 0 || m.col_indexes[i] >= m.n_cols) {
+      return false;
+    }
   }
   return true;
 }
-
-}  // namespace guseynov_e_sparse_matrix_multiply_crs
+}  // namespace
 
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PreProcessingImpl() {
   A_mat_ = reinterpret_cast<CRSMatrix*>(task_data->inputs[0]);
@@ -60,16 +70,25 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PreProcessi
 
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::ValidationImpl() {
   if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1 || !task_data->inputs_count.empty() ||
-      !task_data->outputs_count.empty())
+      !task_data->outputs_count.empty()) {
     return false;
+  }
 
-  auto* A = reinterpret_cast<CRSMatrix*>(task_data->inputs[0]);
-  auto* B = reinterpret_cast<CRSMatrix*>(task_data->inputs[1]);
-  auto* R = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
+  auto* a = reinterpret_cast<CRSMatrix*>(task_data->inputs[0]);
+  auto* b = reinterpret_cast<CRSMatrix*>(task_data->inputs[1]);
+  auto* r = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
 
-  if (A == nullptr || B == nullptr || R == nullptr) return false;
-  if (!is_crs(*A) || !is_crs(*B)) return false;
-  if (A->n_cols != B->n_rows) return false;
+  if (a == nullptr || b == nullptr || r == nullptr) {
+    return false;
+  }
+
+  if (!IsCrs(*a) || !IsCrs(*b)) {
+    return false;
+  }
+
+  if (a->n_cols != b->n_rows) {
+    return false;
+  }
 
   return true;
 }
@@ -85,10 +104,10 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::RunImpl() {
   for (int i = 0; i < Result_->n_rows; i++) {
     for (int j = 0; j < B_mat_->n_rows; j++) {
       double sum = 0.0;
-      for (int k_A = A_mat_->pointer[i]; k_A < A_mat_->pointer[i + 1]; k_A++) {
-        for (int k_B = B_mat_->pointer[j]; k_B < B_mat_->pointer[j + 1]; k_B++) {
-          if (A_mat_->col_indexes[k_A] == B_mat_->col_indexes[k_B]) {
-            sum += A_mat_->non_zero_values[k_A] * B_mat_->non_zero_values[k_B];
+      for (int k_a = A_mat_->pointer[i]; k_a < A_mat_->pointer[i + 1]; k_a++) {
+        for (int k_b = B_mat_->pointer[j]; k_b < B_mat_->pointer[j + 1]; k_b++) {
+          if (A_mat_->col_indexes[k_a] == B_mat_->col_indexes[k_b]) {
+            sum += A_mat_->non_zero_values[k_a] * B_mat_->non_zero_values[k_b];
           }
         }
       }
@@ -110,7 +129,7 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::RunImpl() {
 }
 
 bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PostProcessingImpl() {
-  CRSMatrix* output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
+  auto output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
 
   output->n_rows = Result_->n_rows;
   output->n_cols = Result_->n_cols;
