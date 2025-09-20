@@ -9,6 +9,8 @@
 
 using namespace tarakanov_d_fox_algorithm_seq;
 
+namespace tarakanov_d_fox_algorithm_seq {
+void test_matmul_performance(size_t size);
 void test_matmul_performance(size_t size) {
   // Создаем матрицы size x size, заполненные случайными значениями
   std::random_device rd;
@@ -43,6 +45,7 @@ void test_matmul_performance(size_t size) {
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
   std::cout << "Matrix size: " << size << "x" << size << ", Time: " << duration.count() << " ms" << std::endl;
 }
+}  // namespace tarakanov_d_fox_algorithm_seq
 
 TEST(tasksequential_perf_test, test_matmul_100x100) { test_matmul_performance(100); }
 
