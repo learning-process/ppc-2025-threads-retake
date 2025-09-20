@@ -2,11 +2,9 @@
 
 #include <cstdint>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/koshkin_n_convex_hull_binary_image/include/ops_seq.hpp"
 
 TEST(koshkin_n_convex_hull_binary_image_seq, small_4x4) {

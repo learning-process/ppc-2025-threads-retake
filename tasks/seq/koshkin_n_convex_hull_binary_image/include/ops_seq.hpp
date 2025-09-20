@@ -17,14 +17,14 @@ class ConvexHullBinaryImage : public ppc::core::Task {
 
  private:
   static long long Cross(const Pt& a, const Pt& b, const Pt& c);
-
+  static inline bool IsBorderPixel(const std::vector<int>& in, int width, int height, int x, int y);
   static long long Dist2(const Pt& a, const Pt& b);
 
   void FindPoints();
-  std::vector<int> input;
-  std::vector<Pt> points;
-  std::vector<Pt> output;
-  int width{}, height{};
+  std::vector<int> input_;
+  std::vector<Pt> points_;
+  std::vector<Pt> output_;
+  int width_{}, height_{};
 };
 
 }  // namespace koshkin_n_convex_hull_binary_image_seq
