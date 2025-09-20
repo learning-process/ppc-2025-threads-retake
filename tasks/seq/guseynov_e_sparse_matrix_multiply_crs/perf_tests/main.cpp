@@ -19,13 +19,13 @@ struct MatrixParams {
   int seed;
 };
 
-guseynov_e_sparse_matrix_multiply_crs::CRSMatrix GenerateRandomMatrix(const MatrixParams &params) {
+guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix GenerateRandomMatrix(const MatrixParams &params) {
   std::mt19937 gen;
   gen.seed(params.seed);
   std::uniform_real_distribution<double> random(-2.0, 2.0);
   std::bernoulli_distribution bernoulli(params.density);
 
-  guseynov_e_sparse_matrix_multiply_crs::CRSMatrix result;
+  guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix result;
   result.n_rows = params.rows;
   result.n_cols = params.cols;
   result.pointer.assign(result.n_rows + 1, 0);
@@ -51,12 +51,12 @@ guseynov_e_sparse_matrix_multiply_crs::CRSMatrix GenerateRandomMatrix(const Matr
 }
 }  // namespace
 
-TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_pipeline_run) {
-  guseynov_e_sparse_matrix_multiply_crs::CRSMatrix a =
+TEST(guseynov_e_sparse_matrix_multiply_crs_seq_seq, test_pipeline_run) {
+  guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix a =
       GenerateRandomMatrix({.rows = 100, .cols = 100, .density = 0.6, .seed = 1993});
-  guseynov_e_sparse_matrix_multiply_crs::CRSMatrix b =
+  guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix b =
       GenerateRandomMatrix({.rows = 100, .cols = 100, .density = 0.6, .seed = 4325});
-  guseynov_e_sparse_matrix_multiply_crs::CRSMatrix result;
+  guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix result;
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -66,7 +66,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_pipeline_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial>(task_data_seq);
+      std::make_shared<guseynov_e_sparse_matrix_multiply_crs_seq::SparseMatMultSequantial>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -87,12 +87,12 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_task_run) {
-  guseynov_e_sparse_matrix_multiply_crs::CRSMatrix a =
+TEST(guseynov_e_sparse_matrix_multiply_crs_seq_seq, test_task_run) {
+  guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix a =
       GenerateRandomMatrix({.rows = 100, .cols = 100, .density = 0.6, .seed = 1993});
-  guseynov_e_sparse_matrix_multiply_crs::CRSMatrix b =
+  guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix b =
       GenerateRandomMatrix({.rows = 100, .cols = 100, .density = 0.6, .seed = 4325});
-  guseynov_e_sparse_matrix_multiply_crs::CRSMatrix result;
+  guseynov_e_sparse_matrix_multiply_crs_seq::CRSMatrix result;
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -102,7 +102,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial>(task_data_seq);
+      std::make_shared<guseynov_e_sparse_matrix_multiply_crs_seq::SparseMatMultSequantial>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

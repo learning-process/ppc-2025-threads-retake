@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace guseynov_e_sparse_matrix_multiply_crs {
+namespace guseynov_e_sparse_matrix_multiply_crs_seq {
 
 struct CRSMatrix {
   int n_rows{};
@@ -27,4 +27,4 @@ class SparseMatMultSequantial : public ppc::core::Task {
   CRSMatrix *A_mat_{}, *B_mat_{}, *Result_{};
 };
 
-}  // namespace guseynov_e_sparse_matrix_multiply_crs
+}  // namespace guseynov_e_sparse_matrix_multiply_crs_seq

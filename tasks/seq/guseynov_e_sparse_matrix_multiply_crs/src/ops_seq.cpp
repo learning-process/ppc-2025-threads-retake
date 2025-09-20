@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-namespace guseynov_e_sparse_matrix_multiply_crs {
+namespace guseynov_e_sparse_matrix_multiply_crs_seq {
 
 namespace {
 CRSMatrix T(const CRSMatrix& m) {
@@ -63,7 +63,7 @@ bool IsCrs(const CRSMatrix& m) {
 }
 }  // namespace
 
-bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PreProcessingImpl() {
+bool guseynov_e_sparse_matrix_multiply_crs_seq::SparseMatMultSequantial::PreProcessingImpl() {
   A_mat_ = reinterpret_cast<CRSMatrix*>(task_data->inputs[0]);
   B_mat_ = reinterpret_cast<CRSMatrix*>(task_data->inputs[1]);
   Result_ = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
@@ -71,7 +71,7 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PreProcessi
   return true;
 }
 
-bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::ValidationImpl() {
+bool guseynov_e_sparse_matrix_multiply_crs_seq::SparseMatMultSequantial::ValidationImpl() {
   if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1 || !task_data->inputs_count.empty() ||
       !task_data->outputs_count.empty()) {
     return false;
@@ -96,7 +96,7 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::ValidationI
   return true;
 }
 
-bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::RunImpl() {
+bool guseynov_e_sparse_matrix_multiply_crs_seq::SparseMatMultSequantial::RunImpl() {
   *B_mat_ = T(*B_mat_);
 
   Result_->n_rows = A_mat_->n_rows;
@@ -132,7 +132,7 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::RunImpl() {
   return true;
 }
 
-bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PostProcessingImpl() {
+bool guseynov_e_sparse_matrix_multiply_crs_seq::SparseMatMultSequantial::PostProcessingImpl() {
   auto* output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
 
   output->n_rows = Result_->n_rows;
@@ -143,4 +143,4 @@ bool guseynov_e_sparse_matrix_multiply_crs::SparseMatMultSequantial::PostProcess
 
   return true;
 }
-}  // namespace guseynov_e_sparse_matrix_multiply_crs
+}  // namespace guseynov_e_sparse_matrix_multiply_crs_seq
