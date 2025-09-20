@@ -10,11 +10,26 @@ bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::PreProcessingImpl() {
   img_height_ = static_cast<int32_t>(task_data->inputs_count[1]);
 
   const size_t total_pixels = img_width_ * img_height_ * kCHANNELS;
+
+  if (total_pixels == 0) {
+    source_img_.clear();
+    filter_kernel_.resize(9);
+    if (task_data->inputs[1] != nullptr) {
+      std::memcpy(filter_kernel_.data(), task_data->inputs[1], 9 * sizeof(float));
+    }
+    filtered_img_.clear();
+    return true;
+  }
+
   source_img_.resize(total_pixels);
-  std::memcpy(source_img_.data(), task_data->inputs[0], total_pixels);
+  if (task_data->inputs[0] != nullptr) {
+    std::memcpy(source_img_.data(), task_data->inputs[0], total_pixels);
+  }
 
   filter_kernel_.resize(9);
-  std::memcpy(filter_kernel_.data(), task_data->inputs[1], 9 * sizeof(float));
+  if (task_data->inputs[1] != nullptr) {
+    std::memcpy(filter_kernel_.data(), task_data->inputs[1], 9 * sizeof(float));
+  }
 
   filtered_img_ = source_img_;
 
@@ -72,6 +87,8 @@ bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::RunImpl() {
 }
 
 bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::PostProcessingImpl() {
-  std::memcpy(task_data->outputs[0], filtered_img_.data(), filtered_img_.size() * sizeof(uint8_t));
+  if (!filtered_img_.empty() && task_data->outputs[0] != nullptr) {
+    std::memcpy(task_data->outputs[0], filtered_img_.data(), filtered_img_.size() * sizeof(uint8_t));
+  }
   return true;
 }
