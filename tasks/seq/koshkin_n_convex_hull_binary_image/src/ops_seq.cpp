@@ -94,7 +94,7 @@ bool koshkin_n_convex_hull_binary_image_seq::ConvexHullBinaryImage::RunImpl() {
     return (a.first < b.first) || (a.first == b.first && a.second < b.second);
   });
 
-  auto uniq_range = std::ranges::unique(points_);  // âîçâðàùàåò subrange
+  auto uniq_range = std::ranges::unique(points_);  // Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ subrange
   points_.erase(uniq_range.begin(), uniq_range.end());
 
   if (points_.size() < 3) {
