@@ -43,16 +43,16 @@ inline bool koshkin_n_convex_hull_binary_image_seq::ConvexHullBinaryImage::IsBor
     return false;
   }
 
-  static const int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-  static const int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+  static const int kDx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+  static const int kDy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
 
   if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
     return true;
   }
 
   for (int k = 0; k < 8; ++k) {
-    int nx = x + dx[k];
-    int ny = y + dy[k];
+    int nx = x + kDx[k];
+    int ny = y + kDy[k];
     if (nx < 0 || ny < 0 || nx >= width || ny >= height) {
       return true;
     }
@@ -66,7 +66,9 @@ inline bool koshkin_n_convex_hull_binary_image_seq::ConvexHullBinaryImage::IsBor
 void koshkin_n_convex_hull_binary_image_seq::ConvexHullBinaryImage::FindPoints() {
   points_.clear();
 
-  if (width_ <= 0 || height_ <= 0) return;
+  if (width_ <= 0 || height_ <= 0) {
+    return;
+  }
 
   points_.reserve(256);
   for (int y = 0; y < height_; ++y) {
