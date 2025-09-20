@@ -133,7 +133,6 @@ bool guseynov_e_sparse_matrix_multiply_crs_omp::SparseMatMultOMP::RunImpl() {
   return true;
 }
 
-
 bool guseynov_e_sparse_matrix_multiply_crs_omp::SparseMatMultOMP::PostProcessingImpl() {
   auto* output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
 
