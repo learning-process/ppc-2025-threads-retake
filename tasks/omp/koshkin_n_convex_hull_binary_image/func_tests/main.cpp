@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 #include <omp.h>
 
-#include <algorithm>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <vector>
 

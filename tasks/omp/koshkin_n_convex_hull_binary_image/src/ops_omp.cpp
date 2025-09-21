@@ -1,10 +1,8 @@
 #include "omp/koshkin_n_convex_hull_binary_image/include/ops_omp.hpp"
 
 #include <algorithm>
-#include <cstdint>
-#include <iostream>
-#include <memory>
-#include <random>
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 #ifdef _OPENMP
@@ -82,7 +80,7 @@ void koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage::FindPoints()
 #ifdef _OPENMP
   nthreads = omp_get_max_threads();
 #endif
-  if (nthreads < 1) nthreads = 1;
+  nthreads = std::max(1, nthreads);
 
   std::vector<std::vector<Pt>> local_points(static_cast<size_t>(nthreads));
 
@@ -103,7 +101,9 @@ void koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage::FindPoints()
     for (int y = 0; y < h; ++y) {
       int row_off = y * w;
       for (int x = 0; x < w; ++x) {
-        if (input_[row_off + x] != 1) continue;
+        if (input_[row_off + x] != 1) {
+          continue;
+        }
         if (IsBorderPixel(input_, w, h, x, y)) {
           local.emplace_back(x, y);
         }
@@ -112,7 +112,9 @@ void koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage::FindPoints()
   }
 
   size_t total = 0;
-  for (auto& vec : local_points) total += vec.size();
+  for (auto& vec : local_points) {
+    total += vec.size();
+  }
   points_.reserve(total);
   for (auto& vec : local_points) {
     if (!vec.empty()) {
