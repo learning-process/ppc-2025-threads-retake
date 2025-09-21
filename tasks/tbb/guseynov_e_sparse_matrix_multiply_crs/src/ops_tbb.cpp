@@ -1,11 +1,11 @@
 #include "tbb/guseynov_e_sparse_matrix_multiply_crs/include/ops_tbb.hpp"
 
+#include <tbb/mutex.h>
+
 #include <cmath>
 #include <cstddef>
 #include <utility>
 #include <vector>
-
-#include <tbb/mutex.h>
 
 #include "oneapi/tbb/parallel_for.h"
 
@@ -108,28 +108,27 @@ bool guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB::RunImpl() {
   Result_->pointer.assign(Result_->n_rows + 1, 0);
 
   std::vector<std::vector<std::pair<int, double>>> temp(Result_->n_rows);
-  
+
   std::vector<tbb::mutex> mutexes(Result_->n_rows);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, Result_->n_rows),
-    [&](const tbb::blocked_range<int>& range) {
-      for (int i = range.begin(); i < range.end(); i++) {
-        for (int j = 0; j < B_mat_->n_rows; j++) {
-          double sum = 0.0;
-          for (int k_a = A_mat_->pointer[i]; k_a < A_mat_->pointer[i + 1]; k_a++) {
-            for (int k_b = B_mat_->pointer[j]; k_b < B_mat_->pointer[j + 1]; k_b++) {
-              if (A_mat_->col_indexes[k_a] == B_mat_->col_indexes[k_b]) {
-                sum += A_mat_->non_zero_values[k_a] * B_mat_->non_zero_values[k_b];
-              }
+  tbb::parallel_for(tbb::blocked_range<int>(0, Result_->n_rows), [&](const tbb::blocked_range<int>& range) {
+    for (int i = range.begin(); i < range.end(); i++) {
+      for (int j = 0; j < B_mat_->n_rows; j++) {
+        double sum = 0.0;
+        for (int k_a = A_mat_->pointer[i]; k_a < A_mat_->pointer[i + 1]; k_a++) {
+          for (int k_b = B_mat_->pointer[j]; k_b < B_mat_->pointer[j + 1]; k_b++) {
+            if (A_mat_->col_indexes[k_a] == B_mat_->col_indexes[k_b]) {
+              sum += A_mat_->non_zero_values[k_a] * B_mat_->non_zero_values[k_b];
             }
           }
-          if (std::abs(sum) > 1e-12) {  // отсекаем нули
-            tbb::mutex::scoped_lock lock(mutexes[i]);
-            temp[i].emplace_back(j, sum);
-          }
+        }
+        if (std::abs(sum) > 1e-12) {  // отсекаем нули
+          tbb::mutex::scoped_lock lock(mutexes[i]);
+          temp[i].emplace_back(j, sum);
         }
       }
-    });
+    }
+  });
 
   for (int i = 0; i < Result_->n_rows; i++) {
     Result_->pointer[i + 1] = Result_->pointer[i];
@@ -141,8 +140,6 @@ bool guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB::RunImpl() {
   }
   return true;
 }
-
-
 
 bool guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB::PostProcessingImpl() {
   auto* output = reinterpret_cast<CRSMatrix*>(task_data->outputs[0]);
