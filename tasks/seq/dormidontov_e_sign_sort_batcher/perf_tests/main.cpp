@@ -21,7 +21,7 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_pipeline_run) {
   for (size_t i = 0; i < kCount; i++) {
     in[i] = static_cast<double>(i);
   }
-  std::reverse(begin(in), end(in));
+  std::ranges::reverse(begin(in), end(in));
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -51,7 +51,7 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::reverse(begin(in), end(in));
+  std::ranges::reverse(begin(in), end(in));
   ASSERT_EQ(in, out);
 }
 
@@ -65,7 +65,7 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_task_run) {
   for (size_t i = 0; i < kCount; i++) {
     in[i] = static_cast<double>(i);
   }
-  std::reverse(begin(in), end(in));
+  std::ranges::reverse(begin(in), end(in));
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -95,6 +95,6 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::reverse(begin(in), end(in));
+  std::ranges::reverse(begin(in), end(in));
   ASSERT_EQ(in, out);
 }

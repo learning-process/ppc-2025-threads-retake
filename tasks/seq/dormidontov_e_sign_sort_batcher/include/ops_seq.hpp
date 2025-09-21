@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -20,6 +21,6 @@ class SeqTask : public ppc::core::Task {
   void Sort();
   void Merge(int, int);
   std::vector<double> input_, tmp_;
-  size_t input_size{};
+  size_t input_size_{};
 };
 }  // namespace dormidontov_e_sign_sort_batcher_seq

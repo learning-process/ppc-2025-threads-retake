@@ -22,8 +22,6 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_50) {
     in[i] = static_cast<double>(i);
   }
 
-  out = in;
-
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -72,8 +70,6 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_1) {
     in[i] = static_cast<double>(i);
   }
 
-  out = in;
-
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -102,15 +98,14 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_1000_shuffe) {
     in[i] = rand() % 1000;
   }
 
-  out = in;
-  std::sort(begin(in), end(in));
-
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
+
+  std::ranges::sort(begin(in), end(in));
 
   // Create Task
   dormidontov_e_sign_sort_batcher_seq::SeqTask test_task_sequential(task_data_seq);
