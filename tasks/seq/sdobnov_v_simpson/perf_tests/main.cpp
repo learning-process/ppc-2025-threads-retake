@@ -14,7 +14,7 @@ TEST(sdobnov_v_simpson, test_pipeline_run) {
   const int dimensions = 2;
   const double lower_bounds[2] = {0.0, 0.0};
   const double upper_bounds[2] = {1.0, 1.0};
-  const int n_points[2] = {100, 100};
+  const int n_points[2] = {1000, 1000};
 
   double result = 0.0;
 
@@ -56,7 +56,7 @@ TEST(sdobnov_v_simpson, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   const double expected_result = 2.0 / 3.0;
-  const double tolerance = 1e-4;
+  const double tolerance = 1e-6;
   EXPECT_NEAR(result, expected_result, tolerance);
 }
 
@@ -64,7 +64,7 @@ TEST(sdobnov_v_simpson, test_task_run) {
   const int dimensions = 2;
   const double lower_bounds[2] = {0.0, 0.0};
   const double upper_bounds[2] = {1.0, 1.0};
-  const int n_points[2] = {100, 100};
+  const int n_points[2] = {1000, 1000};
 
   double result = 0.0;
 
@@ -106,6 +106,6 @@ TEST(sdobnov_v_simpson, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   const double expected_result = 2.0 / 3.0;
-  const double tolerance = 1e-4;
+  const double tolerance = 1e-6;
   EXPECT_NEAR(result, expected_result, tolerance);
 }

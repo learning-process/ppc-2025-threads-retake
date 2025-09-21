@@ -277,7 +277,6 @@ TEST(sdobnov_v_simpson, test_gaussian_2d_integral) {
   EXPECT_NEAR(result, expected_result, tolerance);
 }
 
-// ТЕСТЫ ГРАНИЧНЫХ СЛУЧАЕВ
 TEST(sdobnov_v_simpson, test_single_point_integration) {
   const int dimensions = 1;
   const double lower_bound = 0.0;
