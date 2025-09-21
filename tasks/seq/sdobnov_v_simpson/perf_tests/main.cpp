@@ -13,8 +13,8 @@
 TEST(sdobnov_v_simpson_seq, test_pipeline_run) {
   const int dimensions = 2;
   const double lower_bounds[2] = {0.0, 0.0};
-  const double upper_bounds[2] = {1.0, 1.0};
-  const int n_points[2] = {1000, 1000};
+  const double upper_bounds[2] = {10.0, 10.0};
+  const int n_points[2] = {2000, 2000};
 
   double result = 0.0;
 
@@ -55,17 +55,16 @@ TEST(sdobnov_v_simpson_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  const double expected_result = 2.0 / 3.0;
-  const double tolerance = 1e-6;
+  const double expected_result = 20000.0 / 3.0;
+  const double tolerance = 1e-4;
   EXPECT_NEAR(result, expected_result, tolerance);
 }
 
 TEST(sdobnov_v_simpson_seq, test_task_run) {
   const int dimensions = 2;
   const double lower_bounds[2] = {0.0, 0.0};
-  const double upper_bounds[2] = {1.0, 1.0};
-  const int n_points[2] = {1000, 1000};
-
+  const double upper_bounds[2] = {10.0, 10.0};
+  const int n_points[2] = {2000, 2000};
   double result = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -105,7 +104,7 @@ TEST(sdobnov_v_simpson_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  const double expected_result = 2.0 / 3.0;
-  const double tolerance = 1e-6;
+  const double expected_result = 20000.0 / 3.0;
+  const double tolerance = 1e-4;
   EXPECT_NEAR(result, expected_result, tolerance);
 }
