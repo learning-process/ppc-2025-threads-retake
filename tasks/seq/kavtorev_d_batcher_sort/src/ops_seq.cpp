@@ -1,6 +1,7 @@
 #include "seq/kavtorev_d_batcher_sort/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -18,7 +19,7 @@ static inline void CompSwap(double& a, double& b) {
 inline uint64_t RadixBatcherSortSequential::ToOrderedUint64(double value) {
   uint64_t bits = 0;
   std::memcpy(&bits, &value, sizeof(double));
-  if ((bits >> 63) != 0u) {
+  if ((bits >> 63) != 0U) {
     bits = ~bits;
   } else {
     bits ^= (uint64_t{1} << 63);
@@ -27,7 +28,7 @@ inline uint64_t RadixBatcherSortSequential::ToOrderedUint64(double value) {
 }
 
 inline double RadixBatcherSortSequential::FromOrderedUint64(uint64_t key) {
-  if ((key >> 63) != 0u) {
+  if ((key >> 63) != 0U) {
     key ^= (uint64_t{1} << 63);
   } else {
     key = ~key;

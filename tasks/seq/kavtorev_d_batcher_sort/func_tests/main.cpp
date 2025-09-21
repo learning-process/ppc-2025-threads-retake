@@ -125,7 +125,7 @@ TEST(kavtorev_d_batcher_sort_seq, sorts_large_random) {
   }
   auto out = RunTask(in);
   auto ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::sort(ref.begin(), ref.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, ref);
 }
 
