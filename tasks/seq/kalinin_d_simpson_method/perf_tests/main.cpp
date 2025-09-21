@@ -18,7 +18,6 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& low
   auto task_data = std::make_shared<ppc::core::TaskData>();
   auto* lower_ptr = const_cast<double*>(lower.data());
   auto* upper_ptr = const_cast<double*>(upper.data());
-  // Persist params storage to avoid dangling pointer and keep addresses stable
   static thread_local std::deque<std::array<int, 2>> k_params_storage;
   k_params_storage.emplace_back(std::array<int, 2>{segments_per_dim, function_id});
   int* params_ptr = k_params_storage.back().data();
@@ -41,7 +40,7 @@ TEST(kalinin_d_simpson_method_seq, perf_pipeline_run_unit_cube_linear_sum) {
   std::vector<double> a{0.0, 0.0, 0.0};
   std::vector<double> b{1.0, 1.0, 1.0};
 
-  int n = 60;  // even, moderate grid size
+  int n = 2000;
   double result = 0.0;
   auto task_data = MakeTaskData(a, b, n, 1, &result);
   auto task = std::make_shared<kalinin_d_simpson_method_seq::SimpsonNDSequential>(task_data);
@@ -66,7 +65,7 @@ TEST(kalinin_d_simpson_method_seq, perf_pipeline_run_unit_cube_linear_sum) {
 TEST(kalinin_d_simpson_method_seq, perf_task_run_hyperrectangle_constant) {
   std::vector<double> a{0.0, 0.0, -1.0, 2.0};
   std::vector<double> b{1.0, 2.0, 1.0, 4.0};
-  int n = 80;
+  int n = 1000;
   double result = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &result);
   auto task = std::make_shared<kalinin_d_simpson_method_seq::SimpsonNDSequential>(task_data);
