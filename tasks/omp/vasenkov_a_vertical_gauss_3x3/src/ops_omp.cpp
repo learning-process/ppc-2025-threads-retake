@@ -1,10 +1,11 @@
 #include "omp/vasenkov_a_vertical_gauss_3x3/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <omp.h>
 
 bool vasenkov_a_vertical_gauss_3x3_omp::VerticalGauss::PreProcessingImpl() {
   img_width_ = static_cast<int32_t>(task_data->inputs_count[0]);
@@ -50,7 +51,7 @@ bool vasenkov_a_vertical_gauss_3x3_omp::VerticalGauss::RunImpl() {
   const int row_stride = img_width_ * kCHANNELS;
   const float* kernel = filter_kernel_.data();
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int y = 1; y < img_height_ - 1; ++y) {
     for (int x = 1; x < img_width_ - 1; ++x) {
       const int base_pixel_idx = (y * img_width_ + x) * kCHANNELS;
