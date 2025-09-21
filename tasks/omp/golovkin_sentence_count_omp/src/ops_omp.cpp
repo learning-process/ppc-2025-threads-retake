@@ -1,3 +1,4 @@
+//Golovkin
 #include "omp/golovkin_sentence_count_omp/include/ops_omp.hpp"
 
 #include <omp.h>
@@ -13,7 +14,6 @@ golovkin_sentence_count_omp::SentenceCountParallel::SentenceCountParallel(ppc::c
 
 bool golovkin_sentence_count_omp::SentenceCountParallel::PreProcessingImpl() {
   text_ = std::string(reinterpret_cast<char*>(task_data->inputs[0]));
-  count_ = 0;
   return true;
 }
 
@@ -45,14 +45,15 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::IsSentenceEnd(size_t i)
 bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
   const size_t n = text_.size();
   if (n == 0) {
+    count_ = 0;
     return true;
   }
 
-  count_ = 0;
+  int total_count = 0;
   const int num_threads = omp_get_max_threads();
   const size_t chunk_size = n / num_threads;
 
-#pragma omp parallel reduction(+ : count_)
+#pragma omp parallel reduction(+ : total_count)
   {
     const int tid = omp_get_thread_num();
     const size_t start = tid * chunk_size;
@@ -79,10 +80,12 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
       }
 
       if (is_valid_end && i >= start && i <= end) {
-        count_++;
+        total_count++;
       }
     }
   }
+
+  count_ = total_count;
   return true;
 }
 
