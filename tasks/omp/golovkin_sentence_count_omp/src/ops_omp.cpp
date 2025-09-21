@@ -1,4 +1,4 @@
-//Golovkin
+// Golovkin
 #include "omp/golovkin_sentence_count_omp/include/ops_omp.hpp"
 
 #include <omp.h>
