@@ -3,7 +3,6 @@
 
 #include <omp.h>
 
-#include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <utility>
@@ -11,7 +10,7 @@
 #include "core/task/include/task.hpp"
 
 golovkin_sentence_count_omp::SentenceCountParallel::SentenceCountParallel(ppc::core::TaskDataPtr task_data)
-    : ppc::core::Task(std::move(task_data)) {}
+    : ppc::core::Task(std::move(task_data)), count_(0) {}
 
 bool golovkin_sentence_count_omp::SentenceCountParallel::PreProcessingImpl() {
   text_ = std::string(reinterpret_cast<char*>(task_data->inputs[0]));
@@ -50,8 +49,6 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
     return true;
   }
 
-  auto is_sentence_punctuation = [](char c) { return c == '.' || c == '?' || c == '!'; };
-
   count_ = 0;
   const int num_threads = omp_get_max_threads();
   const size_t chunk_size = n / num_threads;
@@ -65,23 +62,17 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
     const size_t real_end = (end < n - 1) ? end + 1 : n - 1;
 
     for (size_t i = real_start; i <= real_end; ++i) {
-      if (!is_sentence_punctuation(text_[i])) {
-        continue;
-      }
-
-      if (i + 1 < n && is_sentence_punctuation(text_[i + 1])) {
-        continue;
-      }
-
-      if (i < start || i > end) {
-        continue;
-      }
-
-      if (text_[i] != '.') {
-        count_++;
-      } else {
-        if (IsSentenceEnd(i)) {
-          count_++;
+      if (text_[i] == '.' || text_[i] == '?' || text_[i] == '!') {
+        if (i + 1 >= n || (text_[i + 1] != '.' && text_[i + 1] != '?' && text_[i + 1] != '!')) {
+          if (i >= start && i <= end) {
+            if (text_[i] != '.') {
+              count_++;
+            } else {
+              if (IsSentenceEnd(i)) {
+                count_++;
+              }
+            }
+          }
         }
       }
     }
@@ -90,6 +81,6 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
 }
 
 bool golovkin_sentence_count_omp::SentenceCountParallel::PostProcessingImpl() {
-  reinterpret_cast<int*>(task_data->outputs[0])[0] = count_;
+  *reinterpret_cast<int*>(task_data->outputs[0]) = count_;
   return true;
 }
