@@ -1,4 +1,3 @@
-// Golovkin
 #include "omp/golovkin_sentence_count_omp/include/ops_omp.hpp"
 
 #include <omp.h>
@@ -10,7 +9,7 @@
 #include "core/task/include/task.hpp"
 
 golovkin_sentence_count_omp::SentenceCountParallel::SentenceCountParallel(ppc::core::TaskDataPtr task_data)
-    : ppc::core::Task(std::move(task_data)), count_(0) {}
+    : ppc::core::Task(std::move(task_data)) {}
 
 bool golovkin_sentence_count_omp::SentenceCountParallel::PreProcessingImpl() {
   text_ = std::string(reinterpret_cast<char*>(task_data->inputs[0]));
@@ -62,18 +61,25 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
     const size_t real_end = (end < n - 1) ? end + 1 : n - 1;
 
     for (size_t i = real_start; i <= real_end; ++i) {
-      if (text_[i] == '.' || text_[i] == '?' || text_[i] == '!') {
-        if (i + 1 >= n || (text_[i + 1] != '.' && text_[i + 1] != '?' && text_[i + 1] != '!')) {
-          if (i >= start && i <= end) {
-            if (text_[i] != '.') {
-              count_++;
-            } else {
-              if (IsSentenceEnd(i)) {
-                count_++;
-              }
-            }
-          }
+      const char current_char = text_[i];
+      if (current_char != '.' && current_char != '?' && current_char != '!') {
+        continue;
+      }
+
+      if (i + 1 < n) {
+        const char next_char = text_[i + 1];
+        if (next_char == '.' || next_char == '?' || next_char == '!') {
+          continue;
         }
+      }
+
+      bool is_valid_end = true;
+      if (current_char == '.') {
+        is_valid_end = IsSentenceEnd(i);
+      }
+
+      if (is_valid_end && i >= start && i <= end) {
+        count_++;
       }
     }
   }
