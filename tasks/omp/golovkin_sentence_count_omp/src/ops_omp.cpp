@@ -3,6 +3,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <utility>
@@ -30,10 +31,10 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::IsSentenceEnd(size_t i)
     const auto prev = static_cast<unsigned char>(text_[i - 1]);
     const auto next = static_cast<unsigned char>(text_[i + 1]);
 
-    if (std::isdigit(prev) && std::isdigit(next)) {
+    if ((std::isdigit(prev) != 0) && (std::isdigit(next) != 0)) {
       return false;
     }
-    if (std::isalpha(prev) && std::isalpha(next)) {
+    if ((std::isalpha(prev) != 0) && (std::isalpha(next) != 0)) {
       return false;
     }
     if (text_[i - 1] != ' ' && text_[i + 1] != ' ') {
@@ -49,6 +50,8 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
     return true;
   }
 
+  auto is_sentence_punctuation = [](char c) { return c == '.' || c == '?' || c == '!'; };
+
   count_ = 0;
   const int num_threads = omp_get_max_threads();
   const size_t chunk_size = n / num_threads;
@@ -62,17 +65,23 @@ bool golovkin_sentence_count_omp::SentenceCountParallel::RunImpl() {
     const size_t real_end = (end < n - 1) ? end + 1 : n - 1;
 
     for (size_t i = real_start; i <= real_end; ++i) {
-      if (text_[i] == '.' || text_[i] == '?' || text_[i] == '!') {
-        if (i + 1 >= n || (text_[i + 1] != '.' && text_[i + 1] != '?' && text_[i + 1] != '!')) {
-          if (i >= start && i <= end) {
-            if (text_[i] != '.') {
-              count_++;
-            } else {
-              if (IsSentenceEnd(i)) {
-                count_++;
-              }
-            }
-          }
+      if (!is_sentence_punctuation(text_[i])) {
+        continue;
+      }
+
+      if (i + 1 < n && is_sentence_punctuation(text_[i + 1])) {
+        continue;
+      }
+
+      if (i < start || i > end) {
+        continue;
+      }
+
+      if (text_[i] != '.') {
+        count_++;
+      } else {
+        if (IsSentenceEnd(i)) {
+          count_++;
         }
       }
     }
