@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/sdobnov_v_simpson/include/ops_seq.hpp"
 
-TEST(sdobnov_v_simpson, test_pipeline_run) {
+TEST(sdobnov_v_simpson_seq, test_pipeline_run) {
   const int dimensions = 2;
   const double lower_bounds[2] = {0.0, 0.0};
   const double upper_bounds[2] = {1.0, 1.0};
@@ -60,7 +60,7 @@ TEST(sdobnov_v_simpson, test_pipeline_run) {
   EXPECT_NEAR(result, expected_result, tolerance);
 }
 
-TEST(sdobnov_v_simpson, test_task_run) {
+TEST(sdobnov_v_simpson_seq, test_task_run) {
   const int dimensions = 2;
   const double lower_bounds[2] = {0.0, 0.0};
   const double upper_bounds[2] = {1.0, 1.0};
