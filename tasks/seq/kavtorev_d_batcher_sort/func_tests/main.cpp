@@ -56,21 +56,21 @@ TEST(kavtorev_d_batcher_sort_seq, sorts_already_sorted) {
 TEST(kavtorev_d_batcher_sort_seq, sorts_reverse_sorted) {
   std::vector<double> in{9.0, 4.0, 1.0, -2.0, -7.0};
   auto out = RunTask(in);
-  std::sort(in.begin(), in.end());
+  std::sort(in.begin(), in.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, in);
 }
 
 TEST(kavtorev_d_batcher_sort_seq, sorts_with_duplicates) {
   std::vector<double> in{3.0, 2.0, 3.0, -1.0, 2.0, 3.0};
   auto out = RunTask(in);
-  std::sort(in.begin(), in.end());
+  std::sort(in.begin(), in.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, in);
 }
 
 TEST(kavtorev_d_batcher_sort_seq, sorts_negatives_and_positives) {
   std::vector<double> in{-0.1, -100.0, 50.5, 0.0, 3.14};
   auto out = RunTask(in);
-  std::sort(in.begin(), in.end());
+  std::sort(in.begin(), in.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, in);
 }
 
@@ -102,7 +102,7 @@ TEST(kavtorev_d_batcher_sort_seq, sorts_random_small) {
     v = d(gen);
   }
   auto out = RunTask(in);
-  std::sort(in.begin(), in.end());
+  std::sort(in.begin(), in.end());  // NOLINT(modernize-use-ranges)
   ASSERT_EQ(out.size(), in.size());
   for (size_t i = 0; i < in.size(); ++i) {
     EXPECT_DOUBLE_EQ(out[i], in[i]);
@@ -112,7 +112,7 @@ TEST(kavtorev_d_batcher_sort_seq, sorts_random_small) {
 TEST(kavtorev_d_batcher_sort_seq, sorts_power_of_two) {
   std::vector<double> in{8, 7, 6, 5, 4, 3, 2, 1};
   auto out = RunTask(in);
-  std::sort(in.begin(), in.end());
+  std::sort(in.begin(), in.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, in);
 }
 
@@ -142,6 +142,6 @@ TEST(kavtorev_d_batcher_sort_seq, file_driven_small) {
     in[i] = static_cast<double>(count - i);
   }
   auto out = RunTask(in);
-  std::sort(in.begin(), in.end());
+  std::sort(in.begin(), in.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, in);
 }
