@@ -8,7 +8,7 @@
 
 using namespace tarakanov_d_fox_algorithm_seq;
 
-TEST(tasksequential_test, test_matmul_2x2) {
+TEST(tarakanov_d_fox_algorithm_test_seq, test_matmul_2x2) {
   // Создаем матрицы 2x2
   std::vector<double> matrixA = {1, 2, 3, 4};
   std::vector<double> matrixB = {5, 6, 7, 8};
@@ -35,7 +35,7 @@ TEST(tasksequential_test, test_matmul_2x2) {
   EXPECT_EQ(matrixC, expected);
 }
 
-TEST(tasksequential_test, test_matmul_3x3) {
+TEST(tarakanov_d_fox_algorithm_test_seq, test_matmul_3x3) {
   // Создаем матрицы 3x3
   std::vector<double> matrixA = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   std::vector<double> matrixB = {9, 8, 7, 6, 5, 4, 3, 2, 1};

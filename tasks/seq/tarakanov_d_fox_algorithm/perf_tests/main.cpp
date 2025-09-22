@@ -9,48 +9,92 @@
 
 using namespace tarakanov_d_fox_algorithm_seq;
 
-namespace tarakanov_d_fox_algorithm_seq {
-void test_matmul_performance(size_t size);
-void test_matmul_performance(size_t size) {
-  // Создаем матрицы size x size
+TEST(tarakanov_d_fox_algorithm_test_seq, test_pipeline_run) {
+  size_t size = 500;
+
+  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dis(0.0, 1.0);
 
   std::vector<double> matrixA(size * size);
   std::vector<double> matrixB(size * size);
-  std::vector<double> matrixC(size * size, 0.0);  // Буфер для результата
-
+  std::vector<double> matrixC(size * size, 0.0);
   for (auto& val : matrixA) val = dis(gen);
   for (auto& val : matrixB) val = dis(gen);
 
-  // Создаем task_data
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixA.data()));
-  task_data->inputs_count.emplace_back(matrixA.size() * sizeof(double));
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixB.data()));
-  task_data->inputs_count.emplace_back(matrixB.size() * sizeof(double));
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrixC.data()));
-  task_data->outputs_count.emplace_back(matrixC.size() * sizeof(double));
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixA.data()));
+  task_data_seq->inputs_count.emplace_back(matrixA.size() * sizeof(double));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixB.data()));
+  task_data_seq->inputs_count.emplace_back(matrixB.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrixC.data()));
+  task_data_seq->outputs_count.emplace_back(matrixC.size() * sizeof(double));
 
-  // Создаем задачу
-  TaskSequential task(task_data);
-  EXPECT_TRUE(task.Validation());
+  // Create Task
+  auto test_task_sequential = std::make_shared<TaskSequential>(task_data_seq);
 
-  // Измеряем время выполнения
-  auto start = std::chrono::high_resolution_clock::now();
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-  auto stop = std::chrono::high_resolution_clock::now();
+  // Create Perf attributes
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
 
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-  std::cout << "Matrix size: " << size << "x" << size << ", Time: " << duration.count() << " ms" << std::endl;
+  // Create and init perf results
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+
+  // Create Perf analyzer
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
-}  // namespace tarakanov_d_fox_algorithm_seq
 
-TEST(tasksequential_perf_test, test_matmul_100x100) { test_matmul_performance(100); }
+TEST(tarakanov_d_fox_algorithm_test_seq, test_task_run) {
+  size_t size = 500;
 
-TEST(tasksequential_perf_test, test_matmul_500x500) { test_matmul_performance(500); }
+  // Create data
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<double> dis(0.0, 1.0);
 
-TEST(tasksequential_perf_test, test_matmul_1000x1000) { test_matmul_performance(1000); }
+  std::vector<double> matrixA(size * size);
+  std::vector<double> matrixB(size * size);
+  std::vector<double> matrixC(size * size, 0.0);
+  for (auto& val : matrixA) val = dis(gen);
+  for (auto& val : matrixB) val = dis(gen);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixA.data()));
+  task_data_seq->inputs_count.emplace_back(matrixA.size() * sizeof(double));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixB.data()));
+  task_data_seq->inputs_count.emplace_back(matrixB.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrixC.data()));
+  task_data_seq->outputs_count.emplace_back(matrixC.size() * sizeof(double));
+
+  // Create Task
+  auto test_task_sequential = std::make_shared<TaskSequential>(task_data_seq);
+
+  // Create Perf attributes
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
+
+  // Create and init perf results
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+
+  // Create Perf analyzer
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
+}
