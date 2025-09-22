@@ -8,6 +8,8 @@
 #include <iterator>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 namespace {
 
 std::vector<size_t> ComputeGapSequence(int n) {
@@ -84,7 +86,7 @@ void EnhancedShellSort(std::vector<int> &data) {
     return;
   }
 
-  int threads_count = omp_get_max_threads();
+  int threads_count = ppc::util::GetPPCNumThreads();
   size_t chunk_size = (total_elements + threads_count - 1) / threads_count;
 
 #pragma omp parallel
