@@ -36,7 +36,6 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& low
 
 }  // namespace
 
-// 1D: f(x)=1 on [a,b] => integral = b-a
 TEST(kalinin_d_simpson_method_seq, one_dim_constant) {
   std::vector<double> a{0.0};
   std::vector<double> b{5.0};
