@@ -34,14 +34,14 @@ void SeqTask::Sort() {
 
   for (int shift = 0; shift < 64; shift += 8) {
     std::ranges::fill(begin(count), end(count), 0UL);
-    for (size_t i = 0; i < input_size; i++) {
+    for (size_t i = 0; i < input_size_; i++) {
       uint8_t key = GetByte(input_[i], ByteShift(shift));
       count[key]++;
     }
     for (int j = 1; j < radix; j++) {
       count[j] += count[j - 1];
     }
-    for (int i = static_cast<int>(input_size) - 1; i >= 0; i--) {
+    for (int i = static_cast<int>(input_size_) - 1; i >= 0; i--) {
       uint8_t key = GetByte(input_[i], ByteShift(shift));
       tmp_[--count[key]] = input_[i];
     }
@@ -65,10 +65,10 @@ void SeqTask::Merge(int low, int high) {
 }
 
 bool SeqTask::PreProcessingImpl() {
-  input_size = task_data->inputs_count[0];
+  input_size_ = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
-  input_ = std::vector<double>(in_ptr, in_ptr + input_size);
-  tmp_.resize(input_size);
+  input_ = std::vector<double>(in_ptr, in_ptr + input_size_);
+  tmp_.resize(input_size_);
   return true;
 }
 
@@ -76,7 +76,7 @@ bool SeqTask::ValidationImpl() { return task_data->inputs_count[0] == task_data-
 
 bool SeqTask::RunImpl() {
   Sort();
-  Merge(0, static_cast<int>(input_size));
+  Merge(0, static_cast<int>(input_size_));
   return true;
 }
 
