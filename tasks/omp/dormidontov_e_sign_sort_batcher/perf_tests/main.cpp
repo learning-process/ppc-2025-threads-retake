@@ -12,7 +12,7 @@
 #include "omp/dormidontov_e_sign_sort_batcher/include/ops_seq.hpp"
 
 TEST(dormidontov_e_sign_sort_batcher_omp, test_pipeline_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 500000;
 
   // Create data
   std::vector<double> in(kCount, 0);
@@ -56,7 +56,7 @@ TEST(dormidontov_e_sign_sort_batcher_omp, test_pipeline_run) {
 }
 
 TEST(dormidontov_e_sign_sort_batcher_omp, test_task_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 500000;
 
   // Create data
   std::vector<double> in(kCount, 0);
