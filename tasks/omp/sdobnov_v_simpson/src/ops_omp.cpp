@@ -7,18 +7,25 @@
 namespace sdobnov_v_simpson_omp {
 
 double Polynomial3d(std::vector<double> point) {
-  if (point.size() != 3) return 0.0;
-  return point[0] * point[0] + point[1] * point[1] + point[2] * point[2] + point[0] * point[1] + point[1] * point[2];
+  if (point.size() != 3) {
+    return 0.0;
+  }
+  return (point[0] * point[0]) + (point[1] * point[1]) + (point[2] * point[2]) + (point[0] * point[1]) +
+         (point[1] * point[2]);
 }
 
 double Trigonometric4d(std::vector<double> point) {
-  if (point.size() != 4) return 0.0;
+  if (point.size() != 4) {
+    return 0.0;
+  }
   return sin(point[0]) + cos(point[1]) + sin(point[2]) + cos(point[3]);
 }
 
 double Mixed5d(std::vector<double> point) {
-  if (point.size() != 5) return 0.0;
-  return point[0] * point[0] + sin(point[1]) + point[2] * cos(point[3]) + point[4];
+  if (point.size() != 5) {
+    return 0.0;
+  }
+  return (point[0] * point[0]) + sin(point[1]) + (point[2] * cos(point[3])) + point[4];
 }
 
 bool SimpsonIntegralOmp::PreProcessingImpl() {
@@ -147,15 +154,17 @@ double SimpsonIntegralOmp::ParallelSimpson() {
   double a = lower_bounds_[outer_dim];
   double b = upper_bounds_[outer_dim];
   int n = n_points_[outer_dim];
-  if (n % 2 != 0) n++;
+  if (n % 2 != 0) {
+    n++;
+  }
   double h = (b - a) / n;
 
   double total_sum = 0.0;
 
 #pragma omp parallel for reduction(+ : total_sum) schedule(dynamic)
   for (int i = 0; i <= n; i++) {
-    double x = a + i * h;
-    double weight;
+    double x = a + (i * h);
+    double weight = 0.0;
     if (i == 0 || i == n) {
       weight = 1;
     } else if (i % 2 == 0) {
@@ -174,7 +183,9 @@ double SimpsonIntegralOmp::ParallelSimpson() {
   double coefficient = h / 3.0;
   for (int i = 1; i < dimensions_; ++i) {
     int n_inner = n_points_[i];
-    if (n_inner % 2 != 0) n_inner++;
+    if (n_inner % 2 != 0) {
+      n_inner++;
+    }
     double h_inner = (upper_bounds_[i] - lower_bounds_[i]) / n_inner;
     coefficient *= h_inner / 3.0;
   }
@@ -190,14 +201,16 @@ double SimpsonIntegralOmp::SimpsonRecursive(int dim_index, const std::vector<dou
   double a = lower_bounds_[dim_index];
   double b = upper_bounds_[dim_index];
   int n = n_points_[dim_index];
-  if (n % 2 != 0) n++;
+  if (n % 2 != 0) {
+    n++;
+  }
   double h = (b - a) / n;
 
   double sum = 0.0;
 
   for (int i = 0; i <= n; i++) {
-    double x = a + i * h;
-    double weight;
+    double x = a + (i * h);
+    double weight = 0;
     if (i == 0 || i == n) {
       weight = 1;
     } else if (i % 2 == 0) {
