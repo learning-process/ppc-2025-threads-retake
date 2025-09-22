@@ -1,7 +1,8 @@
 #include "omp/sdobnov_v_simpson/include/ops_omp.hpp"
 
-#include <cmath>
 #include <omp.h>
+
+#include <cmath>
 
 #include <vector>
 

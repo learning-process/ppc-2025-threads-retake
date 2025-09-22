@@ -4,12 +4,12 @@
 #include <cmath>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/sdobnov_v_simpson/include/ops_omp.hpp"
-#include <numbers>
 
 TEST(sdobnov_v_simpson_omp, perf_pipeline_run) {
   const int dimensions = 5;
