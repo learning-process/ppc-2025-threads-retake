@@ -1,8 +1,8 @@
+#include "omp/sdobnov_v_simpson/include/ops_omp.hpp"
+
 #include <omp.h>
 
 #include <vector>
-
-#include "omp/sdobnov_v_simpson/include/ops_omp.hpp"
 
 namespace sdobnov_v_simpson_omp {
 
