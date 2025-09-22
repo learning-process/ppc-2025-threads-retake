@@ -5,21 +5,8 @@
 
 #include "seq/budazhapova_e_qs_merge_sort/include/inc.h"
 
-bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::PreProcessingImpl() {
-  unsigned int input_size = task_data->inputs_count[0];
-  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-
-  unsigned int output_size = task_data->outputs_count[0];
-  output_ = std::vector<int>(output_size, 0);
-
-  return true;
-}
-
-bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
-}
-
+namespace budazhapova_e_qs_merge_sort_seq {
+namespace {
 void quickSortHoare(std::vector<int>& arr, int low, int high) {
   if (low < high) {
     int pi = partitionHoare(arr, low, high);
@@ -45,6 +32,23 @@ int partitionHoare(std::vector<int>& arr, int low, int high) {
   }
 
   return j;
+}
+}  // namespace
+}  // namespace budazhapova_e_qs_merge_sort_seq
+
+bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::PreProcessingImpl() {
+  unsigned int input_size = task_data->inputs_count[0];
+  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
+
+  unsigned int output_size = task_data->outputs_count[0];
+  output_ = std::vector<int>(output_size, 0);
+
+  return true;
+}
+
+bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::ValidationImpl() {
+  return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::RunImpl() {
