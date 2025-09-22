@@ -12,13 +12,15 @@ using namespace tarakanov_d_fox_algorithm_seq;
 namespace tarakanov_d_fox_algorithm_seq {
 void test_matmul_performance(size_t size);
 void test_matmul_performance(size_t size) {
-  // Создаем матрицы size x size, заполненные случайными значениями
+  // Создаем матрицы size x size
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dis(0.0, 1.0);
 
   std::vector<double> matrixA(size * size);
   std::vector<double> matrixB(size * size);
+  std::vector<double> matrixC(size * size, 0.0);  // Буфер для результата
+
   for (auto& val : matrixA) val = dis(gen);
   for (auto& val : matrixB) val = dis(gen);
 
@@ -28,14 +30,14 @@ void test_matmul_performance(size_t size) {
   task_data->inputs_count.emplace_back(matrixA.size() * sizeof(double));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixB.data()));
   task_data->inputs_count.emplace_back(matrixB.size() * sizeof(double));
-  task_data->outputs.emplace_back(nullptr);
-  task_data->outputs_count.emplace_back(0);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrixC.data()));
+  task_data->outputs_count.emplace_back(matrixC.size() * sizeof(double));
 
   // Создаем задачу
   TaskSequential task(task_data);
   EXPECT_TRUE(task.Validation());
 
-  // Выполняем задачу и измеряем время
+  // Измеряем время выполнения
   auto start = std::chrono::high_resolution_clock::now();
   task.PreProcessing();
   task.Run();

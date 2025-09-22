@@ -1,88 +1,75 @@
 #include "seq/tarakanov_d_fox_algorithm/include/ops_seq.hpp"
 
+#include <cmath>
+#include <iostream>
 #include <vector>
 
 namespace tarakanov_d_fox_algorithm_seq {
 
 bool TaskSequential::PreProcessingImpl() {
-  // Создаем матрицы A и B, заполненные 1.0 для тестирования
-  size_t size = 2;  // Размер матриц (2x2 для примера)
-
-  // Создаем матрицу A
-  std::vector<double> matrixA(size * size, 1.0);
-
-  // Создаем матрицу B
-  std::vector<double> matrixB(size * size, 1.0);
-
-  // Инициализируем данные для умножения
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrixA.data()));
-  task_data->inputs_count.emplace_back(matrixA.size() * sizeof(double));
-
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrixB.data()));
-  task_data->outputs_count.emplace_back(matrixB.size() * sizeof(double));
-
+  // Не создаем новые данные, используем переданные
   return true;
 }
 
 bool TaskSequential::ValidationImpl() {
-  // Проверяем, что размеры матриц соответствуют для умножения
-  // Для упрощения берем первые две матрицы
-  if (task_data->inputs_count.size() < 2) {
+  if (task_data->inputs_count.size() < 2 || task_data->outputs_count.size() < 1) {
     return false;
   }
 
   size_t sizeA = task_data->inputs_count[0] / sizeof(double);
   size_t sizeB = task_data->inputs_count[1] / sizeof(double);
 
-  // Для матриц A (sizeA x sizeA) и B (sizeA x sizeA) результат будет (sizeA x sizeA)
-  // Проверяем, что матрицы могут быть умножены
-  return (sizeA == sizeB);
+  // Проверяем, что матрицы квадратные и одного размера
+  size_t dimA = std::sqrt(sizeA);
+  size_t dimB = std::sqrt(sizeB);
+
+  return (dimA * dimA == sizeA) && (dimB * dimB == sizeB) && (dimA == dimB);
 }
 
 bool TaskSequential::RunImpl() {
-  // Извлекаем матрицы A и B из task_data_
+  // Получаем данные из task_data
   double* matrixA = reinterpret_cast<double*>(task_data->inputs[0]);
   double* matrixB = reinterpret_cast<double*>(task_data->inputs[1]);
+  double* result = reinterpret_cast<double*>(task_data->outputs[0]);
 
-  size_t sizeA = task_data->inputs_count[0] / sizeof(double);
+  size_t totalSize = task_data->inputs_count[0] / sizeof(double);
+  size_t n = std::sqrt(totalSize);  // размер матрицы (n x n)
 
-  // Создаем результирующую матрицу C
-  std::vector<double> matrixC(sizeA * sizeA, 0.0);
-  double* result = matrixC.data();
+  // Инициализируем результат нулями
+  for (size_t i = 0; i < n * n; ++i) {
+    result[i] = 0.0;
+  }
 
-  // Определяем размер блока
-  constexpr size_t blockSize = 2;  // Оптимальный размер блока может зависеть от архитектуры
+  // Алгоритм Фокса (блочное умножение)
+  constexpr size_t blockSize = 2;
 
-  // Блочная схема умножения матриц
-  for (size_t i = 0; i < sizeA; i += blockSize) {
-    for (size_t j = 0; j < sizeA; j += blockSize) {
-      for (size_t k = 0; k < sizeA; k += blockSize) {
-        // Границы блока
-        size_t iEnd = std::min(i + blockSize, sizeA);
-        size_t jEnd = std::min(j + blockSize, sizeA);
-        size_t kEnd = std::min(k + blockSize, sizeA);
+  for (size_t i = 0; i < n; i += blockSize) {
+    for (size_t j = 0; j < n; j += blockSize) {
+      for (size_t k = 0; k < n; k += blockSize) {
+        // Границы блоков
+        size_t iEnd = std::min(i + blockSize, n);
+        size_t jEnd = std::min(j + blockSize, n);
+        size_t kEnd = std::min(k + blockSize, n);
 
-        // Внутренние циклы для обработки элементов блока
-        for (size_t x = i; x < iEnd; ++x) {
-          for (size_t y = j; y < jEnd; ++y) {
-            for (size_t z = k; z < kEnd; ++z) {
-              result[x * sizeA + y] += matrixA[x * sizeA + z] * matrixB[z * sizeA + y];
+        // Умножение блоков
+        for (size_t ii = i; ii < iEnd; ++ii) {
+          for (size_t jj = j; jj < jEnd; ++jj) {
+            double sum = 0.0;
+            for (size_t kk = k; kk < kEnd; ++kk) {
+              sum += matrixA[ii * n + kk] * matrixB[kk * n + jj];
             }
+            result[ii * n + jj] += sum;
           }
         }
       }
     }
   }
 
-  // Сохраняем результат в outputs
-  task_data->outputs[0] = reinterpret_cast<uint8_t*>(result);
-  task_data->outputs_count[0] = sizeA * sizeA * sizeof(double);
-
   return true;
 }
 
 bool TaskSequential::PostProcessingImpl() {
-  // Очистка ресурсов (если требуется)
+  // Очистка не требуется, так как память управляется извне
   return true;
 }
 
