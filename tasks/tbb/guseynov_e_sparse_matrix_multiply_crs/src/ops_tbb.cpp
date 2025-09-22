@@ -1,7 +1,8 @@
 #include "tbb/guseynov_e_sparse_matrix_multiply_crs/include/ops_tbb.hpp"
 
-#include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/mutex.h>
+#include <oneapi/tbb/parallel_for.h>
+
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -64,15 +65,14 @@ bool IsCrs(const CRSMatrix& m) {
   return true;
 }
 
-void ProcessRow(int i, const CRSMatrix* A_mat_, const CRSMatrix* B_mat_, 
-                std::vector<std::vector<std::pair<int, double>>>& temp,
-                oneapi::tbb::mutex& mutex) {
-  for (int j = 0; j < B_mat_->n_rows; j++) {
+void ProcessRow(int i, const CRSMatrix* a_mat_, const CRSMatrix* b_mat_,
+                std::vector<std::vector<std::pair<int, double>>>& temp, oneapi::tbb::mutex& mutex) {
+  for (int j = 0; j < b_mat_->n_rows; j++) {
     double sum = 0.0;
-    for (int k_a = A_mat_->pointer[i]; k_a < A_mat_->pointer[i + 1]; k_a++) {
-      for (int k_b = B_mat_->pointer[j]; k_b < B_mat_->pointer[j + 1]; k_b++) {
-        if (A_mat_->col_indexes[k_a] == B_mat_->col_indexes[k_b]) {
-          sum += A_mat_->non_zero_values[k_a] * B_mat_->non_zero_values[k_b];
+    for (int k_a = a_mat_->pointer[i]; k_a < a_mat_->pointer[i + 1]; k_a++) {
+      for (int k_b = b_mat_->pointer[j]; k_b < b_mat_->pointer[j + 1]; k_b++) {
+        if (a_mat_->col_indexes[k_a] == b_mat_->col_indexes[k_b]) {
+          sum += a_mat_->non_zero_values[k_a] * b_mat_->non_zero_values[k_b];
         }
       }
     }
@@ -92,8 +92,8 @@ bool guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB::PreProcessingI
 }
 
 bool guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB::ValidationImpl() {
-  if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1 || 
-      !task_data->inputs_count.empty() || !task_data->outputs_count.empty()) {
+  if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1 || !task_data->inputs_count.empty() ||
+      !task_data->outputs_count.empty()) {
     return false;
   }
 
@@ -126,9 +126,7 @@ bool guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB::RunImpl() {
   std::vector<std::vector<std::pair<int, double>>> temp(Result_->n_rows);
   std::vector<oneapi::tbb::mutex> mutexes(Result_->n_rows);
 
-  oneapi::tbb::parallel_for(0, Result_->n_rows, [&](int i) {
-    ProcessRow(i, A_mat_, B_mat_, temp, mutexes[i]);
-  });
+  oneapi::tbb::parallel_for(0, Result_->n_rows, [&](int i) { ProcessRow(i, A_mat_, B_mat_, temp, mutexes[i]); });
 
   // Сборка результатов
   for (int i = 0; i < Result_->n_rows; i++) {
