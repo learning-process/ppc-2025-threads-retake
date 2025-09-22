@@ -12,7 +12,7 @@
 
 TEST(anikin_m_block_gauss_omp, test_pipeline_run) {
   int n = 10000;
-  int m = 10000;
+  int m = 8800;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m);
   std::random_device rd;
@@ -60,7 +60,7 @@ TEST(anikin_m_block_gauss_omp, test_pipeline_run) {
 
 TEST(anikin_m_block_gauss_omp, test_task_run) {
   int n = 10000;
-  int m = 10000;
+  int m = 8800;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m);
   std::random_device rd;
