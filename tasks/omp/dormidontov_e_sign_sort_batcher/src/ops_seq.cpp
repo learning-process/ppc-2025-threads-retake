@@ -33,7 +33,7 @@ void OmpTask::Sort() {
   std::vector<size_t> count(radix, 0);
 
   for (int shift = 0; shift < 64; shift += 8) {
-    std::fill(begin(count), end(count), 0UL);
+    std::ranges::fill(begin(count), end(count), 0UL);
     for (size_t i = 0; i < input_size_; i++) {
       uint8_t key = GetByte(input_[i], ByteShift(shift));
       count[key]++;
