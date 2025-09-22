@@ -12,7 +12,7 @@
 #include "tbb/dormidontov_e_sign_sort_batcher/include/ops_seq.hpp"
 
 TEST(dormidontov_e_sign_sort_batcher_tbb, test_pipeline_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 500000;
 
   // Create data
   std::vector<double> in(kCount, 0);
@@ -31,7 +31,7 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<dormidontov_e_sign_sort_batcher_tbb::tbbTask>(task_data_seq);
+  auto test_task_sequential = std::make_shared<dormidontov_e_sign_sort_batcher_tbb::TbbTask>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -56,7 +56,7 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_pipeline_run) {
 }
 
 TEST(dormidontov_e_sign_sort_batcher_tbb, test_task_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 500000;
 
   // Create data
   std::vector<double> in(kCount, 0);
@@ -75,7 +75,7 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_task_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<dormidontov_e_sign_sort_batcher_tbb::tbbTask>(task_data_seq);
+  auto test_task_sequential = std::make_shared<dormidontov_e_sign_sort_batcher_tbb::TbbTask>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

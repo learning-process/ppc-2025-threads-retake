@@ -32,7 +32,7 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_50) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  dormidontov_e_sign_sort_batcher_tbb::tbbTask test_task_sequential(task_data_seq);
+  dormidontov_e_sign_sort_batcher_tbb::TbbTask test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -53,7 +53,7 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_0) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  dormidontov_e_sign_sort_batcher_tbb::tbbTask test_task_sequential(task_data_seq);
+  dormidontov_e_sign_sort_batcher_tbb::TbbTask test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -82,7 +82,7 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_1) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  dormidontov_e_sign_sort_batcher_tbb::tbbTask test_task_sequential(task_data_seq);
+  dormidontov_e_sign_sort_batcher_tbb::TbbTask test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -113,7 +113,7 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_1000_shuffe) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  dormidontov_e_sign_sort_batcher_tbb::tbbTask test_task_sequential(task_data_seq);
+  dormidontov_e_sign_sort_batcher_tbb::TbbTask test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -140,6 +140,6 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_wrong_size) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  dormidontov_e_sign_sort_batcher_tbb::tbbTask test_task_sequential(task_data_seq);
+  dormidontov_e_sign_sort_batcher_tbb::TbbTask test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }

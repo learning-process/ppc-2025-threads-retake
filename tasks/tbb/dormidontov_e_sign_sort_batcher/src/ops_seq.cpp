@@ -28,7 +28,7 @@ uint8_t GetByte(double d_value, ByteShift shift) {
 }
 }  // namespace
 
-void tbbTask::Sort() {
+void TbbTask::Sort() {
   if (input_.empty()) {
     return;
   }
@@ -53,7 +53,7 @@ void tbbTask::Sort() {
   }
 }
 
-void tbbTask::Merge(int low, int high) {
+void TbbTask::Merge(int low, int high) {
   if (high - low <= 1) {
     return;
   }
@@ -70,7 +70,7 @@ void tbbTask::Merge(int low, int high) {
   });
 }
 
-bool tbbTask::PreProcessingImpl() {
+bool TbbTask::PreProcessingImpl() {
   input_size_ = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   input_ = std::vector<double>(in_ptr, in_ptr + input_size_);
@@ -78,15 +78,15 @@ bool tbbTask::PreProcessingImpl() {
   return true;
 }
 
-bool tbbTask::ValidationImpl() { return task_data->inputs_count[0] == task_data->outputs_count[0]; }
+bool TbbTask::ValidationImpl() { return task_data->inputs_count[0] == task_data->outputs_count[0]; }
 
-bool tbbTask::RunImpl() {
+bool TbbTask::RunImpl() {
   Sort();
   Merge(0, static_cast<int>(input_size_));
   return true;
 }
 
-bool tbbTask::PostProcessingImpl() {
+bool TbbTask::PostProcessingImpl() {
   for (size_t i = 0; i < input_.size(); i++) {
     reinterpret_cast<double*>(task_data->outputs[0])[i] = input_[i];
   }

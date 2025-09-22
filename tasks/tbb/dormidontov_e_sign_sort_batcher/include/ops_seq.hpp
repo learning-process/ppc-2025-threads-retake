@@ -8,9 +8,9 @@
 #include "core/task/include/task.hpp"
 
 namespace dormidontov_e_sign_sort_batcher_tbb {
-class tbbTask : public ppc::core::Task {
+class TbbTask : public ppc::core::Task {
  public:
-  explicit tbbTask(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TbbTask(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
