@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -14,7 +16,7 @@
 TEST(budazhapova_e_qs_merge_sort_seq, test_sort_small_array) {
   std::vector<int> in = {5, 2, 8, 1, 9, 3, 7, 4, 6, 0};
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size(), 0);
 
   // Create task_data
@@ -57,7 +59,7 @@ TEST(budazhapova_e_qs_merge_sort_seq, test_sort_already_sorted) {
 TEST(budazhapova_e_qs_merge_sort_seq, test_sort_reverse_sorted) {
   std::vector<int> in = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size(), 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -78,7 +80,7 @@ TEST(budazhapova_e_qs_merge_sort_seq, test_sort_reverse_sorted) {
 TEST(budazhapova_e_qs_merge_sort_seq, test_sort_with_duplicates) {
   std::vector<int> in = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size(), 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -150,7 +152,7 @@ TEST(budazhapova_e_qs_merge_sort_seq, test_sort_large_random_array) {
   }
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));

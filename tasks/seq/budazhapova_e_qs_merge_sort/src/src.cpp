@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -7,11 +8,11 @@
 
 namespace budazhapova_e_qs_merge_sort_seq {
 namespace {
-void quickSortHoare(std::vector<int>& arr, int low, int high) {
+void QuickSortHoare(std::vector<int>& arr, int low, int high) {
   if (low < high) {
     int pi = partitionHoare(arr, low, high);
-    quickSortHoare(arr, low, pi);
-    quickSortHoare(arr, pi + 1, high);
+    QuickSortHoare(arr, low, pi);
+    QuickSortHoare(arr, pi + 1, high);
   }
 }
 
@@ -21,8 +22,12 @@ int partitionHoare(std::vector<int>& arr, int low, int high) {
   int j = high;
 
   while (i <= j) {
-    while (arr[i] < pivot) i++;
-    while (arr[j] > pivot) j--;
+    while (arr[i] < pivot) {
+      i++
+    };
+    while (arr[j] > pivot) {
+      j--
+    };
 
     if (i <= j) {
       std::swap(arr[i], arr[j]);
@@ -55,7 +60,7 @@ bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::RunImpl() {
   output_ = input_;
 
   if (!output_.empty()) {
-    quickSortHoare(output_, 0, static_cast<int>(output_.size()) - 1);
+    QuickSortHoare(output_, 0, static_cast<int>(output_.size()) - 1);
   }
 
   return true;

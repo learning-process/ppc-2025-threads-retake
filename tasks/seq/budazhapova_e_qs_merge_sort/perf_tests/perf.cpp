@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -25,7 +26,7 @@ TEST(budazhapova_e_qs_merge_sort_seq, test_pipeline_run) {
     in[i] = dist(gen);
   }
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -71,7 +72,7 @@ TEST(budazhapova_e_qs_merge_sort_seq, test_task_run) {
   }
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
