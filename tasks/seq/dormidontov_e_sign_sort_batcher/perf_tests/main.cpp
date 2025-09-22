@@ -12,7 +12,7 @@
 #include "seq/dormidontov_e_sign_sort_batcher/include/ops_seq.hpp"
 
 TEST(dormidontov_e_sign_sort_batcher_seq, test_pipeline_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 1000000;
 
   // Create data
   std::vector<double> in(kCount, 0);
@@ -35,7 +35,7 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_pipeline_run) {
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 100;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -56,7 +56,7 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_pipeline_run) {
 }
 
 TEST(dormidontov_e_sign_sort_batcher_seq, test_task_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 1000000;
 
   // Create data
   std::vector<double> in(kCount, 0);
@@ -79,7 +79,7 @@ TEST(dormidontov_e_sign_sort_batcher_seq, test_task_run) {
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 100;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
