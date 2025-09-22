@@ -1,10 +1,9 @@
-#define _USE_MATH_DEFINES
-
 #include <gtest/gtest.h>
 
 #include <cmath>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -206,7 +205,8 @@ TEST(sdobnov_v_simpson_omp, test_polynomial_3d_integral) {
 TEST(sdobnov_v_simpson_omp, test_trigonometric_4d_integral) {
   const int dimensions = 4;
   const double lower_bounds[4] = {0.0, 0.0, 0.0, 0.0};
-  const double upper_bounds[4] = {M_PI / 2, M_PI / 2, M_PI / 2, M_PI / 2};
+  const double upper_bounds[4] = {std::numbers::pi / 2, std::numbers::pi / 2, std::numbers::pi / 2,
+                                  std::numbers::pi / 2};
   const int n_points[4] = {40, 40, 40, 40};
   double result = 0.0;
 
@@ -237,7 +237,7 @@ TEST(sdobnov_v_simpson_omp, test_trigonometric_4d_integral) {
   ASSERT_TRUE(test_task.Run());
   ASSERT_TRUE(test_task.PostProcessing());
 
-  const double expected_result = (M_PI * M_PI * M_PI) / 2;
+  const double expected_result = (std::numbers::pi * std::numbers::pi * std::numbers::pi) / 2;
   const double tolerance = 1e-2;
 
   EXPECT_NEAR(result, expected_result, tolerance);
@@ -246,7 +246,7 @@ TEST(sdobnov_v_simpson_omp, test_trigonometric_4d_integral) {
 TEST(sdobnov_v_simpson_omp, test_mixed_5d_integral) {
   const int dimensions = 5;
   const double lower_bounds[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double upper_bounds[5] = {1.0, M_PI / 2, 1.0, M_PI / 2, 1.0};
+  const double upper_bounds[5] = {1.0, std::numbers::pi / 2, 1.0, std::numbers::pi / 2, 1.0};
   const int n_points[5] = {20, 20, 20, 20, 20};
   double result = 0.0;
 
@@ -277,7 +277,7 @@ TEST(sdobnov_v_simpson_omp, test_mixed_5d_integral) {
   ASSERT_TRUE(test_task.Run());
   ASSERT_TRUE(test_task.PostProcessing());
 
-  const double expected_result = ((5 * M_PI * M_PI) + (18 * M_PI)) / 24;
+  const double expected_result = ((5 * std::numbers::pi * std::numbers::pi) + (18 * std::numbers::pi)) / 24;
   const double tolerance = 1e-2;
 
   EXPECT_NEAR(result, expected_result, tolerance);

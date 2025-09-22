@@ -1,5 +1,6 @@
 #include "omp/sdobnov_v_simpson/include/ops_omp.hpp"
 
+#include <cmath>
 #include <omp.h>
 
 #include <vector>
@@ -129,7 +130,9 @@ bool SimpsonIntegralOmp::RunImpl() {
     double raw_result = SimpsonRecursive(0, current_point);
 
     int n = n_points_[0];
-    if (n % 2 != 0) n++;
+    if (n % 2 != 0) {
+      n++;
+    }
     double h = (upper_bounds_[0] - lower_bounds_[0]) / n;
     double coefficient = h / 3.0;
 

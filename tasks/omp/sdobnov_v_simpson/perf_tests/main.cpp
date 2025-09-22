@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -11,11 +9,12 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/sdobnov_v_simpson/include/ops_omp.hpp"
+#include <numbers>
 
 TEST(sdobnov_v_simpson_omp, perf_pipeline_run) {
   const int dimensions = 5;
   const double lower_bounds[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double upper_bounds[5] = {10.0, 5 * M_PI, 10.0, 5 * M_PI, 10.0};
+  const double upper_bounds[5] = {10.0, 5 * std::numbers::pi, 10.0, 5 * std::numbers::pi, 10.0};
   const int n_points[5] = {20, 20, 20, 20, 20};
   double result = 0.0;
 
@@ -59,7 +58,7 @@ TEST(sdobnov_v_simpson_omp, perf_pipeline_run) {
 TEST(sdobnov_v_simpson_omp, perf_task_run) {
   const int dimensions = 5;
   const double lower_bounds[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double upper_bounds[5] = {10.0, 5 * M_PI, 10.0, 5 * M_PI, 10.0};
+  const double upper_bounds[5] = {10.0, 5 * std::numbers::pi, 10.0, 5 * std::numbers::pi, 10.0};
   const int n_points[5] = {20, 20, 20, 20, 20};
   double result = 0.0;
 
