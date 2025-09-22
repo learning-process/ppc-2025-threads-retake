@@ -10,11 +10,13 @@
 
 namespace kavtorev_d_batcher_sort_seq {
 
-static inline void CompSwap(double& a, double& b) {
+namespace {
+inline void CompSwap(double& a, double& b) {
   if (a > b) {
     std::swap(a, b);
   }
 }
+}  // namespace
 
 inline uint64_t RadixBatcherSortSequential::ToOrderedUint64(double value) {
   uint64_t bits = 0;
