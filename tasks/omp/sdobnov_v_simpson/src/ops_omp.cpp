@@ -3,7 +3,6 @@
 #include <omp.h>
 
 #include <cmath>
-
 #include <vector>
 
 namespace sdobnov_v_simpson_omp {
