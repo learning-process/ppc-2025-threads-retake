@@ -1,7 +1,6 @@
 #include "tbb/kalinin_d_simpson_method/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
 
 #include <cmath>
