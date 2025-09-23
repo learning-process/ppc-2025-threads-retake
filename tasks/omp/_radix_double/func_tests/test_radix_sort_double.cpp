@@ -1,8 +1,9 @@
-
 #include <gtest/gtest.h>
+
 #include <algorithm>
-#include <random>
 #include <limits>
+#include <random>
+
 #include "radix_sort_double.hpp"
 
 using namespace bobylev_m_radix_double_omp;
