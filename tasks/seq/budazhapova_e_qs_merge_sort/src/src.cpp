@@ -9,7 +9,7 @@
 namespace budazhapova_e_qs_merge_sort_seq {
 namespace {
 int PartitionHoare(std::vector<int>& arr, int low, int high) {
-  int pivot = arr[(low + high) / 2];
+  int pivot = arr[low + (high - low) / 2];
   int i = low;
   int j = high;
 
@@ -33,8 +33,12 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
 void QuickSortHoare(std::vector<int>& arr, int low, int high) {
   if (low < high) {
     int pi = PartitionHoare(arr, low, high);
-    QuickSortHoare(arr, low, pi);
-    QuickSortHoare(arr, pi + 1, high);
+    if (low < pi) {
+      QuickSortHoare(arr, low, pi);
+    }
+    if (pi + 1 < high) {
+      QuickSortHoare(arr, pi + 1, high);
+    }
   }
 }
 
@@ -59,7 +63,7 @@ bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::ValidationImpl() {
 bool budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential::RunImpl() {
   output_ = input_;
 
-  if (!output_.empty()) {
+  if (!output_.empty() && output_.size() > 1) {
     QuickSortHoare(output_, 0, static_cast<int>(output_.size()) - 1);
   }
 
