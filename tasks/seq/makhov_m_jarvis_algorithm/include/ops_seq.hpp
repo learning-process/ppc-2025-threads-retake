@@ -9,7 +9,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 namespace makhov_m_jarvis_algorithm_seq {
 
 struct Point {
