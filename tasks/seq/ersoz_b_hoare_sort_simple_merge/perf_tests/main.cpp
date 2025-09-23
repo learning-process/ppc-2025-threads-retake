@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -9,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/ersoz_b_hoare_sort_simple_merge/include/ops_seq.hpp"
+#include "seq/z/include/ops_seq.hpp"
 
 using ersoz_b_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential;
 
@@ -18,7 +19,9 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_pipeline_run) {
   std::vector<int> in(n);
   std::mt19937 gen(42);
   std::uniform_int_distribution<int> dist(-1000000, 1000000);
-  for (auto& x : in) x = dist(gen);
+  for (auto& x : in) {
+    x = dist(gen);
+  }
   std::vector<int> out(n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -30,7 +33,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_pipeline_run) {
   auto task = std::make_shared<HoareSortSimpleMergeSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -40,10 +43,18 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
+
+  const auto wall_t0 = std::chrono::high_resolution_clock::now();
   perf->PipelineRun(perf_attr, perf_results);
+  auto wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+  while (wall_elapsed < 1.0) {
+    perf->PipelineRun(perf_attr, perf_results);
+    wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+  }
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out));
+  ASSERT_GE(wall_elapsed, 1.0);
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, test_task_run) {
@@ -51,7 +62,9 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_task_run) {
   std::vector<int> in(n);
   std::mt19937 gen(4242);
   std::uniform_int_distribution<int> dist(-1000000, 1000000);
-  for (auto& x : in) x = dist(gen);
+  for (auto& x : in) {
+    x = dist(gen);
+  }
   std::vector<int> out(n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -63,7 +76,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_task_run) {
   auto task = std::make_shared<HoareSortSimpleMergeSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -73,8 +86,16 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
+
+  const auto wall_t0 = std::chrono::high_resolution_clock::now();
   perf->TaskRun(perf_attr, perf_results);
+  auto wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+  while (wall_elapsed < 1.0) {
+    perf->TaskRun(perf_attr, perf_results);
+    wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+  }
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out));
+  ASSERT_GE(wall_elapsed, 1.0);
 }

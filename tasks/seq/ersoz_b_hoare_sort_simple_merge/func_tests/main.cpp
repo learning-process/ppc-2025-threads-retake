@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -12,7 +11,9 @@
 
 using ersoz_b_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential;
 
-static void RunOnce(std::vector<int> in) {
+namespace {
+
+void RunOnce(std::vector<int> in) {
   std::vector<int> out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -24,8 +25,10 @@ static void RunOnce(std::vector<int> in) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  std::sort(in.begin(), in.end());
+  std::ranges::sort(in);
   EXPECT_EQ(in, out);
+}
+
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, empty) { RunOnce({}); }
@@ -34,19 +37,26 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, single) { RunOnce({42}); }
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, sorted) {
   std::vector<int> v(100);
-  for (int i = 0; i < 100; ++i) v[i] = i;
+  for (int i = 0; i < 100; ++i) {
+    v[i] = i;
+  }
   RunOnce(v);
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, reversed) {
   std::vector<int> v(100);
-  for (int i = 0; i < 100; ++i) v[i] = 99 - i;
+  for (int i = 0; i < 100; ++i) {
+    v[i] = 99 - i;
+  }
   RunOnce(v);
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, duplicates) {
   std::vector<int> v;
-  for (int i = 0; i < 100; ++i) v.push_back(i % 5);
+  v.reserve(100);
+  for (int i = 0; i < 100; ++i) {
+    v.push_back(i % 5);
+  }
   RunOnce(v);
 }
 
@@ -59,6 +69,8 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, random_large) {
   std::mt19937 gen(123);
   std::uniform_int_distribution<int> dist(-100000, 100000);
   std::vector<int> v(10000);
-  for (auto& x : v) x = dist(gen);
+  for (auto& x : v) {
+    x = dist(gen);
+  }
   RunOnce(v);
 }

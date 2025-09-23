@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -17,10 +18,11 @@ class HoareSortSimpleMergeSequential : public ppc::core::Task {
 
  private:
   static void QuickSortHoare(std::vector<int>& a, long long l, long long r);
-  static void MergeTwo(const std::vector<int>& src, size_t l, size_t m, size_t r, std::vector<int>& dst);
+  static void MergeTwo(const std::vector<int>& src, std::pair<std::size_t, std::size_t> left,
+                       std::pair<std::size_t, std::size_t> right, std::vector<int>& dst);
 
-  std::vector<int> input_{};
-  std::vector<int> output_{};
+  std::vector<int> input_;
+  std::vector<int> output_;
 };
 
-}  // namespace ersoz_b_hoare_sort_simple_merge_seq
+}
