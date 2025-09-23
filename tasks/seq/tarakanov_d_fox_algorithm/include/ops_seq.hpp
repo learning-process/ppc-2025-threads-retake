@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -16,11 +18,11 @@ class TaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> matrixA;
-  std::vector<double> matrixB;
-  std::vector<double> result;
-  size_t sizeA;
-  size_t sizeB;
+  std::vector<double> matrixA_;
+  std::vector<double> matrixB_;
+  std::vector<double> result_;
+  size_t sizeA_;
+  size_t sizeB_;
 };
 
 }  // namespace tarakanov_d_fox_algorithm_seq

@@ -2,44 +2,42 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
-#include <memory>
 #include <vector>
 
 namespace tarakanov_d_fox_algorithm_seq {
 
 bool TaskSequential::ValidationImpl() {
-  if (task_data->inputs_count.size() < 2 || task_data->outputs_count.size() < 1) {
+  if (task_data->inputs_count.size() < 2 || task_data->outputs_count.empty()) {
     return false;
   }
 
-  sizeA = task_data->inputs_count[0] / sizeof(double);
-  sizeB = task_data->inputs_count[1] / sizeof(double);
+  sizeA_ = task_data->inputs_count[0] / sizeof(double);
+  sizeB_ = task_data->inputs_count[1] / sizeof(double);
 
-  size_t dimA = std::sqrt(sizeA);
-  size_t dimB = std::sqrt(sizeB);
+  size_t dim_a = std::sqrt(sizeA_);
+  size_t dim_b = std::sqrt(sizeB_);
 
-  return (dimA * dimA == sizeA) && (dimB * dimB == sizeB) && (dimA == dimB);
+  return (dim_a * dim_a == sizeA_) && (dim_b * dim_b == sizeB_) && (dim_a == dim_b);
 }
 
 bool TaskSequential::PreProcessingImpl() {
-  double *doublePtrMatrixA = reinterpret_cast<double *>(task_data->inputs[0]);
-  double *doublePtrMatrixB = reinterpret_cast<double *>(task_data->inputs[1]);
+  double *doublePtrmatrixA_ = reinterpret_cast<double *>(task_data->inputs[0]);
+  double *doublePtrmatrixB_ = reinterpret_cast<double *>(task_data->inputs[1]);
 
-  matrixA = std::vector<double>(doublePtrMatrixA, doublePtrMatrixA + sizeA);
-  matrixB = std::vector<double>(doublePtrMatrixA, doublePtrMatrixB + sizeB);
+  matrixA_ = std::vector<double>(doublePtrmatrixA_, doublePtrmatrixA_ + sizeA_);
+  matrixB_ = std::vector<double>(doublePtrmatrixA_, doublePtrmatrixB_ + sizeB_);
 
-  result.reserve(sizeA);
+  result_.reserve(sizeA_);
 
   return true;
 }
 
 bool TaskSequential::RunImpl() {
-  size_t totalSize = sizeA;
+  size_t totalSize = sizeA_;
   size_t n = std::sqrt(totalSize);
 
   for (size_t i = 0; i < n * n; ++i) {
-    result[i] = 0.0;
+    result_[i] = 0.0;
   }
 
   constexpr size_t blockSize = 2;
@@ -55,9 +53,9 @@ bool TaskSequential::RunImpl() {
           for (size_t jj = j; jj < jEnd; ++jj) {
             double sum = 0.0;
             for (size_t kk = k; kk < kEnd; ++kk) {
-              sum += matrixA[ii * n + kk] * matrixB[kk * n + jj];
+              sum += matrixA_[ii * n + kk] * matrixB_[kk * n + jj];
             }
-            result[ii * n + jj] += sum;
+            result_[ii * n + jj] += sum;
           }
         }
       }
@@ -68,7 +66,7 @@ bool TaskSequential::RunImpl() {
 }
 
 bool TaskSequential::PostProcessingImpl() {
-  std::copy(result.begin(), result.begin() + sizeA, task_data->outputs[0]);
+  std::copy(result_.begin(), result_.begin() + sizeA_, task_data->outputs[0]);
   return true;
 }
 
