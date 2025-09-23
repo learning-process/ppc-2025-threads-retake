@@ -36,7 +36,7 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& low
 
 }  // namespace
 
-TEST(kalinin_d_simpson_method_seq, perf_pipeline_run_unit_cube_linear_sum) {
+TEST(kalinin_d_simpson_method_omp, perf_pipeline_run_unit_cube_linear_sum) {
   std::vector<double> a{0.0, 0.0, 0.0};
   std::vector<double> b{1.0, 1.0, 1.0};
 
@@ -62,7 +62,7 @@ TEST(kalinin_d_simpson_method_seq, perf_pipeline_run_unit_cube_linear_sum) {
   ASSERT_NEAR(result, 1.5, 1e-6);
 }
 
-TEST(kalinin_d_simpson_method_seq, perf_task_run_hyperrectangle_constant) {
+TEST(kalinin_d_simpson_method_omp, perf_task_run_hyperrectangle_constant) {
   std::vector<double> a{0.0, 0.0, -1.0, 2.0};
   std::vector<double> b{1.0, 2.0, 1.0, 4.0};
   int n = 80;

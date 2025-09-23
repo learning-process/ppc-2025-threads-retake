@@ -36,7 +36,7 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& low
 
 }  // namespace
 
-TEST(kalinin_d_simpson_method_seq, one_dim_constant) {
+TEST(kalinin_d_simpson_method_omp, one_dim_constant) {
   std::vector<double> a{0.0};
   std::vector<double> b{5.0};
   int n = 100;
@@ -50,7 +50,7 @@ TEST(kalinin_d_simpson_method_seq, one_dim_constant) {
   EXPECT_NEAR(res, 5.0, 1e-9);
 }
 
-TEST(kalinin_d_simpson_method_seq, one_dim_linear) {
+TEST(kalinin_d_simpson_method_omp, one_dim_linear) {
   std::vector<double> a{0.0};
   std::vector<double> b{1.0};
   int n = 100;
@@ -64,7 +64,7 @@ TEST(kalinin_d_simpson_method_seq, one_dim_linear) {
   EXPECT_NEAR(res, 0.5, 1e-9);
 }
 
-TEST(kalinin_d_simpson_method_seq, one_dim_quadratic) {
+TEST(kalinin_d_simpson_method_omp, one_dim_quadratic) {
   std::vector<double> a{0.0};
   std::vector<double> b{1.0};
   int n = 100;
@@ -79,7 +79,7 @@ TEST(kalinin_d_simpson_method_seq, one_dim_quadratic) {
   EXPECT_NEAR(res, 1.0 / 3.0, 1e-9);
 }
 
-TEST(kalinin_d_simpson_method_seq, two_dim_constant_rect) {
+TEST(kalinin_d_simpson_method_omp, two_dim_constant_rect) {
   std::vector<double> a{0.0, 0.0};
   std::vector<double> b{2.0, 3.0};
   int n = 100;
@@ -93,7 +93,7 @@ TEST(kalinin_d_simpson_method_seq, two_dim_constant_rect) {
   EXPECT_NEAR(res, 6.0, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, two_dim_linear_sum_unit_square) {
+TEST(kalinin_d_simpson_method_omp, two_dim_linear_sum_unit_square) {
   std::vector<double> a{0.0, 0.0};
   std::vector<double> b{1.0, 1.0};
   int n = 100;
@@ -107,7 +107,7 @@ TEST(kalinin_d_simpson_method_seq, two_dim_linear_sum_unit_square) {
   EXPECT_NEAR(res, 1.0, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, two_dim_product_unit_square) {
+TEST(kalinin_d_simpson_method_omp, two_dim_product_unit_square) {
   std::vector<double> a{0.0, 0.0};
   std::vector<double> b{1.0, 1.0};
   int n = 100;
@@ -121,7 +121,7 @@ TEST(kalinin_d_simpson_method_seq, two_dim_product_unit_square) {
   EXPECT_NEAR(res, 0.25, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, two_dim_sum_squares_unit_square) {
+TEST(kalinin_d_simpson_method_omp, two_dim_sum_squares_unit_square) {
   std::vector<double> a{0.0, 0.0};
   std::vector<double> b{1.0, 1.0};
   int n = 100;
@@ -135,7 +135,7 @@ TEST(kalinin_d_simpson_method_seq, two_dim_sum_squares_unit_square) {
   EXPECT_NEAR(res, 2.0 / 3.0, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, three_dim_constant_unit_cube) {
+TEST(kalinin_d_simpson_method_omp, three_dim_constant_unit_cube) {
   std::vector<double> a{0.0, 0.0, 0.0};
   std::vector<double> b{1.0, 1.0, 1.0};
   int n = 20;
@@ -149,7 +149,7 @@ TEST(kalinin_d_simpson_method_seq, three_dim_constant_unit_cube) {
   EXPECT_NEAR(res, 1.0, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, three_dim_linear_sum_unit_cube) {
+TEST(kalinin_d_simpson_method_omp, three_dim_linear_sum_unit_cube) {
   std::vector<double> a{0.0, 0.0, 0.0};
   std::vector<double> b{1.0, 1.0, 1.0};
   int n = 20;
@@ -163,13 +163,13 @@ TEST(kalinin_d_simpson_method_seq, three_dim_linear_sum_unit_cube) {
   EXPECT_NEAR(res, 1.5, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, three_dim_product_unit_cube) {
+TEST(kalinin_d_simpson_method_omp, three_dim_product_unit_cube) {
   std::vector<double> a{0.0, 0.0, 0.0};
   std::vector<double> b{1.0, 1.0, 1.0};
   int n = 20;
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 2, &res);
-  kalinin_d_simpson_method_seq::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -177,13 +177,13 @@ TEST(kalinin_d_simpson_method_seq, three_dim_product_unit_cube) {
   EXPECT_NEAR(res, 0.125, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, two_dim_constant_mixed_bounds) {
+TEST(kalinin_d_simpson_method_omp, two_dim_constant_mixed_bounds) {
   std::vector<double> a{1.0, 2.0};
   std::vector<double> b{3.0, 5.0};
   int n = 100;
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &res);
-  kalinin_d_simpson_method_seq::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -191,24 +191,24 @@ TEST(kalinin_d_simpson_method_seq, two_dim_constant_mixed_bounds) {
   EXPECT_NEAR(res, 6.0, 1e-8);
 }
 
-TEST(kalinin_d_simpson_method_seq, validation_odd_segments) {
+TEST(kalinin_d_simpson_method_omp, validation_odd_segments) {
   std::vector<double> a{0.0};
   std::vector<double> b{1.0};
   int n = 11;  // odd -> invalid
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &res);
-  kalinin_d_simpson_method_seq::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(kalinin_d_simpson_method_seq, four_dim_constant_hyperrectangle) {
+TEST(kalinin_d_simpson_method_omp, four_dim_constant_hyperrectangle) {
   std::vector<double> a{0.0, 0.0, -1.0, 2.0};
   std::vector<double> b{1.0, 2.0, 1.0, 4.0};
 
   int n = 10;
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &res);
-  kalinin_d_simpson_method_seq::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
