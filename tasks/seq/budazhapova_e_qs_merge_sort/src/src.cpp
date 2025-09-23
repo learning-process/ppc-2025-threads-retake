@@ -13,22 +13,23 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
   int i = low;
   int j = high;
 
-  while (i <= j) {
+  while (true) {
     while (arr[i] < pivot) {
       i++;
     }
+
     while (arr[j] > pivot) {
       j--;
     }
 
-    if (i <= j) {
-      std::swap(arr[i], arr[j]);
-      i++;
-      j--;
+    if (i >= j) {
+      return j;
     }
-  }
+    std::swap(arr[i], arr[j]);
 
-  return j;
+    i++;
+    j--;
+  }
 }
 void QuickSortHoare(std::vector<int>& arr, int low, int high) {
   if (low < high) {
