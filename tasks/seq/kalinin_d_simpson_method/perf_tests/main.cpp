@@ -40,7 +40,7 @@ TEST(kalinin_d_simpson_method_seq, perf_pipeline_run_unit_cube_linear_sum) {
   std::vector<double> a{0.0, 0.0, 0.0};
   std::vector<double> b{1.0, 1.0, 1.0};
 
-  int n = 300;
+  int n = 400;
   double result = 0.0;
   auto task_data = MakeTaskData(a, b, n, 1, &result);
   auto task = std::make_shared<kalinin_d_simpson_method_seq::SimpsonNDSequential>(task_data);
@@ -65,7 +65,7 @@ TEST(kalinin_d_simpson_method_seq, perf_pipeline_run_unit_cube_linear_sum) {
 TEST(kalinin_d_simpson_method_seq, perf_task_run_hyperrectangle_constant) {
   std::vector<double> a{0.0, 0.0, -1.0, 2.0};
   std::vector<double> b{1.0, 2.0, 1.0, 4.0};
-  int n = 80;
+  int n = 100;
   double result = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &result);
   auto task = std::make_shared<kalinin_d_simpson_method_seq::SimpsonNDSequential>(task_data);
