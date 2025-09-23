@@ -14,15 +14,20 @@ TEST(makhov_m_jarvis_algorithm_seq, test_pipeline_run) {
   // Create data
   std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);
   uint32_t in_size = in.size() * 2 * sizeof(double);
+
   for (size_t i = 0; i < in.size(); i++) {
     makhov_m_jarvis_algorithm_seq::Point point =
         makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(-10.0, 10.0, -10.0, 10.0);
     in[i] = point;
   }
 
+  // Используем unique_ptr для автоматического управления памятью
+  auto input_buffer = std::make_unique<uint8_t[]>(in_size);
+  std::memcpy(input_buffer.get(), in.data(), in_size);
+
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(input_buffer.get());
   task_data_seq->inputs_count.emplace_back(in_size);
 
   // Create Task
@@ -51,15 +56,20 @@ TEST(makhov_m_jarvis_algorithm_seq, test_task_run) {
   // Create data
   std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);
   uint32_t in_size = in.size() * 2 * sizeof(double);
+
   for (size_t i = 0; i < in.size(); i++) {
     makhov_m_jarvis_algorithm_seq::Point point =
         makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(-10.0, 10.0, -10.0, 10.0);
     in[i] = point;
   }
 
+  // Используем unique_ptr для автоматического управления памятью
+  auto input_buffer = std::make_unique<uint8_t[]>(in_size);
+  std::memcpy(input_buffer.get(), in.data(), in_size);
+
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(input_buffer.get());
   task_data_seq->inputs_count.emplace_back(in_size);
 
   // Create Task

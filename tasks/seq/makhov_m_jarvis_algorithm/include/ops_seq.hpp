@@ -1,5 +1,6 @@
 #pragma once
-
+#include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <random>
@@ -8,48 +9,51 @@
 
 #include "core/task/include/task.hpp"
 
+
 namespace makhov_m_jarvis_algorithm_seq {
 
 struct Point {
  public:
-  double x_, y_;
+  using XCoord = double;
+  using YCoord = double;
+  double x, y;
   // Конструкторы
-  Point() : x_(0), y_(0) {}
-  Point(double x, double y) : x_(x), y_(y) {}
+  Point() : x(0), y(0) {}
+  Point(double x, double y) : x(x), y(y) {}
 
   // Методы доступа
-  double getX() const { return x_; }
-  double getY() const { return y_; }
-  void setX(double x) { x_ = x; }
-  void setY(double y) { y_ = y; }
-  void set(double x, double y) {
-    x_ = x;
-    y_ = y;
+  [[nodiscard]] double GetX() const { return x; }
+  [[nodiscard]] double GetY() const { return y; }
+  void SetX(double x_) { x = x_; }
+  void SetY(double y_) { y = y_; }
+  void Set(XCoord x_, YCoord y_) {
+    x = x_;
+    y = y_;
   }
 
-  double distanceTo(const Point& other) const {
-    double dx = x_ - other.x_;
-    double dy = y_ - other.y_;
-    return std::sqrt(dx * dx + dy * dy);
+  [[nodiscard]] double DistanceTo(const Point& other) const {
+    double dx = x - other.x;
+    double dy = y - other.y;
+    return std::sqrt((dx * dx) + (dy * dy));
   }
 
   // Перегрузка оператора вывода с форматированием
   friend std::ostream& operator<<(std::ostream& os, const Point& point) {
     // Сохраняем оригинальные настройки потока
-    std::ios oldState(nullptr);
-    oldState.copyfmt(os);
+    std::ios old_state(nullptr);
+    old_state.copyfmt(os);
 
     // Устанавливаем фиксированный формат и точность (2 знака после запятой)
-    os << "(" << std::fixed << std::setprecision(2) << point.x_ << ", " << point.y_ << ")";
+    os << "(" << std::fixed << std::setprecision(2) << point.x << ", " << point.y << ")";
 
     // Восстанавливаем оригинальные настройки потока
-    os.copyfmt(oldState);
+    os.copyfmt(old_state);
 
     return os;
   }
 
   // Перегрузка операторов сравнения
-  bool operator==(const Point& other) const { return x_ == other.x_ && y_ == other.y_; }
+  bool operator==(const Point& other) const { return x == other.x && y == other.y; }
   bool operator!=(const Point& other) const { return !(*this == other); }
 };
 
@@ -60,11 +64,63 @@ class TaskSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  double cross(const Point& a, const Point& b, const Point& c);
-  double dist(const Point& a, const Point& b);
-  uint8_t* convertPointsToByteArray(const std::vector<Point>& points, uint32_t& outSize);
-  static std::vector<Point> convertByteArrayToPoints(const uint8_t* byteArray, uint32_t byteArraySize);
-  static Point GetRandomPoint(double minX, double maxX, double minY, double maxY);
+  static double Cross(const Point& a, const Point& b, const Point& c) {
+    return ((b.x - a.x) * (c.y - a.y)) - ((b.y - a.y) * (c.x - a.x));
+  }
+  static double Dist(const Point& a, const Point& b) {
+    return ((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y));
+  }
+  static uint8_t* ConvertPointsToByteArray(const std::vector<Point>& points, uint32_t& out_size) {
+    out_size = static_cast<uint32_t>(points.size() * 2 * sizeof(double));
+    auto* buffer = new uint8_t[out_size];
+    auto* double_buffer = reinterpret_cast<double*>(buffer);
+
+    for (size_t i = 0; i < points.size(); ++i) {
+      double_buffer[2 * i] = points[i].GetX();
+      double_buffer[(2 * i) + 1] = points[i].GetY();
+    }
+
+    return buffer;
+  }
+  static std::vector<Point> ConvertByteArrayToPoints(const uint8_t* byte_array, uint32_t byte_array_size) {
+    std::vector<makhov_m_jarvis_algorithm_seq::Point> points;
+
+    if (byte_array == nullptr || byte_array_size == 0) {
+      return points;
+    }
+
+    size_t point_count = byte_array_size / (2 * sizeof(double));
+
+    if (byte_array_size % (2 * sizeof(double)) != 0) {
+      point_count = byte_array_size / (2 * sizeof(double));
+    }
+
+    const auto* data = reinterpret_cast<const double*>(byte_array);
+
+    for (size_t i = 0; i < point_count; ++i) {
+      makhov_m_jarvis_algorithm_seq::Point point;
+      point.SetX(data[2 * i]);
+      point.SetY(data[(2 * i) + 1]);
+      points.push_back(point);
+    }
+
+    return points;
+  }
+  static Point GetRandomPoint(double min_x, double max_x, double min_y, double max_y) {
+    unsigned seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
+    static std::mt19937 generator(seed);
+
+    // Создаем распределения для координат X и Y
+    std::uniform_real_distribution<double> dist_x(min_x, max_x);
+    std::uniform_real_distribution<double> dist_y(min_y, max_y);
+
+    // Генерируем случайные координаты
+    Point point;
+    point.x = dist_x(generator);
+    point.y = dist_y(generator);
+
+    return point;
+  }
 
  private:
   std::vector<Point> input_, output_, result_;
