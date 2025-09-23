@@ -23,13 +23,13 @@ bool TaskSequential::ValidationImpl() {
 }
 
 bool TaskSequential::PreProcessingImpl() {
-  double *doublePtrMatrixA reinterpret_cast<double *>(task_data->inputs[0]);
-  double *doublePtrMatrixB reinterpret_cast<double *>(task_data->inputs[1]);
+  double *doublePtrMatrixA = reinterpret_cast<double *>(task_data->inputs[0]);
+  double *doublePtrMatrixB = reinterpret_cast<double *>(task_data->inputs[1]);
 
   matrixA = std::vector<double>(doublePtrMatrixA, doublePtrMatrixA + sizeA);
   matrixB = std::vector<double>(doublePtrMatrixA, doublePtrMatrixB + sizeB);
 
-  result.reserve(size);
+  result.reserve(sizeA);
 
   return true;
 }
