@@ -1,0 +1,74 @@
+#include "seq/ersoz_b_hoare_sort_simple_merge/include/ops_seq.hpp"
+
+#include <algorithm>
+#include <cstddef>
+#include <vector>
+
+using ersoz_b_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential;
+
+bool HoareSortSimpleMergeSequential::PreProcessingImpl() {
+  unsigned int input_size = task_data->inputs_count[0];
+  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
+  output_ = std::vector<int>(input_size);
+  return true;
+}
+
+bool HoareSortSimpleMergeSequential::ValidationImpl() {
+  if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) return false;
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) return false;
+  return task_data->inputs_count[0] == task_data->outputs_count[0];
+}
+
+void HoareSortSimpleMergeSequential::QuickSortHoare(std::vector<int>& a, long long l, long long r) {
+  long long i = l;
+  long long j = r;
+  int pivot = a[l + (r - l) / 2];
+  while (i <= j) {
+    while (a[i] < pivot) i++;
+    while (a[j] > pivot) j--;
+    if (i <= j) {
+      std::swap(a[i], a[j]);
+      i++;
+      j--;
+    }
+  }
+  if (l < j) QuickSortHoare(a, l, j);
+  if (i < r) QuickSortHoare(a, i, r);
+}
+
+void HoareSortSimpleMergeSequential::MergeTwo(const std::vector<int>& src, size_t l, size_t m, size_t r,
+                                              std::vector<int>& dst) {
+  size_t i = l;
+  size_t j = m;
+  size_t k = l;
+  while (i < m && j < r) {
+    if (src[i] <= src[j]) {
+      dst[k++] = src[i++];
+    } else {
+      dst[k++] = src[j++];
+    }
+  }
+  while (i < m) dst[k++] = src[i++];
+  while (j < r) dst[k++] = src[j++];
+}
+
+bool HoareSortSimpleMergeSequential::RunImpl() {
+  if (input_.empty()) {
+    output_.clear();
+    return true;
+  }
+  size_t n = input_.size();
+  size_t mid = n / 2;
+  if (mid > 0) QuickSortHoare(input_, 0, static_cast<long long>(mid - 1));
+  if (mid < n) QuickSortHoare(input_, static_cast<long long>(mid), static_cast<long long>(n - 1));
+  MergeTwo(input_, 0, mid, n, output_);
+  return true;
+}
+
+bool HoareSortSimpleMergeSequential::PostProcessingImpl() {
+  for (size_t i = 0; i < output_.size(); i++) {
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+  }
+  return true;
+}
