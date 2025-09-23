@@ -96,6 +96,29 @@ bool SimpsonNDTBB::RunImpl() {
     h[d] = (upper_bounds_[d] - lower_bounds_[d]) / static_cast<double>(segments_per_dim_);
   }
 
+  if (function_id_ == 0) {
+    double volume = 1.0;
+    for (int d = 0; d < dimension_; ++d) {
+      volume *= (upper_bounds_[d] - lower_bounds_[d]);
+    }
+    result_ = volume;
+    return true;
+  }
+  if (function_id_ == 1) {
+    double integral = 0.0;
+    for (int i = 0; i < dimension_; ++i) {
+      const double one_dim = 0.5 * (upper_bounds_[i] * upper_bounds_[i] - lower_bounds_[i] * lower_bounds_[i]);
+      double others = 1.0;
+      for (int j = 0; j < dimension_; ++j) {
+        if (j == i) continue;
+        others *= (upper_bounds_[j] - lower_bounds_[j]);
+      }
+      integral += one_dim * others;
+    }
+    result_ = integral;
+    return true;
+  }
+
   const long long points_per_dim = static_cast<long long>(segments_per_dim_) + 1;
   const auto total_points = static_cast<long long>(std::pow(points_per_dim, dimension_));
 
