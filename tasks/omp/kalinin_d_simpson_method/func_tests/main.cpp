@@ -169,7 +169,7 @@ TEST(kalinin_d_simpson_method_omp, three_dim_product_unit_cube) {
   int n = 20;
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 2, &res);
-  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDOpenMP task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -183,7 +183,7 @@ TEST(kalinin_d_simpson_method_omp, two_dim_constant_mixed_bounds) {
   int n = 100;
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &res);
-  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDOpenMP task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -197,7 +197,7 @@ TEST(kalinin_d_simpson_method_omp, validation_odd_segments) {
   int n = 11;  // odd -> invalid
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &res);
-  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDOpenMP task(task_data);
   EXPECT_FALSE(task.Validation());
 }
 
@@ -208,7 +208,7 @@ TEST(kalinin_d_simpson_method_omp, four_dim_constant_hyperrectangle) {
   int n = 10;
   double res = 0.0;
   auto task_data = MakeTaskData(a, b, n, 0, &res);
-  kalinin_d_simpson_method_omp::SimpsonNDSequential task(task_data);
+  kalinin_d_simpson_method_omp::SimpsonNDOpenMP task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
