@@ -10,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/z/include/ops_seq.hpp"
+#include "seq/ersoz_b_hoare_sort_simple_merge/include/ops_seq.hpp"
 
 using ersoz_b_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential;
 
