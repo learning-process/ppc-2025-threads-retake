@@ -85,7 +85,6 @@ void RadixBatcherSortOpenMP::OddEvenMerge(std::vector<double>& a, int left, int 
     OddEvenMerge(a, left, size, m);
     OddEvenMerge(a, left + stride, size, m);
 
-#pragma omp parallel for schedule(static)
     for (int i = left + stride; i + stride < left + size; i += m) {
       CompSwap(a[i], a[i + stride]);
     }
