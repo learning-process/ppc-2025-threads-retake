@@ -200,25 +200,24 @@ void parallel_radix_sort_double_with_simple_merge(std::vector<double>& a, int bl
         merge_two(keys.data(), tmp.data(), l, m, r);
       } else {
         if (r > l) std::memcpy(tmp.data() + l, keys.data() + l, (r - l) * sizeof(uint64_t));
-          }
       }
-    }
-    std::swap(keys, tmp);
-
-    int newBlocks = 0;
-    for (int i = 0; i < blocks; i += 2 * width) {
-      starts[newBlocks++] = starts[i];
-    }
-    starts[newBlocks] = n;
-    blocks = newBlocks;
   }
+  std::swap(keys, tmp);
+
+  int newBlocks = 0;
+  for (int i = 0; i < blocks; i += 2 * width) {
+    starts[newBlocks++] = starts[i];
+  }
+  starts[newBlocks] = n;
+  blocks = newBlocks;
+}
 
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static)
 #endif
-  for (long long i = 0; i < (long long)n; ++i) {
-    a[i] = key_to_double(keys[i]);
-  }
+for (long long i = 0; i < (long long)n; ++i) {
+  a[i] = key_to_double(keys[i]);
+}
 }
 
 }  // namespace bobylev_m_radix_double_omp
