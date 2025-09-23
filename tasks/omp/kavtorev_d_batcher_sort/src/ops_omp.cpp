@@ -54,7 +54,7 @@ void RadixBatcherSortOpenMP::LsdRadixSortUint64(std::vector<uint64_t>& data) {
     const int shift = byte * 8;
 
 #pragma omp parallel for schedule(static)
-    for (size_t i = 0; i < n; ++i) {
+    for (int i = 0; i < static_cast<int>(n); ++i) {
       auto r = static_cast<uint8_t>((data[i] >> shift) & 0xFFU);
 #pragma omp atomic
       count[r]++;
@@ -68,11 +68,13 @@ void RadixBatcherSortOpenMP::LsdRadixSortUint64(std::vector<uint64_t>& data) {
     }
 
 #pragma omp parallel for schedule(static)
-    for (size_t i = 0; i < n; ++i) {
+    for (int i = 0; i < static_cast<int>(n); ++i) {
       auto r = static_cast<uint8_t>((data[i] >> shift) & 0xFFU);
       size_t pos;
-#pragma omp atomic capture
-      pos = count[r]++;
+#pragma omp critical
+      {
+        pos = count[r]++;
+      }
       buffer[pos] = data[i];
     }
     data.swap(buffer);
@@ -128,7 +130,7 @@ bool RadixBatcherSortOpenMP::RunImpl() {
   std::vector<uint64_t> keys(input_.size());
 
 #pragma omp parallel for schedule(static)
-  for (size_t i = 0; i < input_.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(input_.size()); ++i) {
     keys[i] = ToOrderedUint64(input_[i]);
   }
 
@@ -137,7 +139,7 @@ bool RadixBatcherSortOpenMP::RunImpl() {
   std::vector<double> sorted(input_.size());
 
 #pragma omp parallel for schedule(static)
-  for (size_t i = 0; i < keys.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(keys.size()); ++i) {
     sorted[i] = FromOrderedUint64(keys[i]);
   }
 
@@ -160,7 +162,7 @@ bool RadixBatcherSortOpenMP::RunImpl() {
 
 bool RadixBatcherSortOpenMP::PostProcessingImpl() {
 #pragma omp parallel for schedule(static)
-  for (size_t i = 0; i < output_.size(); i++) {
+  for (int i = 0; i < static_cast<int>(output_.size()); i++) {
     reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
