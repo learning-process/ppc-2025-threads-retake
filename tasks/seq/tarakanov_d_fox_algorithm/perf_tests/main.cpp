@@ -4,6 +4,7 @@
 #include <random>
 #include <vector>
 
+#include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/tarakanov_d_fox_algorithm/include/ops_seq.hpp"
 
