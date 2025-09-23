@@ -25,4 +25,4 @@ class HoareSortSimpleMergeSequential : public ppc::core::Task {
   std::vector<int> output_;
 };
 
-}
+}  // namespace ersoz_b_hoare_sort_simple_merge_seq
