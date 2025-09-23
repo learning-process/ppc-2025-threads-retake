@@ -9,7 +9,7 @@
 namespace budazhapova_e_qs_merge_sort_seq {
 namespace {
 int PartitionHoare(std::vector<int>& arr, int low, int high) {
-  int pivot = arr[low + (high - low) / 2];
+  int pivot = arr[low + ((high - low) / 2)];
   int i = low;
   int j = high;
 
