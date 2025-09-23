@@ -14,7 +14,7 @@
 #include "seq/budazhapova_e_qs_merge_sort/include/inc.h"
 
 TEST(budazhapova_e_qs_merge_sort_seq, test_pipeline_run) {
-  constexpr size_t kCount = 1000;
+  constexpr size_t kCount = 10000000;
   std::vector<int> in(kCount);
   std::vector<int> out(kCount, 0);
 
@@ -59,7 +59,7 @@ TEST(budazhapova_e_qs_merge_sort_seq, test_pipeline_run) {
 }
 
 TEST(budazhapova_e_qs_merge_sort_seq, test_task_run) {
-  constexpr size_t kCount = 1000;
+  constexpr size_t kCount = 10000000;
   std::vector<int> in(kCount);
   std::vector<int> out(kCount, 0);
 
