@@ -101,13 +101,9 @@ void RadixBatcherSortOpenMP::OddEvenMergeSort(std::vector<double>& a, int left, 
 #pragma omp parallel sections
     {
 #pragma omp section
-      {
-        OddEvenMergeSort(a, left, mid);
-      }
+      { OddEvenMergeSort(a, left, mid); }
 #pragma omp section
-      {
-        OddEvenMergeSort(a, left + mid, mid);
-      }
+      { OddEvenMergeSort(a, left + mid, mid); }
     }
 
     OddEvenMerge(a, left, size, 1);
