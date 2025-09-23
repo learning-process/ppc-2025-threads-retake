@@ -46,10 +46,14 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_pipeline_run) {
 
   const auto wall_t0 = std::chrono::high_resolution_clock::now();
   perf->PipelineRun(perf_attr, perf_results);
-  auto wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+  auto wall_elapsed =
+      std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0)
+          .count();
   while (wall_elapsed < 1.0) {
     perf->PipelineRun(perf_attr, perf_results);
-    wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+    wall_elapsed =
+        std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0)
+            .count();
   }
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
@@ -89,10 +93,14 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_task_run) {
 
   const auto wall_t0 = std::chrono::high_resolution_clock::now();
   perf->TaskRun(perf_attr, perf_results);
-  auto wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+  auto wall_elapsed =
+      std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0)
+          .count();
   while (wall_elapsed < 1.0) {
     perf->TaskRun(perf_attr, perf_results);
-    wall_elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0).count();
+    wall_elapsed =
+        std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0)
+            .count();
   }
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
