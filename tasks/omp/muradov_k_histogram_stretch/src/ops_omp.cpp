@@ -42,21 +42,11 @@ bool HistogramStretchOpenMP::RunImpl() {
 
   int global_min = 255;
   int global_max = 0;
-#pragma omp parallel
-  {
-    int tmin = 255;
-    int tmax = 0;
-#pragma omp for nowait
-    for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
-      int v = input_image_[i];
-      tmin = std::min(v, tmin);
-      tmax = std::max(v, tmax);
-    }
-#pragma omp critical
-    {
-      global_min = std::min(tmin, global_min);
-      global_max = std::max(tmax, global_max);
-    }
+#pragma omp parallel for reduction(min : global_min) reduction(max : global_max)
+  for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
+    int v = input_image_[i];
+    if (v < global_min) global_min = v;
+    if (v > global_max) global_max = v;
   }
   min_val_ = global_min;
   max_val_ = global_max;
@@ -70,14 +60,11 @@ bool HistogramStretchOpenMP::RunImpl() {
   }
 
   const int range = max_val_ - min_val_;
-  static constexpr int kRepeat = 2000;  // стабильное >1s
-  for (int r = 0; r < kRepeat; ++r) {
 #pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
-      int stretched = (input_image_[i] - min_val_) * 255 / range;
-      stretched = std::clamp(stretched, 0, 255);
-      output_image_[i] = stretched;
-    }
+  for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
+    int stretched = (input_image_[i] - min_val_) * 255 / range;
+    stretched = std::clamp(stretched, 0, 255);
+    output_image_[i] = stretched;
   }
   return true;
 }
