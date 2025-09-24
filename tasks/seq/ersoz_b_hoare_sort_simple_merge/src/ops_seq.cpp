@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 using ersoz_b_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential;
@@ -27,7 +28,7 @@ bool HoareSortSimpleMergeSequential::ValidationImpl() {
 void HoareSortSimpleMergeSequential::QuickSortHoare(std::vector<int>& a, long long l, long long r) {
   long long i = l;
   long long j = r;
-  long long pivot_index = l + (r - l) / 2;
+  long long pivot_index = l + ((r - l) / 2);
   int pivot = a[pivot_index];
   while (i <= j) {
     while (a[i] < pivot) {
