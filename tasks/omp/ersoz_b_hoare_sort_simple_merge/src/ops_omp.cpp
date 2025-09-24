@@ -105,7 +105,10 @@ void HoareSortSimpleMergeOpenMP::MergeTwo(const std::vector<int>& src, Segment l
 bool HoareSortSimpleMergeOpenMP::RunImpl() {
   const std::size_t n = input_.size();
   if (n <= 1U) {
-    output_ = input_;
+    output_.resize(n);
+    if (n == 1U) {
+      output_[0] = input_[0];
+    }
     return true;
   }
   output_.resize(n);
