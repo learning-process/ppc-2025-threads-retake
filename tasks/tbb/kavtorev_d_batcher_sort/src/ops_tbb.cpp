@@ -1,15 +1,16 @@
 #include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
 
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
+#include <tbb/parallel_scan.h>
+#include <tbb/parallel_invoke.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <limits>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
-#include <tbb/parallel_scan.h>
-#include <tbb/parallel_invoke.h>
 #include <vector>
 
 namespace kavtorev_d_batcher_sort_tbb {
@@ -114,10 +115,7 @@ void RadixBatcherSortTBB::OddEvenMergeSort(std::vector<double>& a, int left, int
     int mid = size / 2;
 
     // Parallel recursive sorting
-    tbb::parallel_invoke(
-        [&]() { OddEvenMergeSort(a, left, mid); },
-        [&]() { OddEvenMergeSort(a, left + mid, mid); }
-    );
+    tbb::parallel_invoke([&]() { OddEvenMergeSort(a, left, mid); }, [&]() { OddEvenMergeSort(a, left + mid, mid); });
 
     OddEvenMerge(a, left, size, 1);
   }
@@ -132,9 +130,7 @@ bool RadixBatcherSortTBB::PreProcessingImpl() {
   return true;
 }
 
-bool RadixBatcherSortTBB::ValidationImpl() { 
-  return task_data->inputs_count[0] == task_data->outputs_count[0]; 
-}
+bool RadixBatcherSortTBB::ValidationImpl() { return task_data->inputs_count[0] == task_data->outputs_count[0]; }
 
 bool RadixBatcherSortTBB::RunImpl() {
   if (input_.empty()) {
