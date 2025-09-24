@@ -64,5 +64,3 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, random_large) {
   }
   RunOnce(v);
 }
-
-
