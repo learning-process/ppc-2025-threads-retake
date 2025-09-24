@@ -27,6 +27,11 @@ bool HoareSortSimpleMergeOpenMP::ValidationImpl() {
 
 bool HoareSortSimpleMergeOpenMP::PreProcessingImpl() {
   const auto n = task_data->inputs_count[0];
+  if (n == 0U) {
+    input_.clear();
+    output_.clear();
+    return true;
+  }
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_.assign(in_ptr, in_ptr + n);
   output_.assign(n, 0);
@@ -64,6 +69,14 @@ void HoareSortSimpleMergeOpenMP::QuickSortHoare(std::vector<int>& a, long long l
 
 void HoareSortSimpleMergeOpenMP::MergeTwo(const std::vector<int>& src, Segment left, Segment right,
                                           std::vector<int>& dst) {
+  if (dst.empty() || src.empty()) {
+    return;
+  }
+  left.end = std::min(left.end, src.size());
+  right.end = std::min(right.end, src.size());
+  if (left.begin >= left.end && right.begin >= right.end) {
+    return;
+  }
   std::size_t i = left.begin;
   std::size_t j = right.begin;
   std::size_t k = left.begin;
@@ -95,6 +108,7 @@ bool HoareSortSimpleMergeOpenMP::RunImpl() {
     output_ = input_;
     return true;
   }
+  output_.resize(n);
   const std::size_t mid = n / 2U;
 #pragma omp parallel sections default(none) shared(mid, n, input_)
   {
@@ -108,6 +122,9 @@ bool HoareSortSimpleMergeOpenMP::RunImpl() {
 }
 
 bool HoareSortSimpleMergeOpenMP::PostProcessingImpl() {
+  if (output_.empty()) {
+    return true;
+  }
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
   for (std::size_t i = 0; i < output_.size(); ++i) {
     out_ptr[i] = output_[i];
