@@ -13,7 +13,7 @@
 namespace kavtorev_d_batcher_sort_omp {
 
 namespace {
-static inline void CompSwap(double& a, double& b) {
+inline void CompSwap(double& a, double& b) {
   if (a > b) {
     std::swap(a, b);
   }
