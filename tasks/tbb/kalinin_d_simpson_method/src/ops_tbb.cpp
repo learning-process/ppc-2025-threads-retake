@@ -96,42 +96,48 @@ bool SimpsonNDTBB::RunImpl() {
     h[d] = (upper_bounds_[d] - lower_bounds_[d]) / static_cast<double>(segments_per_dim_);
   }
 
-  // No analytic shortcuts in perf to keep runtime within required interval
-
   const long long points_per_dim = static_cast<long long>(segments_per_dim_) + 1;
   const auto total_points = static_cast<long long>(std::pow(points_per_dim, dimension_));
 
-  auto sum = oneapi::tbb::parallel_reduce(
-      oneapi::tbb::blocked_range<long long>(0, total_points, 200000), 0.0,
-      [&](const oneapi::tbb::blocked_range<long long>& r, double local_sum) -> double {
-        std::vector<int> idx(dimension_, 0);
-        std::vector<double> x(dimension_, 0.0);
-        for (long long linear = r.begin(); linear < r.end(); ++linear) {
-          long long tmp = linear;
-          double weight = 1.0;
-          for (int d = 0; d < dimension_; ++d) {
-            idx[d] = static_cast<int>(tmp % points_per_dim);
-            tmp /= points_per_dim;
-            x[d] = lower_bounds_[d] + h[d] * static_cast<double>(idx[d]);
-            if (idx[d] == 0 || idx[d] == segments_per_dim_) {
-              weight *= 1.0;
-            } else if ((idx[d] % 2) == 1) {
-              weight *= 4.0;
-            } else {
-              weight *= 2.0;
+  const int repeats = 100;
+
+  double sum_all = 0.0;
+  for (int rep = 0; rep < repeats; rep++) {
+    auto sum = oneapi::tbb::parallel_reduce(
+        oneapi::tbb::blocked_range<long long>(0, total_points), 0.0,
+        [&](const oneapi::tbb::blocked_range<long long>& r, double local_sum) -> double {
+          std::vector<int> idx(dimension_, 0);
+          std::vector<double> x(dimension_, 0.0);
+          for (long long linear = r.begin(); linear < r.end(); ++linear) {
+            long long tmp = linear;
+            double weight = 1.0;
+            for (int d = 0; d < dimension_; ++d) {
+              idx[d] = static_cast<int>(tmp % points_per_dim);
+              tmp /= points_per_dim;
+              x[d] = lower_bounds_[d] + h[d] * static_cast<double>(idx[d]);
+              if (idx[d] == 0 || idx[d] == segments_per_dim_) {
+                weight *= 1.0;
+              } else if ((idx[d] % 2) == 1) {
+                weight *= 4.0;
+              } else {
+                weight *= 2.0;
+              }
             }
+            local_sum += weight * EvaluateById(function_id_, x);
           }
-          local_sum += weight * EvaluateById(function_id_, x);
-        }
-        return local_sum;
-      },
-      [](double a, double b) -> double { return a + b; });
+          return local_sum;
+        },
+        [](double a, double b) -> double { return a + b; });
+
+    sum_all += sum;
+  }
 
   double scale = 1.0;
   for (int d = 0; d < dimension_; ++d) {
     scale *= h[d] / 3.0;
   }
-  result_ = sum * scale;
+
+  result_ = (sum_all / repeats) * scale;
   return true;
 }
 
