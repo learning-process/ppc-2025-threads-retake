@@ -1,6 +1,5 @@
 #include "omp/ersoz_b_hoare_sort_simple_merge/include/ops_omp.hpp"
 
-#include <algorithm>
 #include <cstddef>
 #include <vector>
 
