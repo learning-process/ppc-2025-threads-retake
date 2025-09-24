@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -43,7 +43,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(std::ranges::is_sorted(out));
+  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, test_task_run) {
@@ -77,5 +77,5 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(std::ranges::is_sorted(out));
+  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
 }

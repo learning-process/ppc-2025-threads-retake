@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <random>
-#include <ranges>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "omp/ersoz_b_hoare_sort_simple_merge/include/ops_omp.hpp"
 
 namespace {
@@ -23,7 +25,7 @@ void RunOnce(const std::vector<int>& input) {
   ASSERT_TRUE(task->PreProcessing());
   ASSERT_TRUE(task->Run());
   ASSERT_TRUE(task->PostProcessing());
-  ASSERT_TRUE(std::ranges::is_sorted(out));
+  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
 }
 
 }  // namespace

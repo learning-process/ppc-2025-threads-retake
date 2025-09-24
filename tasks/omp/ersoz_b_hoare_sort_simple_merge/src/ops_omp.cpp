@@ -1,5 +1,6 @@
 #include "omp/ersoz_b_hoare_sort_simple_merge/include/ops_omp.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <vector>
 
@@ -23,8 +24,6 @@ bool HoareSortSimpleMergeOpenMP::ValidationImpl() {
   }
   return true;
 }
-
-// rename
 
 bool HoareSortSimpleMergeOpenMP::PreProcessingImpl() {
   const auto n = task_data->inputs_count[0];
@@ -100,11 +99,15 @@ bool HoareSortSimpleMergeOpenMP::RunImpl() {
 #pragma omp parallel sections default(none) shared(mid, n, input_)
   {
 #pragma omp section
-    { QuickSortHoare(input_, 0, static_cast<long long>(mid) - 1); }
+    {
+      QuickSortHoare(input_, 0, static_cast<long long>(mid) - 1);
+    }
 #pragma omp section
-    { QuickSortHoare(input_, static_cast<long long>(mid), static_cast<long long>(n) - 1); }
+    {
+      QuickSortHoare(input_, static_cast<long long>(mid), static_cast<long long>(n) - 1);
+    }
   }
-  MergeTwo(input_, Segment{0, mid}, Segment{mid, n}, output_);
+  MergeTwo(input_, Segment{.begin = 0, .end = mid}, Segment{.begin = mid, .end = n}, output_);
   return true;
 }
 
