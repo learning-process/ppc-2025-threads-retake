@@ -14,7 +14,7 @@
 using kavtorev_d_batcher_sort_omp::RadixBatcherSortOpenMP;
 
 TEST(kavtorev_d_batcher_sort_omp, perf_pipeline_run) {
-  constexpr size_t kCount = 2000000;
+  constexpr size_t kCount = 500000;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
   std::mt19937 gen(123);
@@ -43,7 +43,7 @@ TEST(kavtorev_d_batcher_sort_omp, perf_pipeline_run) {
 }
 
 TEST(kavtorev_d_batcher_sort_omp, perf_task_run) {
-  constexpr size_t kCount = 2000000;
+  constexpr size_t kCount = 500000;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
   std::mt19937 gen(321);

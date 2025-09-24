@@ -12,11 +12,13 @@
 
 namespace kavtorev_d_batcher_sort_omp {
 
+namespace {
 static inline void CompSwap(double& a, double& b) {
   if (a > b) {
     std::swap(a, b);
   }
 }
+}  // namespace
 
 inline uint64_t RadixBatcherSortOpenMP::ToOrderedUint64(double value) {
   uint64_t bits = 0;
@@ -70,11 +72,9 @@ void RadixBatcherSortOpenMP::LsdRadixSortUint64(std::vector<uint64_t>& data) {
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < static_cast<int>(n); ++i) {
       auto r = static_cast<uint8_t>((data[i] >> shift) & 0xFFU);
-      size_t pos;
+      size_t pos = 0;
 #pragma omp critical
-      {
-        pos = count[r]++;
-      }
+      { pos = count[r]++; }
       buffer[pos] = data[i];
     }
     data.swap(buffer);
@@ -102,9 +102,13 @@ void RadixBatcherSortOpenMP::OddEvenMergeSort(std::vector<double>& a, int left, 
 #pragma omp parallel sections
     {
 #pragma omp section
-      { OddEvenMergeSort(a, left, mid); }
+      {
+        OddEvenMergeSort(a, left, mid);
+      }
 #pragma omp section
-      { OddEvenMergeSort(a, left + mid, mid); }
+      {
+        OddEvenMergeSort(a, left + mid, mid);
+      }
     }
 
     OddEvenMerge(a, left, size, 1);
