@@ -129,7 +129,7 @@ bool TaskSequential::RunImpl() {
   return true;
 }
 
-bool TaskSequential::PostProcessingImpl() {
-  std::copy(result_.begin(), result_.begin() + sizeA_, task_data->outputs[0]);
+bool tarakanov_d_fox_algorithm_seq::TestTaskSequential::PostProcessingImpl() {
+  std::ranges::copy(output_, reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }
