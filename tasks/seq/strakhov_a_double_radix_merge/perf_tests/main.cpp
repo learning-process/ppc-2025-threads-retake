@@ -19,9 +19,9 @@ TEST(strakhov_a_double_radix_merge_seq, test_pipeline_run) {
   std::mt19937 gen(randomizer());
   std::vector<double> in(kCount, 0);
   std::vector<double> out(kCount, 0);
-
+  std::uniform_real_distribution<double> dist(-125.0, 125.0);
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = dis(randomizer);
+    in[i] = dist(randomizer);
   }
 
   // Create task_data
@@ -62,9 +62,9 @@ TEST(strakhov_a_double_radix_merge_seq, test_task_run) {
   std::mt19937 gen(randomizer());
   std::vector<double> in(kCount, 0);
   std::vector<double> out(kCount, 0);
-
+  std::uniform_real_distribution<double> dist(-125.0, 125.0);
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = dis(randomizer);
+    in[i] = dist(randomizer);
   }
 
   // Create task_data

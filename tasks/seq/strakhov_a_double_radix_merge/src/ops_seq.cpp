@@ -3,8 +3,9 @@
 #include <bit>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include <limits>
 #include <vector>
-
 bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   unsigned int size = task_data->inputs_count[0];
@@ -26,9 +27,9 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
   std::vector<uint64_t> temp_vector = std::vector<uint64_t>(size);
   // float to uint
   uint64_t tempest;
-  for (int i = 0; i < size; i++) {
+  for (unsigned int i = 0; i < size; i++) {
     tempest = std::bit_cast<uint64_t>(input_[i]);
-    if (tempest >> 63) {
+    if ((tempest >> 63) == 1) {
       temp_vector[i] = tempest ^ ~0ULL;
     } else {
       temp_vector[i] = tempest ^ 0x8000000000000000ULL;
@@ -41,7 +42,7 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
     true_vector.clear();
     false_vector.clear();
     bit_mask = (1 << i);
-    for (int j = 0; j < size; j++) {
+    for (unsigned int j = 0; j < size; j++) {
       if ((temp_vector[j] & bit_mask) == bit_mask) {
         true_vector.push_back(temp_vector[j]);
       } else {
@@ -54,8 +55,7 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
   }
   // uint to float
   for (int i = 0; i < size; i++) {
-    tempest = std::bit_cast<uint64_t>(input_[i]);
-    if (temp_vector[i] >> 63) {
+    if ((temp_vector[i] >> 63) == 1) {
       output_[i] = std::bit_cast<double>(temp_vector[i] ^ 0x8000000000000000ULL);
     } else {
       output_[i] = std::bit_cast<double>(temp_vector[i] ^ ~0ULL);
