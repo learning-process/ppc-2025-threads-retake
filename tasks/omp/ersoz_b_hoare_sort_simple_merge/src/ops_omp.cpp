@@ -113,12 +113,13 @@ bool HoareSortSimpleMergeOpenMP::RunImpl() {
   }
   output_.resize(n);
   const std::size_t mid = n / 2U;
-#pragma omp parallel sections default(none) shared(mid, n, input_)
+  auto* in_ptr = &input_;
+#pragma omp parallel sections default(none) shared(in_ptr, mid, n)
   {
 #pragma omp section
-    { QuickSortHoare(input_, 0, static_cast<long long>(mid) - 1); }
+    { QuickSortHoare(*in_ptr, 0, static_cast<long long>(mid) - 1); }
 #pragma omp section
-    { QuickSortHoare(input_, static_cast<long long>(mid), static_cast<long long>(n) - 1); }
+    { QuickSortHoare(*in_ptr, static_cast<long long>(mid), static_cast<long long>(n) - 1); }
   }
   MergeTwo(input_, Segment{.begin = 0, .end = mid}, Segment{.begin = mid, .end = n}, output_);
   return true;
