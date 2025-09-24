@@ -13,7 +13,7 @@
 #include "omp/ersoz_b_hoare_sort_simple_merge/include/ops_omp.hpp"
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
-  const std::size_t n = 1'500'000;  // large enough to exceed 1 second over several runs
+  const std::size_t n = 1'500'000;  // large enough to exceed 1 second over several run
   std::vector<int> in(n);
   std::vector<int> out(n, 0);
   std::mt19937 gen(123);
