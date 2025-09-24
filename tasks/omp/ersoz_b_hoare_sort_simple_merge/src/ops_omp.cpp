@@ -24,6 +24,8 @@ bool HoareSortSimpleMergeOpenMP::ValidationImpl() {
   return true;
 }
 
+//rename
+
 bool HoareSortSimpleMergeOpenMP::PreProcessingImpl() {
   const auto n = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
