@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <iomanip>
@@ -18,16 +19,16 @@ struct Point {
   double x, y;
   // Конструкторы
   Point() : x(0), y(0) {}
-  Point(double x, double y) : x(x), y(y) {}
+  Point(XCoord x, YCoord y) : x(x), y(y) {}
 
   // Методы доступа
   [[nodiscard]] double GetX() const { return x; }
   [[nodiscard]] double GetY() const { return y; }
-  void SetX(double x_) { x = x_; }
-  void SetY(double y_) { y = y_; }
-  void Set(XCoord x_, YCoord y_) {
-    x = x_;
-    y = y_;
+  void SetX(double x_coord) { x = x_coord; }
+  void SetY(double y_coord) { y = y_coord; }
+  void Set(XCoord x_coord, YCoord y_coord) {
+    x = x_coord;
+    y = y_coord;
   }
 
   [[nodiscard]] double DistanceTo(const Point& other) const {
@@ -74,7 +75,7 @@ class TaskSequential : public ppc::core::Task {
     auto* buffer = new uint8_t[out_size];
     auto* double_buffer = reinterpret_cast<double*>(buffer);
 
-    for (size_t i = 0; i < points.size(); ++i) {
+    for (uint32_t i = 0; i < points.size(); ++i) {
       double_buffer[2 * i] = points[i].GetX();
       double_buffer[(2 * i) + 1] = points[i].GetY();
     }
@@ -88,7 +89,7 @@ class TaskSequential : public ppc::core::Task {
       return points;
     }
 
-    size_t point_count = byte_array_size / (2 * sizeof(double));
+    uint32_t point_count = byte_array_size / (2 * sizeof(double));
 
     if (byte_array_size % (2 * sizeof(double)) != 0) {
       point_count = byte_array_size / (2 * sizeof(double));
@@ -96,7 +97,7 @@ class TaskSequential : public ppc::core::Task {
 
     const auto* data = reinterpret_cast<const double*>(byte_array);
 
-    for (size_t i = 0; i < point_count; ++i) {
+    for (uint32_t i = 0; i < point_count; ++i) {
       makhov_m_jarvis_algorithm_seq::Point point;
       point.SetX(data[2 * i]);
       point.SetY(data[(2 * i) + 1]);
@@ -105,7 +106,7 @@ class TaskSequential : public ppc::core::Task {
 
     return points;
   }
-  static Point GetRandomPoint(double min_x, double max_x, double min_y, double max_y) {
+  static Point GetRandomPoint(Point::XCoord min_x, Point::XCoord max_x, Point::YCoord min_y, Point::YCoord max_y) {
     unsigned seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
     static std::mt19937 generator(seed);
 
