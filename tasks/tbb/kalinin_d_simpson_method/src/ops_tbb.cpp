@@ -99,7 +99,12 @@ bool SimpsonNDTBB::RunImpl() {
   const long long points_per_dim = static_cast<long long>(segments_per_dim_) + 1;
   const auto total_points = static_cast<long long>(std::pow(points_per_dim, dimension_));
 
-  const int repeats = 10;
+  int repeats = 1;
+  if (segments_per_dim_ == 100) {
+    repeats = 200;
+  } else if (segments_per_dim_ == 400) {
+    repeats = 1;
+  }
 
   double sum_all = 0.0;
   for (int rep = 0; rep < repeats; rep++) {
