@@ -100,13 +100,9 @@ bool HoareSortSimpleMergeOpenMP::RunImpl() {
 #pragma omp parallel sections default(none) shared(mid, n, input_)
   {
 #pragma omp section
-    {
-      QuickSortHoare(input_, 0, static_cast<long long>(mid) - 1);
-    }
+    { QuickSortHoare(input_, 0, static_cast<long long>(mid) - 1); }
 #pragma omp section
-    {
-      QuickSortHoare(input_, static_cast<long long>(mid), static_cast<long long>(n) - 1);
-    }
+    { QuickSortHoare(input_, static_cast<long long>(mid), static_cast<long long>(n) - 1); }
   }
   MergeTwo(input_, Segment{0, mid}, Segment{mid, n}, output_);
   return true;
