@@ -55,6 +55,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_pipeline_run) {
         std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0)
             .count();
   }
+  perf_results->time_sec = wall_elapsed;
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   ASSERT_TRUE(std::ranges::is_sorted(out));
@@ -102,6 +103,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_task_run) {
         std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - wall_t0)
             .count();
   }
+  perf_results->time_sec = wall_elapsed;
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   ASSERT_TRUE(std::ranges::is_sorted(out));
