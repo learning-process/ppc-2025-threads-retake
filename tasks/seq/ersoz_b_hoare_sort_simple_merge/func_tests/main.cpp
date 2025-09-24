@@ -29,6 +29,8 @@ void RunOnce(std::vector<int> in) {
   EXPECT_EQ(in, out);
 }
 
+}  // namespace
+
 TEST(ersoz_b_hoare_sort_simple_merge_seq, empty) { RunOnce({}); }
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, single) { RunOnce({42}); }
