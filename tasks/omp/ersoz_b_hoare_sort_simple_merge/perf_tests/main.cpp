@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -13,7 +14,7 @@
 #include "omp/ersoz_b_hoare_sort_simple_merge/include/ops_omp.hpp"
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
-  const std::size_t n = 1'500'000;  // large enough to exceed 1 second over several run
+  const std::size_t n = 1'500'000;
   std::vector<int> in(n);
   std::vector<int> out(n, 0);
   std::mt19937 gen(123);
@@ -31,7 +32,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
   auto task = std::make_shared<ersoz_b_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;  // reduce runs but large data keeps total time > 1s
+  perf_attr->num_running = 5;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto now = std::chrono::high_resolution_clock::now();
@@ -43,7 +44,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, test_task_run) {
@@ -77,5 +78,5 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }

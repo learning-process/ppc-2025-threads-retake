@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -25,7 +26,7 @@ void RunOnce(const std::vector<int>& input) {
   ASSERT_TRUE(task->PreProcessing());
   ASSERT_TRUE(task->Run());
   ASSERT_TRUE(task->PostProcessing());
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
 }  // namespace
