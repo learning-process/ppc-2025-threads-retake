@@ -1,9 +1,9 @@
 #include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
 
 #include <tbb/parallel_for.h>
+#include <tbb/parallel_invoke.h>
 #include <tbb/parallel_reduce.h>
 #include <tbb/parallel_scan.h>
-#include <tbb/parallel_invoke.h>
 
 #include <algorithm>
 #include <cmath>
@@ -99,7 +99,6 @@ void RadixBatcherSortTBB::OddEvenMerge(std::vector<double>& a, int left, int siz
     for (int i = left + stride; i + stride < left + size; i += m) {
       indices.emplace_back(i, i + stride);
     }
-    
     tbb::parallel_for(tbb::blocked_range<size_t>(0, indices.size()), [&](const tbb::blocked_range<size_t>& range) {
       for (size_t idx = range.begin(); idx != range.end(); ++idx) {
         CompSwap(a[indices[idx].first], a[indices[idx].second]);
