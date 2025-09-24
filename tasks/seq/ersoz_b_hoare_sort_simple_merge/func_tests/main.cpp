@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -29,8 +28,6 @@ void RunOnce(std::vector<int> in) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
-
-}  // namespace
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, empty) { RunOnce({}); }
 
