@@ -11,65 +11,32 @@ bool makhov_m_jarvis_algorithm_seq::TaskSequential::ValidationImpl() {
 }
 
 bool makhov_m_jarvis_algorithm_seq::TaskSequential::PreProcessingImpl() {
-  // Init value for input and output
   const uint8_t* input_buffer = task_data->inputs[0];
   uint32_t byte_array_size = task_data->inputs_count[0];
-  // Преобразуем входные байты в вектор точек
-
-  input_ = makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertByteArrayToPoints(input_buffer, byte_array_size);
+  input_ = ConvertByteArrayToPoints(input_buffer, byte_array_size);
   return true;
 }
 
 bool makhov_m_jarvis_algorithm_seq::TaskSequential::RunImpl() {
-  size_t n = task_data->inputs_count[0] / (2 * sizeof(double));
+  size_t n = input_.size();
+
+  if (n < 3) {
+    result_ = input_;
+    return true;
+  }
+
   if (n == 3) {
-    result_.resize(3);
-    for (size_t i = 0; i < n; i++) {
-      result_[i] = input_[i];
-    }
-    return true;  // Возвращаем все точки, если их 3
+    result_ = input_;
+    return true;
   }
 
-  // Шаг 1: Находим самую левую точку
-  size_t leftmost = 0;
-  for (size_t i = 1; i < n; i++) {
-    if (input_[i].x < input_[leftmost].x || (input_[i].x == input_[leftmost].x && input_[i].y < input_[leftmost].y)) {
-      leftmost = i;
-    }
-  }
-
+  size_t leftmost = FindLeftmostPoint(input_);
   size_t current = leftmost;
 
   do {
-    // Добавляем текущую точку в оболочку
     result_.push_back(input_[current]);
-
-    // Шаг 2: Ищем следующую точку для добавления
-    size_t next = current;
-    for (size_t i = 0; i < n; i++) {
-      if (i == current) {
-        continue;
-      }
-
-      // Если next ещё не инициализирован, выбираем первую подходящую точку
-      if (next == current) {
-        next = i;
-      } else {
-        double cr = Cross(input_[current], input_[next], input_[i]);
-        if (cr > 0) {
-          // Точка i лежит левее, обновляем next
-          next = i;
-        } else if (cr == 0) {
-          // Если точки коллинеарны, выбираем более дальнюю
-          if (Dist(input_[current], input_[i]) > Dist(input_[current], input_[next])) {
-            next = i;
-          }
-        }
-      }
-    }
-
-    current = next;  // Переходим к следующей точке
-  } while (current != leftmost);  // Повторяем, пока не вернёмся в начальную точку
+    current = FindNextPoint(current, input_);
+  } while (current != leftmost);
 
   return true;
 }
@@ -82,10 +49,7 @@ bool makhov_m_jarvis_algorithm_seq::TaskSequential::PostProcessingImpl() {
     task_data->outputs.push_back(output_buffer);
     task_data->outputs_count.push_back(output_size);
   } else {
-    // Освобождаем старую память, если нужно
-
     if (task_data->outputs[0] != nullptr) {
-      std::cout << "task_data->outputs[0] is not nullptr" << '\n';
       delete[] task_data->outputs[0];
     }
     task_data->outputs[0] = output_buffer;
@@ -93,4 +57,98 @@ bool makhov_m_jarvis_algorithm_seq::TaskSequential::PostProcessingImpl() {
   }
 
   return true;
+}
+
+double makhov_m_jarvis_algorithm_seq::TaskSequential::Cross(const Point& a, const Point& b, const Point& c) {
+  return ((b.x - a.x) * (c.y - a.y)) - ((b.y - a.y) * (c.x - a.x));
+}
+
+double makhov_m_jarvis_algorithm_seq::TaskSequential::Dist(const Point& a, const Point& b) {
+  return ((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y));
+}
+
+uint8_t* makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertPointsToByteArray(const std::vector<Point>& points,
+                                                                                 uint32_t& out_size) {
+  out_size = static_cast<uint32_t>(points.size() * 2 * sizeof(double));
+  auto* buffer = new uint8_t[out_size];
+  auto* double_buffer = reinterpret_cast<double*>(buffer);
+
+  for (size_t i = 0; i < points.size(); ++i) {
+    double_buffer[2 * i] = points[i].GetX();
+    double_buffer[(2 * i) + 1] = points[i].GetY();
+  }
+
+  return buffer;
+}
+
+std::vector<makhov_m_jarvis_algorithm_seq::Point>
+makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertByteArrayToPoints(const uint8_t* byte_array,
+                                                                        uint32_t byte_array_size) {
+  std::vector<Point> points;
+
+  if (byte_array == nullptr || byte_array_size == 0) {
+    return points;
+  }
+
+  size_t point_count = byte_array_size / (2 * sizeof(double));
+  const auto* data = reinterpret_cast<const double*>(byte_array);
+
+  for (size_t i = 0; i < point_count; ++i) {
+    Point point;
+    point.SetX(data[2 * i]);
+    point.SetY(data[(2 * i) + 1]);
+    points.push_back(point);
+  }
+
+  return points;
+}
+
+size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindLeftmostPoint(const std::vector<Point>& points) const {
+  size_t leftmost = 0;
+
+  for (size_t i = 1; i < points.size(); ++i) {
+    if (points[i].x < points[leftmost].x || (points[i].x == points[leftmost].x && points[i].y < points[leftmost].y)) {
+      leftmost = i;
+    }
+  }
+
+  return leftmost;
+}
+
+size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindNextPoint(size_t current,
+                                                                    const std::vector<Point>& points) const {
+  size_t next = current;
+
+  for (size_t i = 0; i < points.size(); ++i) {
+    if (i == current) continue;
+
+    double cross_product = Cross(points[current], points[next], points[i]);
+
+    if (next == current || cross_product > 0) {
+      next = i;
+    } else if (cross_product == 0) {
+      if (Dist(points[current], points[i]) > Dist(points[current], points[next])) {
+        next = i;
+      }
+    }
+  }
+
+  return next;
+}
+
+makhov_m_jarvis_algorithm_seq::Point makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(XCoord min_x,
+                                                                                                   XCoord max_x,
+                                                                                                   YCoord min_y,
+                                                                                                   YCoord max_y) {
+  unsigned seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
+  static std::mt19937 generator(seed);
+
+  std::uniform_real_distribution<double> dist_x(min_x.value, max_x.value);
+  std::uniform_real_distribution<double> dist_y(min_y.value, max_y.value);
+
+  Point point;
+  point.x = dist_x(generator);
+  point.y = dist_y(generator);
+
+  return point;
 }

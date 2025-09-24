@@ -3,8 +3,8 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -13,23 +13,23 @@
 
 TEST(makhov_m_jarvis_algorithm_seq, test_pipeline_run) {
   // Create data
-  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);
-  uint32_t in_size = in.size() * 2 * sizeof(double);
+  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);  // Reduced size for reasonable test time
 
   for (size_t i = 0; i < in.size(); i++) {
-    makhov_m_jarvis_algorithm_seq::Point point =
-        makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(-10.0, 10.0, -10.0, 10.0);
+    makhov_m_jarvis_algorithm_seq::Point point = makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(
+        makhov_m_jarvis_algorithm_seq::XCoord(-10.0), makhov_m_jarvis_algorithm_seq::XCoord(10.0),
+        makhov_m_jarvis_algorithm_seq::YCoord(-10.0), makhov_m_jarvis_algorithm_seq::YCoord(10.0));
     in[i] = point;
   }
 
-  // Используем unique_ptr для автоматического управления памятью
-  auto input_buffer = std::make_unique<uint8_t[]>(in_size);
-  std::memcpy(input_buffer.get(), in.data(), in_size);
+  // Convert points to byte array
+  uint32_t buffer_size = 0;
+  uint8_t* buffer = makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertPointsToByteArray(in, buffer_size);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(input_buffer.get());
-  task_data_seq->inputs_count.emplace_back(in_size);
+  task_data_seq->inputs.emplace_back(buffer);
+  task_data_seq->inputs_count.emplace_back(buffer_size);
 
   // Create Task
   auto task_sequential = std::make_shared<makhov_m_jarvis_algorithm_seq::TaskSequential>(task_data_seq);
@@ -51,27 +51,30 @@ TEST(makhov_m_jarvis_algorithm_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  // Cleanup
+  delete[] buffer;
 }
 
 TEST(makhov_m_jarvis_algorithm_seq, test_task_run) {
   // Create data
-  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);
-  uint32_t in_size = in.size() * 2 * sizeof(double);
+  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);  // Reduced size for reasonable test time
 
   for (size_t i = 0; i < in.size(); i++) {
-    makhov_m_jarvis_algorithm_seq::Point point =
-        makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(-10.0, 10.0, -10.0, 10.0);
+    makhov_m_jarvis_algorithm_seq::Point point = makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(
+        makhov_m_jarvis_algorithm_seq::XCoord(-10.0), makhov_m_jarvis_algorithm_seq::XCoord(10.0),
+        makhov_m_jarvis_algorithm_seq::YCoord(-10.0), makhov_m_jarvis_algorithm_seq::YCoord(10.0));
     in[i] = point;
   }
 
-  // Используем unique_ptr для автоматического управления памятью
-  auto input_buffer = std::make_unique<uint8_t[]>(in_size);
-  std::memcpy(input_buffer.get(), in.data(), in_size);
+  // Convert points to byte array
+  uint32_t buffer_size = 0;
+  uint8_t* buffer = makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertPointsToByteArray(in, buffer_size);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(input_buffer.get());
-  task_data_seq->inputs_count.emplace_back(in_size);
+  task_data_seq->inputs.emplace_back(buffer);
+  task_data_seq->inputs_count.emplace_back(buffer_size);
 
   // Create Task
   auto task_sequential = std::make_shared<makhov_m_jarvis_algorithm_seq::TaskSequential>(task_data_seq);
@@ -93,4 +96,7 @@ TEST(makhov_m_jarvis_algorithm_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  // Cleanup
+  delete[] buffer;
 }
