@@ -26,7 +26,7 @@ void RunOnce(const std::vector<int>& input) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-}  
+}  // namespace
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, already_sorted) {
   std::vector<int> v(100);
@@ -64,3 +64,5 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, random_large) {
   }
   RunOnce(v);
 }
+
+
