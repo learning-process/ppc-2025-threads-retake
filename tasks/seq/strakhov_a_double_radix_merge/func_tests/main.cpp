@@ -25,8 +25,8 @@ std::vector<double> RunMyTask(const std::vector<double> &input) {
 }
 }  // namespace
 TEST(strakhov_a_double_radix_merge, test_simple1) {
-  std::vector<double> in{1.1, 2.2, 3.3, -4.4};
-  std::vector<double> expected{-4.4, 1.1, 2.2, 3.3};
+  std::vector<double> in{1.0, 2.2, 3.3, -4.4};
+  std::vector<double> expected{-4.4, 1.0, 2.2, 3.3};
   std::vector<double> out = RunMyTask(in);
   EXPECT_EQ(out, expected);
 }
