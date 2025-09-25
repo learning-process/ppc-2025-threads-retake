@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -49,7 +50,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_tbb, test_pipeline_run) {
   auto task = std::make_shared<ersoz_b_hoare_sort_simple_merge_tbb::HoareSortSimpleMergeTBB>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 12;
+  perf_attr->num_running = 30;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto tp = std::chrono::high_resolution_clock::now();
@@ -79,7 +80,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_tbb, test_task_run) {
   auto task = std::make_shared<ersoz_b_hoare_sort_simple_merge_tbb::HoareSortSimpleMergeTBB>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 12;
+  perf_attr->num_running = 30;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto tp = std::chrono::high_resolution_clock::now();
