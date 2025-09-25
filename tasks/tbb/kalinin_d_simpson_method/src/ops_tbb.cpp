@@ -1,6 +1,4 @@
-// ops_tbb.cpp (исправленный под clang-tidy)
-
-#include "ops_tbb.h"
+#include "tbb/kalinin_d_simpson_method/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_reduce.h>
