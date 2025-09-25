@@ -50,6 +50,7 @@ bool makhov_m_jarvis_algorithm_seq::TaskSequential::PostProcessingImpl() {
     task_data->outputs.push_back(output_buffer);
     task_data->outputs_count.push_back(output_size);
   } else {
+    delete[] task_data->outputs[0];
     task_data->outputs[0] = output_buffer;
     task_data->outputs_count[0] = output_size;
   }
