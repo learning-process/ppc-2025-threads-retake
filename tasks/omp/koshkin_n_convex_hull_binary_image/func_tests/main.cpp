@@ -23,15 +23,15 @@ TEST(koshkin_n_convex_hull_binary_image_omp, small_4x4) {
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> exp = {{1, 1}, {1, 2}, {2, 1}, {2, 2}};
 
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> out(exp.size());
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
+  task_data_omp->inputs_count.emplace_back(width);
+  task_data_omp->inputs_count.emplace_back(height);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
-  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_seq);
+  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -57,15 +57,15 @@ TEST(koshkin_n_convex_hull_binary_image_omp, small_5x5) {
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> exp = {{0, 0}, {0, 4}, {4, 0}, {4, 4}};
 
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> out(exp.size());
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
+  task_data_omp->inputs_count.emplace_back(width);
+  task_data_omp->inputs_count.emplace_back(height);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
-  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_seq);
+  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -88,15 +88,15 @@ TEST(koshkin_n_convex_hull_binary_image_omp, medium_4x8) {
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> exp = {{1, 1}, {1, 2}, {3, 1}, {5, 2}};
 
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> out(exp.size());
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
+  task_data_omp->inputs_count.emplace_back(width);
+  task_data_omp->inputs_count.emplace_back(height);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
-  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_seq);
+  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -114,15 +114,15 @@ TEST(koshkin_n_convex_hull_binary_image_omp, collinear_horizontal_line) {
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> exp = {{0, 0}, {4, 0}};
 
   std::vector<koshkin_n_convex_hull_binary_image_omp::Pt> out(exp.size());
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
+  task_data_omp->inputs_count.emplace_back(width);
+  task_data_omp->inputs_count.emplace_back(height);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
-  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_seq);
+  koshkin_n_convex_hull_binary_image_omp::ConvexHullBinaryImage test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
