@@ -89,6 +89,7 @@ bool SimpsonNDTBB::ValidationImpl() {
   const int segments = params[0];
   return segments > 0 && (segments % 2) == 0;
 }
+
 bool SimpsonNDTBB::RunImpl() {
   std::vector<double> h(dimension_);
   for (int d = 0; d < dimension_; ++d) {
@@ -98,33 +99,72 @@ bool SimpsonNDTBB::RunImpl() {
   const long long points_per_dim = static_cast<long long>(segments_per_dim_) + 1;
   const auto total_points = static_cast<long long>(std::pow(points_per_dim, dimension_));
 
-  const int stride = 50;
-
   auto sum = oneapi::tbb::parallel_reduce(
-      oneapi::tbb::blocked_range<long long>(0, total_points, stride), 0.0,
+      oneapi::tbb::blocked_range<long long>(0, total_points, 200000), 0.0,
       [&](const oneapi::tbb::blocked_range<long long>& r, double local_sum) -> double {
         std::vector<int> idx(dimension_, 0);
         std::vector<double> x(dimension_, 0.0);
 
-        for (long long linear = r.begin(); linear < r.end(); linear += stride) {
-          long long tmp = linear;
-          double weight = 1.0;
-          for (int d = 0; d < dimension_; ++d) {
-            idx[d] = static_cast<int>(tmp % points_per_dim);
-            tmp /= points_per_dim;
-            x[d] = lower_bounds_[d] + h[d] * static_cast<double>(idx[d]);
+        long long linear_start = r.begin();
+        long long tmp = linear_start;
+        for (int d = 0; d < dimension_; ++d) {
+          idx[d] = static_cast<int>(tmp % points_per_dim);
+          tmp /= points_per_dim;
+          x[d] = lower_bounds_[d] + h[d] * static_cast<double>(idx[d]);
+        }
 
-            if (idx[d] == 0 || idx[d] == segments_per_dim_) {
-              weight *= 1.0;
-            } else if ((idx[d] % 2) == 1) {
-              weight *= 4.0;
+        double weight = 1.0;
+        for (int d = 0; d < dimension_; ++d) {
+          const int id = idx[d];
+          if (id == 0 || id == segments_per_dim_) {
+            weight *= 1.0;
+          } else if ((id % 2) == 1) {
+            weight *= 4.0;
+          } else {
+            weight *= 2.0;
+          }
+        }
+
+        for (long long linear = r.begin(); linear < r.end(); ++linear) {
+          local_sum += weight * EvaluateById(function_id_, x);
+
+          int d = 0;
+          while (d < dimension_) {
+            const int old = idx[d];
+            int old_wd;
+            if (old == 0 || old == segments_per_dim_) {
+              old_wd = 1;
+            } else if ((old % 2) == 1) {
+              old_wd = 4;
             } else {
-              weight *= 2.0;
+              old_wd = 2;
+            }
+
+            const int new_idx = old + 1;
+            if (new_idx <= segments_per_dim_) {
+              idx[d] = new_idx;
+              x[d] += h[d];
+
+              int new_wd;
+              if (idx[d] == 0 || idx[d] == segments_per_dim_) {
+                new_wd = 1;
+              } else if ((idx[d] % 2) == 1) {
+                new_wd = 4;
+              } else {
+                new_wd = 2;
+              }
+
+              weight = weight / static_cast<double>(old_wd) * static_cast<double>(new_wd);
+              break;
+            } else {
+              idx[d] = 0;
+              x[d] = lower_bounds_[d];
+              weight = weight / static_cast<double>(old_wd) * 1.0;
+              ++d;
             }
           }
-
-          local_sum += weight * EvaluateById(function_id_, x) * stride;
         }
+
         return local_sum;
       },
       [](double a, double b) -> double { return a + b; });
@@ -133,7 +173,6 @@ bool SimpsonNDTBB::RunImpl() {
   for (int d = 0; d < dimension_; ++d) {
     scale *= h[d] / 3.0;
   }
-
   result_ = sum * scale;
   return true;
 }
