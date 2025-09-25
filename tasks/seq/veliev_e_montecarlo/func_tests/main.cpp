@@ -12,7 +12,7 @@ constexpr double kESTIMATE = 1e-1;
 
 TEST(veliev_e_monte_carlo_seq, test_lin_fun) {
   double res = 8;
-  veliev_e_monte_carlo_seq::func f = veliev_e_monte_carlo_seq::Flin;
+  veliev_e_monte_carlo_seq::Func f = veliev_e_monte_carlo_seq::Flin;
 
   std::vector<double> in1 = {0, 2};
   std::vector<double> in2 = {0, 2};
@@ -43,7 +43,7 @@ TEST(veliev_e_monte_carlo_seq, test_lin_fun) {
 
 TEST(veliev_e_monte_carlo_seq, Test_sum_of_sin) {
   double res = 5.67369;
-  veliev_e_monte_carlo_seq::func f = veliev_e_monte_carlo_seq::FsinxPsiny;
+  veliev_e_monte_carlo_seq::Func f = veliev_e_monte_carlo_seq::FsinxPsiny;
 
   std::vector<double> in1 = {-1, 2};
   std::vector<double> in2 = {-1, 2};
@@ -74,7 +74,7 @@ TEST(veliev_e_monte_carlo_seq, Test_sum_of_sin) {
 
 TEST(veliev_e_monte_carlo_seq, test_sum_of_cos) {
   double res = 6.22943;
-  veliev_e_monte_carlo_seq::func f = veliev_e_monte_carlo_seq::FcosxPcosy;
+  veliev_e_monte_carlo_seq::Func f = veliev_e_monte_carlo_seq::FcosxPcosy;
 
   std::vector<double> in1 = {-1, 2};
   std::vector<double> in2 = {0, 2};
@@ -105,7 +105,7 @@ TEST(veliev_e_monte_carlo_seq, test_sum_of_cos) {
 
 TEST(veliev_e_monte_carlo_seq, test_x_mult_y) {
   double res = 2.25;
-  veliev_e_monte_carlo_seq::func f = veliev_e_monte_carlo_seq::Fxy;
+  veliev_e_monte_carlo_seq::Func f = veliev_e_monte_carlo_seq::Fxy;
 
   std::vector<double> in1 = {0, 1};
   std::vector<double> in2 = {0, 3};
@@ -136,7 +136,7 @@ TEST(veliev_e_monte_carlo_seq, test_x_mult_y) {
 
 TEST(veliev_e_monte_carlo_seq, test_x_mult_y_mult_y) {
   double res = 1.5;
-  veliev_e_monte_carlo_seq::func f = veliev_e_monte_carlo_seq::Fxyy;
+  veliev_e_monte_carlo_seq::Func f = veliev_e_monte_carlo_seq::Fxyy;
 
   std::vector<double> in1 = {0, 3};
   std::vector<double> in2 = {0, 1};
