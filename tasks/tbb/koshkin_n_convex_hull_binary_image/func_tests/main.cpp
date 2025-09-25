@@ -1,14 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/koshkin_n_convex_hull_binary_image/include/ops_tbb.hpp"
 
 TEST(koshkin_n_convex_hull_binary_image_tbb, small_4x4) {

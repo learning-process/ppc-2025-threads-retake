@@ -14,6 +14,7 @@ class ConvexHullBinaryImage : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+  Pt FindPivot();
 
  private:
   static long long Cross(const Pt& a, const Pt& b, const Pt& c);
@@ -21,6 +22,9 @@ class ConvexHullBinaryImage : public ppc::core::Task {
   static long long Dist2(const Pt& a, const Pt& b);
 
   void FindPoints();
+  bool LexicographicSortAndUnique();
+  void PolarSort(const Pt& pivot);
+  std::vector<Pt> BuildGrahamHull();
   std::vector<int> input_;
   std::vector<Pt> points_;
   std::vector<Pt> output_;

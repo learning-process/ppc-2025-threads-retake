@@ -1,14 +1,19 @@
 #include "tbb/koshkin_n_convex_hull_binary_image/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/concurrent_vector.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
+#include <oneapi/tbb/parallel_sort.h>
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
+#include <limits>
+#include <ranges>
+#include <utility>
 #include <vector>
-
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::PreProcessingImpl() {
   width_ = static_cast<int>(task_data->inputs_count[0]);
@@ -17,7 +22,6 @@ bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::PreProcessin
 
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size);
-
   return true;
 }
 
@@ -97,59 +101,61 @@ void koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::FindPoints()
   points_.assign(cv.begin(), cv.end());
 }
 
-bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::RunImpl() {
-  FindPoints();
-
-  if (points_.empty()) {
-    output_.clear();
-    return true;
-  }
-
-  // (parallel sort)
-  tbb::parallel_sort(points_.begin(), points_.end(), [](const Pt& a, const Pt& b) {
+bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::LexicographicSortAndUnique() {
+  auto comp_lex = [](const Pt& a, const Pt& b) {
     return (a.first < b.first) || (a.first == b.first && a.second < b.second);
-  });
+  };
 
-  auto uniq_end = std::unique(points_.begin(), points_.end());
-  points_.erase(uniq_end, points_.end());
+  const std::size_t parallel_sort_threshold = 5000;
 
-  if (points_.size() < 3) {
-    output_ = points_;
-    return true;
+  if (points_.size() < parallel_sort_threshold) {
+    std::sort(points_.begin(), points_.end(), comp_lex);
+  } else {
+    tbb::parallel_sort(points_.begin(), points_.end(), comp_lex);
   }
 
-  // parallel_reduce
-  Pt initial_pivot = points_[0];
-  auto pivot_pair = tbb::parallel_reduce(
-      tbb::blocked_range<std::size_t>(0, points_.size()), std::make_pair(initial_pivot, true),
-      [&](const tbb::blocked_range<std::size_t>& r, std::pair<Pt, bool> local) -> std::pair<Pt, bool> {
-        Pt best = local.second ? local.first : Pt{std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
-        bool inited = local.second;
-        for (std::size_t i = r.begin(); i < r.end(); ++i) {
-          const Pt& p = points_[i];
-          if (!inited || p.second < best.second || (p.second == best.second && p.first < best.first)) {
-            best = p;
-            inited = true;
-          }
-        }
-        return std::make_pair(best, inited);
-      },
-      [&](const std::pair<Pt, bool>& a, const std::pair<Pt, bool>& b) -> std::pair<Pt, bool> {
-        if (!a.second) {
-          return b;
-        }
-        if (!b.second) {
-          return a;
-        }
-        const Pt &pa = a.first, &pb = b.first;
-        if (pa.second < pb.second || (pa.second == pb.second && pa.first < pb.first)) {
-          return a;
-        }
-        return b;
-      });
-  Pt pivot = pivot_pair.first;
+  auto uniq_end = std::ranges::unique(points_);
+  points_.erase(uniq_end.begin(), uniq_end.end());
 
-  tbb::parallel_sort(points_.begin(), points_.end(), [&](const Pt& a, const Pt& b) {
+  return points_.size() >= 3;
+}
+
+std::pair<int, int> koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::FindPivot() {
+  Pt initial = points_[0];
+  auto reducer = [&](const tbb::blocked_range<std::size_t>& r, std::pair<Pt, bool> local) -> std::pair<Pt, bool> {
+    Pt best = local.second ? local.first : Pt{std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
+    bool inited = local.second;
+    for (std::size_t i = r.begin(); i < r.end(); ++i) {
+      const Pt& p = points_[i];
+      if (!inited || p.second < best.second || (p.second == best.second && p.first < best.first)) {
+        best = p;
+        inited = true;
+      }
+    }
+    return std::make_pair(best, inited);
+  };
+  auto combiner = [&](const std::pair<Pt, bool>& a, const std::pair<Pt, bool>& b) -> std::pair<Pt, bool> {
+    if (!a.second) {
+      return b;
+    }
+    if (!b.second) {
+      return a;
+    }
+    const Pt& pa = a.first;
+    const Pt& pb = b.first;
+    if (pa.second < pb.second || (pa.second == pb.second && pa.first < pb.first)) {
+      return a;
+    }
+    return b;
+  };
+
+  auto result = tbb::parallel_reduce(tbb::blocked_range<std::size_t>(0, points_.size()), std::make_pair(initial, true),
+                                     reducer, combiner);
+  return result.first;
+}
+
+void koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::PolarSort(const Pt& pivot) {
+  auto comp_polar = [&](const Pt& a, const Pt& b) {
     if (a == b) {
       return false;
     }
@@ -158,9 +164,18 @@ bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::RunImpl() {
       return cr > 0;
     }
     return Dist2(pivot, a) < Dist2(pivot, b);
-  });
+  };
 
-  // Graham scan (sequential)
+  const std::size_t parallel_sort_threshold = 5000;
+  if (points_.size() < parallel_sort_threshold) {
+    std::sort(points_.begin(), points_.end(), comp_polar);
+  } else {
+    tbb::parallel_sort(points_.begin(), points_.end(), comp_polar);
+  }
+}
+
+// Graham scan
+std::vector<std::pair<int, int>> koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::BuildGrahamHull() {
   std::vector<Pt> hull;
   hull.reserve(points_.size());
   for (const Pt& p : points_) {
@@ -176,10 +191,32 @@ bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::RunImpl() {
     }
     hull.push_back(p);
   }
-
   if (hull.size() == 1 && points_.size() > 1) {
     hull.push_back(points_.back());
   }
+  return hull;
+}
+
+bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::RunImpl() {
+  FindPoints();
+
+  if (points_.empty()) {
+    output_.clear();
+    return true;
+  }
+
+  bool have_enough = LexicographicSortAndUnique();
+  if (!have_enough) {
+    output_ = points_;
+    return true;
+  }
+
+  Pt pivot = FindPivot();
+
+  PolarSort(pivot);
+
+  // graham scan
+  std::vector<Pt> hull = BuildGrahamHull();
 
   output_ = std::move(hull);
   return true;
