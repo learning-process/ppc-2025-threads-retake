@@ -22,8 +22,6 @@ TEST(dormidontov_e_sign_sort_batcher_tbb, test_50) {
     in[i] = static_cast<double>(i);
   }
 
-  out = in;
-
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
