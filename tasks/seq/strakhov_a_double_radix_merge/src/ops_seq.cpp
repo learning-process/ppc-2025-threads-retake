@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <vector>
 bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::PreProcessingImpl() {
@@ -23,44 +24,59 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::ValidationImpl() {
 
 bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
   unsigned int size = task_data->inputs_count[0];
-  int type_length = sizeof(double) * CHAR_BIT;
-  std::vector<uint64_t> temp_vector = std::vector<uint64_t>(size);
-  // float to uint
-  uint64_t tempest;
-  for (unsigned int i = 0; i < size; i++) {
-    tempest = std::bit_cast<uint64_t>(input_[i]);
-    if ((tempest >> 63) == 1) {
-      temp_vector[i] = tempest ^ ~0ULL;
+  if (size == 0) return true;
+
+  const int type_length = sizeof(double) * CHAR_BIT;
+
+  // float to uint64_t
+  std::vector<uint64_t> temp_vector(size);
+  for (unsigned int i = 0; i < size; ++i) {
+    uint64_t bits = 0;
+    std::memcpy(&bits, &input_[i], sizeof(double));
+    if ((bits >> 63) != 0ULL) {
+      // negative: invert all bits
+      temp_vector[i] = ~bits;
     } else {
-      temp_vector[i] = tempest ^ 0x8000000000000000ULL;
+      // non-negative: flip sign bit
+      temp_vector[i] = bits ^ 0x8000000000000000ULL;
     }
   }
-  std::vector<uint64_t> true_vector = std::vector<uint64_t>(size);
-  std::vector<uint64_t> false_vector = std::vector<uint64_t>(size);
-  uint64_t bit_mask;
-  for (int i = 0; i < type_length; i++) {
-    true_vector.clear();
-    false_vector.clear();
-    bit_mask = (1 << i);
-    for (unsigned int j = 0; j < size; j++) {
+
+  std::vector<uint64_t> true_vector(size);
+  std::vector<uint64_t> false_vector(size);
+
+  for (int i = 0; i < type_length; ++i) {
+    const uint64_t bit_mask = (uint64_t{1} << i);
+    unsigned int cnt_true = 0;
+    unsigned int cnt_false = 0;
+    for (unsigned int j = 0; j < size; ++j) {
       if ((temp_vector[j] & bit_mask) == bit_mask) {
-        true_vector.push_back(temp_vector[j]);
+        true_vector[cnt_true++] = temp_vector[j];
       } else {
-        false_vector.push_back(temp_vector[j]);
+        false_vector[cnt_false++] = temp_vector[j];
       }
     }
-    temp_vector.clear();
-    temp_vector.insert(temp_vector.end(), false_vector.begin(), false_vector.end());
-    temp_vector.insert(temp_vector.end(), true_vector.begin(), true_vector.end());
-  }
-  // uint to float
-  for (int i = 0; i < size; i++) {
-    if ((temp_vector[i] >> 63) == 1) {
-      output_[i] = std::bit_cast<double>(temp_vector[i] ^ 0x8000000000000000ULL);
-    } else {
-      output_[i] = std::bit_cast<double>(temp_vector[i] ^ ~0ULL);
+
+    if (cnt_false) {
+      std::memcpy(temp_vector.data(), false_vector.data(), static_cast<size_t>(cnt_false) * sizeof(uint64_t));
+    }
+
+    if (cnt_true) {
+      std::memcpy(temp_vector.data() + cnt_false, true_vector.data(), static_cast<size_t>(cnt_true) * sizeof(uint64_t));
     }
   }
+
+  // uint64 to float
+  for (unsigned int i = 0; i < size; ++i) {
+    uint64_t k = temp_vector[i];
+    if ((k >> 63) != 0ULL) {
+      k ^= 0x8000000000000000ULL;
+    } else {
+      k = ~k;
+    }
+    std::memcpy(&output_[i], &k, sizeof(double));
+  }
+
   return true;
 }
 
