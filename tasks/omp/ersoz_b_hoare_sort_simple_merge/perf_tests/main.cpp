@@ -31,7 +31,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
   auto task = std::make_shared<ersoz_b_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto now = std::chrono::high_resolution_clock::now();
@@ -65,7 +65,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_task_run) {
   auto task = std::make_shared<ersoz_b_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto now = std::chrono::high_resolution_clock::now();
