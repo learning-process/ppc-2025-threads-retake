@@ -17,6 +17,7 @@ bool vasenkov_a_vertical_gauss_3x3_seq::VerticalGauss::PreProcessingImpl() {
     if (task_data->inputs[1] != nullptr) {
       std::memcpy(filter_kernel_.data(), task_data->inputs[1], 9 * sizeof(float));
     }
+    
     filtered_img_.clear();
     return true;
   }
