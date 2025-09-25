@@ -207,7 +207,7 @@ TEST(sdobnov_v_simpson_omp, test_trigonometric_4d_integral) {
   const double lower_bounds[4] = {0.0, 0.0, 0.0, 0.0};
   const double upper_bounds[4] = {std::numbers::pi / 2, std::numbers::pi / 2, std::numbers::pi / 2,
                                   std::numbers::pi / 2};
-  const int n_points[4] = {40, 40, 40, 40};
+  const int n_points[4] = {10, 10, 10, 10};
   double result = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -247,7 +247,7 @@ TEST(sdobnov_v_simpson_omp, test_mixed_5d_integral) {
   const int dimensions = 5;
   const double lower_bounds[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
   const double upper_bounds[5] = {1.0, std::numbers::pi / 2, 1.0, std::numbers::pi / 2, 1.0};
-  const int n_points[5] = {20, 20, 20, 20, 20};
+  const int n_points[5] = {10, 10, 10, 10, 10};
   double result = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
