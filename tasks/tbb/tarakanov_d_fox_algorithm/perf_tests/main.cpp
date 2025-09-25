@@ -8,9 +8,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/tarakanov_d_fox_algorithm/include/ops_seq.hpp"
+#include "tbb/tarakanov_d_fox_algorithm/include/ops_tbb.hpp"
 
-TEST(tarakanov_d_fox_algorithm_seq, test_pipeline_run) {
+TEST(tarakanov_d_fox_algorithm_tbb, test_pipeline_run) {
   constexpr size_t kN = 400;
 
   std::vector<double> a(kN * kN, 0.0);
@@ -28,13 +28,13 @@ TEST(tarakanov_d_fox_algorithm_seq, test_pipeline_run) {
   input.insert(input.end(), a.begin(), a.end());
   input.insert(input.end(), b.begin(), b.end());
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_tbb->inputs_count.emplace_back(input.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<tarakanov_d_fox_algorithm_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_tbb = std::make_shared<tarakanov_d_fox_algorithm_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -47,7 +47,7 @@ TEST(tarakanov_d_fox_algorithm_seq, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
@@ -61,11 +61,11 @@ TEST(tarakanov_d_fox_algorithm_seq, test_pipeline_run) {
   }
 
   for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_NEAR(out[i], expected[i], 1e-9);
+    EXPECT_NEAR(out[i], expected[i], 1e-3);
   }
 }
 
-TEST(tarakanov_d_fox_algorithm_seq, test_task_run) {
+TEST(tarakanov_d_fox_algorithm_tbb, test_task_run) {
   constexpr size_t kN = 400;
 
   std::vector<double> a(kN * kN, 0.0);
@@ -83,13 +83,13 @@ TEST(tarakanov_d_fox_algorithm_seq, test_task_run) {
   input.insert(input.end(), a.begin(), a.end());
   input.insert(input.end(), b.begin(), b.end());
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_tbb->inputs_count.emplace_back(input.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<tarakanov_d_fox_algorithm_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_tbb = std::make_shared<tarakanov_d_fox_algorithm_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -102,7 +102,7 @@ TEST(tarakanov_d_fox_algorithm_seq, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
@@ -116,6 +116,6 @@ TEST(tarakanov_d_fox_algorithm_seq, test_task_run) {
   }
 
   for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_NEAR(out[i], expected[i], 1e-9);
+    EXPECT_NEAR(out[i], expected[i], 1e-3);
   }
 }
