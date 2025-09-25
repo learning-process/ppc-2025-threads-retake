@@ -222,8 +222,11 @@ double SimpsonIntegralOmp::SimpsonRecursive(int dim_index, const std::vector<dou
       weight = 4;
     }
 
-    std::vector<double> new_point = current_point;
+    std::vector<double> new_point;
+    new_point.reserve(current_point.size() + 1);
+    new_point = current_point;
     new_point.push_back(x);
+
     double partial_sum = SimpsonRecursive(dim_index + 1, new_point);
     sum += weight * partial_sum;
   }
