@@ -42,11 +42,21 @@ bool HistogramStretchOpenMP::RunImpl() {
 
   int global_min = 255;
   int global_max = 0;
-#pragma omp parallel for reduction(min : global_min) reduction(max : global_max)
-  for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
-    int v = input_image_[i];
-    if (v < global_min) global_min = v;
-    if (v > global_max) global_max = v;
+#pragma omp parallel
+  {
+    int local_min = 255;
+    int local_max = 0;
+#pragma omp for nowait
+    for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
+      int v = input_image_[i];
+      if (v < local_min) local_min = v;
+      if (v > local_max) local_max = v;
+    }
+#pragma omp critical
+    {
+      if (local_min < global_min) global_min = local_min;
+      if (local_max > global_max) global_max = local_max;
+    }
   }
   min_val_ = global_min;
   max_val_ = global_max;
