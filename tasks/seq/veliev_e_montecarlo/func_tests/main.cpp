@@ -15,7 +15,7 @@ TEST(veliev_e_monte_carlo_seq, test_lin_fun) {
   std::vector<double> in1 = {0, 2};
   std::vector<double> in2 = {0, 2};
   std::vector<double> out(1, res);
-  
+
   int N = 100;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

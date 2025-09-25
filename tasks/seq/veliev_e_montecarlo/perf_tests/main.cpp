@@ -14,7 +14,7 @@ constexpr double ESTIMATE = 1e-1;
 
 TEST(veliev_e_monte_carlo_seq, test_pipeline_run) {
   double res = 8;
-    
+
   veliev_e_monte_carlo_seq::func f = veliev_e_monte_carlo_seq::Flin;
 
   // Create data
