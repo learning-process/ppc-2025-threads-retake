@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -79,7 +80,7 @@ TEST(strakhov_a_double_radix_merge, test_random1) {
   for (auto &v : in) {
     v = dist(gen);
   }
-  auto out = RunTask(in);
+  auto out = RunMyTask(in);
   auto expected = in;
   std::sort(expected.begin(), expected.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, expected);
@@ -92,7 +93,7 @@ TEST(strakhov_a_double_radix_merge, test_random2) {
   for (auto &v : in) {
     v = dist(gen);
   }
-  auto out = RunTask(in);
+  auto out = RunMyTask(in);
   auto expected = in;
   std::sort(expected.begin(), expected.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, expected);
@@ -105,7 +106,7 @@ TEST(strakhov_a_double_radix_merge, test_random3) {
   for (auto &v : in) {
     v = dist(gen);
   }
-  auto out = RunTask(in);
+  auto out = RunMyTask(in);
   auto expected = in;
   std::sort(expected.begin(), expected.end());  // NOLINT(modernize-use-ranges)
   EXPECT_EQ(out, expected);
