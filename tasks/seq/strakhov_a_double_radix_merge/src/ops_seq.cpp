@@ -1,11 +1,9 @@
 #include "seq/strakhov_a_double_radix_merge/include/ops_seq.hpp"
 
-#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <limits>
 #include <vector>
 bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
@@ -24,9 +22,11 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::ValidationImpl() {
 
 bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
   unsigned int size = task_data->inputs_count[0];
-  if (size == 0) return true;
+  if (size == 0) {
+    return true;
+  }
 
-  const int type_length = sizeof(double) * CHAR_BIT;
+  const int type_length = sizeof(double) * 8;
 
   // float to uint64_t
   std::vector<uint64_t> temp_vector(size);
@@ -57,11 +57,11 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
       }
     }
 
-    if (cnt_false) {
+    if (cnt_false > 0) {
       std::memcpy(temp_vector.data(), false_vector.data(), static_cast<size_t>(cnt_false) * sizeof(uint64_t));
     }
 
-    if (cnt_true) {
+    if (cnt_true > 0) {
       std::memcpy(temp_vector.data() + cnt_false, true_vector.data(), static_cast<size_t>(cnt_true) * sizeof(uint64_t));
     }
   }
