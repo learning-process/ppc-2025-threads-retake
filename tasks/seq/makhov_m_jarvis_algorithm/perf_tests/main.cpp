@@ -13,7 +13,7 @@
 
 TEST(makhov_m_jarvis_algorithm_seq, test_pipeline_run) {
   // Create data
-  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);  // Reduced size for reasonable test time
+  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);
 
   for (size_t i = 0; i < in.size(); i++) {
     makhov_m_jarvis_algorithm_seq::Point point = makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(
@@ -58,7 +58,7 @@ TEST(makhov_m_jarvis_algorithm_seq, test_pipeline_run) {
 
 TEST(makhov_m_jarvis_algorithm_seq, test_task_run) {
   // Create data
-  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);  // Reduced size for reasonable test time
+  std::vector<makhov_m_jarvis_algorithm_seq::Point> in(3000000);
 
   for (size_t i = 0; i < in.size(); i++) {
     makhov_m_jarvis_algorithm_seq::Point point = makhov_m_jarvis_algorithm_seq::TaskSequential::GetRandomPoint(

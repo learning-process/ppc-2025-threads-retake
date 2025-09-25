@@ -151,7 +151,8 @@ TEST(makhov_m_jarvis_algorithm_seq, test_ten_points) {
                                                                               task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
-  ASSERT_GE(restored_points.size(), 3);
+  size_t expected_size = 3;
+  ASSERT_GE(restored_points.size(), expected_size);
 
   // Cleanup
   delete[] buffer;
@@ -189,7 +190,8 @@ TEST(makhov_m_jarvis_algorithm_seq, test_five_points_negative_coords) {
                                                                               task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
-  ASSERT_GE(restored_points.size(), 3);
+  size_t expected_size = 3;
+  ASSERT_GE(restored_points.size(), expected_size);
 
   // Cleanup
   delete[] buffer;
@@ -229,7 +231,8 @@ TEST(makhov_m_jarvis_algorithm_seq, test_hundred_rand_points) {
                                                                               task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
-  ASSERT_GE(restored_points.size(), 3);
+  size_t expected_size = 3;
+  ASSERT_GE(restored_points.size(), expected_size);
 
   // Cleanup
   delete[] buffer;
@@ -269,7 +272,8 @@ TEST(makhov_m_jarvis_algorithm_seq, test_thousand_rand_points) {
                                                                               task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
-  ASSERT_GE(restored_points.size(), 3);
+  size_t expected_size = 3;
+  ASSERT_GE(restored_points.size(), expected_size);
 
   // Cleanup
   delete[] buffer;
