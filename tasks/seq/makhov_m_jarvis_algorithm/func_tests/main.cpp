@@ -28,6 +28,9 @@ TEST(makhov_m_jarvis_algorithm_seq, test_two_points) {
   // Create Task
   makhov_m_jarvis_algorithm_seq::TaskSequential task_sequential(task_data_seq);
   ASSERT_EQ(task_sequential.Validation(), false);
+
+  // Cleanup
+  delete[] buffer;
 }
 
 TEST(makhov_m_jarvis_algorithm_seq, test_three_points) {
@@ -62,6 +65,9 @@ TEST(makhov_m_jarvis_algorithm_seq, test_three_points) {
       makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertByteArrayToPoints(task_data_seq->outputs[0],
                                                                               task_data_seq->outputs_count[0]);
   ASSERT_EQ(reference.size(), restored_points.size());
+
+  // Cleanup
+  delete[] buffer;
 }
 
 TEST(makhov_m_jarvis_algorithm_seq, test_five_points) {
@@ -103,6 +109,9 @@ TEST(makhov_m_jarvis_algorithm_seq, test_five_points) {
                                                                               task_data_seq->outputs_count[0]);
 
   ASSERT_EQ(reference.size(), restored_points.size());
+
+  // Cleanup
+  delete[] buffer;
 }
 
 TEST(makhov_m_jarvis_algorithm_seq, test_ten_points) {
@@ -144,6 +153,9 @@ TEST(makhov_m_jarvis_algorithm_seq, test_ten_points) {
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;
   ASSERT_GE(restored_points.size(), expected_size);
+
+  // Cleanup
+  delete[] buffer;
 }
 
 TEST(makhov_m_jarvis_algorithm_seq, test_five_points_negative_coords) {
@@ -180,6 +192,9 @@ TEST(makhov_m_jarvis_algorithm_seq, test_five_points_negative_coords) {
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;
   ASSERT_GE(restored_points.size(), expected_size);
+
+  // Cleanup
+  delete[] buffer;
 }
 
 TEST(makhov_m_jarvis_algorithm_seq, test_hundred_rand_points) {
@@ -218,6 +233,9 @@ TEST(makhov_m_jarvis_algorithm_seq, test_hundred_rand_points) {
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;
   ASSERT_GE(restored_points.size(), expected_size);
+
+  // Cleanup
+  delete[] buffer;
 }
 
 TEST(makhov_m_jarvis_algorithm_seq, test_thousand_rand_points) {
@@ -256,4 +274,7 @@ TEST(makhov_m_jarvis_algorithm_seq, test_thousand_rand_points) {
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;
   ASSERT_GE(restored_points.size(), expected_size);
+
+  // Cleanup
+  delete[] buffer;
 }
