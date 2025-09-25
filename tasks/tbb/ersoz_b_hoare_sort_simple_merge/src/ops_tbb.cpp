@@ -1,8 +1,6 @@
 #include "tbb/ersoz_b_hoare_sort_simple_merge/include/ops_tbb.hpp"
 
-#include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <utility>
 #include <vector>
 
