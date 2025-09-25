@@ -1,11 +1,14 @@
 #include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
 
+#include <tbb/combinable.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
 #include <tbb/parallel_reduce.h>
 #include <tbb/parallel_scan.h>
 
 #include <algorithm>
+#include <atomic>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -23,7 +26,11 @@ static inline void CompSwap(double& a, double& b) {
 
 inline uint64_t RadixBatcherSortTBB::ToOrderedUint64(double value) {
   uint64_t bits = 0;
+#if defined(__cpp_lib_bit_cast) && (__cpp_lib_bit_cast >= 201806L)
+  bits = std::bit_cast<uint64_t>(value);
+#else
   std::memcpy(&bits, &value, sizeof(double));
+#endif
   if ((bits >> 63) != 0U) {
     bits = ~bits;
   } else {
@@ -38,9 +45,13 @@ inline double RadixBatcherSortTBB::FromOrderedUint64(uint64_t key) {
   } else {
     key = ~key;
   }
-  double value = NAN;
+#if defined(__cpp_lib_bit_cast) && (__cpp_lib_bit_cast >= 201806L)
+  return std::bit_cast<double>(key);
+#else
+  double value = 0.0;
   std::memcpy(&value, &key, sizeof(double));
   return value;
+#endif
 }
 
 void RadixBatcherSortTBB::LsdRadixSortUint64(std::vector<uint64_t>& data) {
@@ -53,22 +64,25 @@ void RadixBatcherSortTBB::LsdRadixSortUint64(std::vector<uint64_t>& data) {
   constexpr int kRadix = 256;
 
   for (int byte = 0; byte < kBytes; ++byte) {
-    std::vector<size_t> count(kRadix, 0);
     const int shift = byte * 8;
 
-    // Parallel counting phase
+    tbb::combinable<std::vector<size_t>> local_hist([&] { return std::vector<size_t>(kRadix, 0); });
+
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n), [&](const tbb::blocked_range<size_t>& range) {
-      std::vector<size_t> local_count(kRadix, 0);
+      auto& hist = local_hist.local();
       for (size_t i = range.begin(); i != range.end(); ++i) {
         auto r = static_cast<uint8_t>((data[i] >> shift) & 0xFFU);
-        local_count[r]++;
-      }
-      for (int r = 0; r < kRadix; ++r) {
-        count[r] += local_count[r];
+        hist[r]++;
       }
     });
 
-    // Sequential prefix sum
+    std::vector<size_t> count(kRadix, 0);
+    local_hist.combine_each([&](const std::vector<size_t>& h) {
+      for (int r = 0; r < kRadix; ++r) {
+        count[r] += h[r];
+      }
+    });
+
     size_t sum = 0;
     for (int r = 0; r < kRadix; ++r) {
       size_t c = count[r];
@@ -76,14 +90,20 @@ void RadixBatcherSortTBB::LsdRadixSortUint64(std::vector<uint64_t>& data) {
       sum += c;
     }
 
-    // Parallel distribution phase
+    std::vector<std::atomic<size_t>> positions;
+    positions.resize(kRadix);
+    for (int r = 0; r < kRadix; ++r) {
+      positions[r].store(count[r], std::memory_order_relaxed);
+    }
+
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n), [&](const tbb::blocked_range<size_t>& range) {
       for (size_t i = range.begin(); i != range.end(); ++i) {
         auto r = static_cast<uint8_t>((data[i] >> shift) & 0xFFU);
-        size_t pos = count[r]++;
+        size_t pos = positions[r].fetch_add(1, std::memory_order_relaxed);
         buffer[pos] = data[i];
       }
     });
+
     data.swap(buffer);
   }
 }
@@ -94,16 +114,17 @@ void RadixBatcherSortTBB::OddEvenMerge(std::vector<double>& a, int left, int siz
     OddEvenMerge(a, left, size, m);
     OddEvenMerge(a, left + stride, size, m);
 
-    // Parallel comparison phase
     std::vector<std::pair<int, int>> indices;
     for (int i = left + stride; i + stride < left + size; i += m) {
       indices.emplace_back(i, i + stride);
     }
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, indices.size()), [&](const tbb::blocked_range<size_t>& range) {
-      for (size_t idx = range.begin(); idx != range.end(); ++idx) {
-        CompSwap(a[indices[idx].first], a[indices[idx].second]);
-      }
-    });
+    if (!indices.empty()) {
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, indices.size()), [&](const tbb::blocked_range<size_t>& range) {
+        for (size_t idx = range.begin(); idx != range.end(); ++idx) {
+          CompSwap(a[indices[idx].first], a[indices[idx].second]);
+        }
+      });
+    }
   } else {
     CompSwap(a[left], a[left + stride]);
   }
@@ -113,7 +134,6 @@ void RadixBatcherSortTBB::OddEvenMergeSort(std::vector<double>& a, int left, int
   if (size > 1) {
     int mid = size / 2;
 
-    // Parallel recursive sorting
     tbb::parallel_invoke([&]() { OddEvenMergeSort(a, left, mid); }, [&]() { OddEvenMergeSort(a, left + mid, mid); });
 
     OddEvenMerge(a, left, size, 1);
@@ -138,7 +158,6 @@ bool RadixBatcherSortTBB::RunImpl() {
 
   std::vector<uint64_t> keys(input_.size());
 
-  // Parallel conversion to uint64_t keys
   tbb::parallel_for(tbb::blocked_range<size_t>(0, input_.size()), [&](const tbb::blocked_range<size_t>& range) {
     for (size_t i = range.begin(); i != range.end(); ++i) {
       keys[i] = ToOrderedUint64(input_[i]);
@@ -149,7 +168,6 @@ bool RadixBatcherSortTBB::RunImpl() {
 
   std::vector<double> sorted(input_.size());
 
-  // Parallel conversion back to doubles
   tbb::parallel_for(tbb::blocked_range<size_t>(0, keys.size()), [&](const tbb::blocked_range<size_t>& range) {
     for (size_t i = range.begin(); i != range.end(); ++i) {
       sorted[i] = FromOrderedUint64(keys[i]);
@@ -174,7 +192,6 @@ bool RadixBatcherSortTBB::RunImpl() {
 }
 
 bool RadixBatcherSortTBB::PostProcessingImpl() {
-  // Parallel copying to output buffer
   tbb::parallel_for(tbb::blocked_range<size_t>(0, output_.size()), [&](const tbb::blocked_range<size_t>& range) {
     for (size_t i = range.begin(); i != range.end(); ++i) {
       reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
