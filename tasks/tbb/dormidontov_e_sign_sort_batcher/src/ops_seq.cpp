@@ -22,7 +22,7 @@ uint8_t GetByte(double d_value, ByteShift shift) {
   if ((u >> 63) != 0) {
     u = ~u;
   } else {
-    u ^= 1UL << 63;
+    u ^= 1ULL << 63;
   }
   return (u >> static_cast<size_t>(shift)) & kFullbyte;
 }
