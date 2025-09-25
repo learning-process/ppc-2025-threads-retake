@@ -2,7 +2,6 @@
 
 #include <omp.h>
 
-#include <algorithm>
 #include <cstddef>
 
 namespace muradov_k_histogram_stretch_omp {
@@ -73,7 +72,10 @@ bool HistogramStretchOpenMP::RunImpl() {
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
     int stretched = (input_image_[i] - min_val_) * 255 / range;
-    stretched = std::clamp(stretched, 0, 255);
+    if (stretched < 0)
+      stretched = 0;
+    else if (stretched > 255)
+      stretched = 255;
     output_image_[i] = stretched;
   }
   return true;
