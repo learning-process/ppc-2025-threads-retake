@@ -1,7 +1,6 @@
 #include "seq/veliev_e_montecarlo/include/ops_seq.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 using namespace std::chrono_literals;
@@ -29,15 +28,15 @@ bool veliev_e_monte_carlo_seq::VelievEMonteCarloSeq::ValidationImpl() {
 }
 
 bool veliev_e_monte_carlo_seq::VelievEMonteCarloSeq::RunImpl() {
-  double h1_ = (Int1_[1] - Int1_[0]) / N_;
-  double h2_ = (Int2_[1] - Int2_[0]) / N_;
+  double h1 = (Int1_[1] - Int1_[0]) / N_;
+  double h2 = (Int2_[1] - Int2_[0]) / N_;
 
-  int i_;
-  int j_;
-  for (j_ = 0; j_ < N_; ++j_) {
-    double y_ = Int2_[0] + h2_ * j_;
-    for (i_ = 0; i_ < N_; ++i_) {
-      res_ += function_(Int1_[0] + h1_ * i_, y_);
+  int i;
+  int j;
+  for (j = 0; j < N; ++j) {
+    double y = Int2_[0] + (h2 * j);
+    for (i = 0; i < N; ++i) {
+      res_ += function_(Int1_[0] + (h1 * i), y_);
     }
   }
   res_ *= h1_ * h2_;

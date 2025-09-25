@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/veliev_e_montecarlo/include/ops_seq.hpp"
 
-constexpr double ESTIMATE = 1e-1;
+constexpr double kESTIMATE = 1e-1;
 
 TEST(veliev_e_monte_carlo_seq, test_lin_fun) {
   double res = 8;
@@ -16,7 +18,7 @@ TEST(veliev_e_monte_carlo_seq, test_lin_fun) {
   std::vector<double> in2 = {0, 2};
   std::vector<double> out(1, res);
 
-  int N = 100;
+  int n = 100;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
@@ -25,7 +27,7 @@ TEST(veliev_e_monte_carlo_seq, test_lin_fun) {
   task_data_seq->inputs_count.emplace_back(in2.size());
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
   task_data_seq->inputs_count.emplace_back(in2.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_seq->inputs_count.emplace_back(1);
 
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
@@ -36,7 +38,7 @@ TEST(veliev_e_monte_carlo_seq, test_lin_fun) {
   task_seq.PreProcessing();
   task_seq.Run();
   task_seq.PostProcessing();
-  ASSERT_LT(std::abs(res - out[0]), ESTIMATE);
+  ASSERT_LT(std::abs(res - out[0]), kESTIMATE);
 }
 
 TEST(veliev_e_monte_carlo_seq, Test_sum_of_sin) {
@@ -47,7 +49,7 @@ TEST(veliev_e_monte_carlo_seq, Test_sum_of_sin) {
   std::vector<double> in2 = {-1, 2};
   std::vector<double> out(1, res);
 
-  int N = 100;
+  int n = 100;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
@@ -56,7 +58,7 @@ TEST(veliev_e_monte_carlo_seq, Test_sum_of_sin) {
   task_data_seq->inputs_count.emplace_back(in2.size());
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
   task_data_seq->inputs_count.emplace_back(in2.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_seq->inputs_count.emplace_back(1);
 
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
@@ -67,7 +69,7 @@ TEST(veliev_e_monte_carlo_seq, Test_sum_of_sin) {
   task_seq.PreProcessing();
   task_seq.Run();
   task_seq.PostProcessing();
-  ASSERT_LT(std::abs(res - out[0]), ESTIMATE);
+  ASSERT_LT(std::abs(res - out[0]), kESTIMATE);
 }
 
 TEST(veliev_e_monte_carlo_seq, test_sum_of_cos) {
@@ -78,7 +80,7 @@ TEST(veliev_e_monte_carlo_seq, test_sum_of_cos) {
   std::vector<double> in2 = {0, 2};
   std::vector<double> out(1, res);
 
-  int N = 100;
+  int n = 100;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
@@ -87,7 +89,7 @@ TEST(veliev_e_monte_carlo_seq, test_sum_of_cos) {
   task_data_seq->inputs_count.emplace_back(in2.size());
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
   task_data_seq->inputs_count.emplace_back(in2.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_seq->inputs_count.emplace_back(1);
 
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
@@ -98,7 +100,7 @@ TEST(veliev_e_monte_carlo_seq, test_sum_of_cos) {
   task_seq.PreProcessing();
   task_seq.Run();
   task_seq.PostProcessing();
-  ASSERT_LT(std::abs(res - out[0]), ESTIMATE);
+  ASSERT_LT(std::abs(res - out[0]), kESTIMATE);
 }
 
 TEST(veliev_e_monte_carlo_seq, test_x_mult_y) {
@@ -109,7 +111,7 @@ TEST(veliev_e_monte_carlo_seq, test_x_mult_y) {
   std::vector<double> in2 = {0, 3};
   std::vector<double> out(1, res);
 
-  int N = 100;
+  int n = 100;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
@@ -118,7 +120,7 @@ TEST(veliev_e_monte_carlo_seq, test_x_mult_y) {
   task_data_seq->inputs_count.emplace_back(in2.size());
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
   task_data_seq->inputs_count.emplace_back(in2.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_seq->inputs_count.emplace_back(1);
 
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
@@ -129,7 +131,7 @@ TEST(veliev_e_monte_carlo_seq, test_x_mult_y) {
   task_seq.PreProcessing();
   task_seq.Run();
   task_seq.PostProcessing();
-  ASSERT_LT(std::abs(res - out[0]), ESTIMATE);
+  ASSERT_LT(std::abs(res - out[0]), kESTIMATE);
 }
 
 TEST(veliev_e_monte_carlo_seq, test_x_mult_y_mult_y) {
@@ -140,7 +142,7 @@ TEST(veliev_e_monte_carlo_seq, test_x_mult_y_mult_y) {
   std::vector<double> in2 = {0, 1};
   std::vector<double> out(1, res);
 
-  int N = 100;
+  int n = 100;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
@@ -149,7 +151,7 @@ TEST(veliev_e_monte_carlo_seq, test_x_mult_y_mult_y) {
   task_data_seq->inputs_count.emplace_back(in2.size());
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
   task_data_seq->inputs_count.emplace_back(in2.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_seq->inputs_count.emplace_back(1);
 
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
@@ -160,5 +162,5 @@ TEST(veliev_e_monte_carlo_seq, test_x_mult_y_mult_y) {
   task_seq.PreProcessing();
   task_seq.Run();
   task_seq.PostProcessing();
-  ASSERT_LT(std::abs(res - out[0]), ESTIMATE);
+  ASSERT_LT(std::abs(res - out[0]), kESTIMATE);
 }

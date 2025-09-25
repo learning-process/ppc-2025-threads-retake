@@ -1,14 +1,12 @@
 #pragma once
 
-#include <string>
 #include <utility>
-#include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace veliev_e_monte_carlo_seq {
 
-using func = double (*)(double, double);
+using Func = double (*)(double, double);
 
 double Flin(double x, double y);
 double FsinxPsiny(double x, double y);
@@ -25,7 +23,7 @@ class VelievEMonteCarloSeq : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  func function_{};
+  Func function_{};
   double Int1_[2]{}, Int2_[2]{};
 
   int N_{};
