@@ -109,7 +109,7 @@ bool koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::Lexicographi
   const std::size_t parallel_sort_threshold = 5000;
 
   if (points_.size() < parallel_sort_threshold) {
-    std::sort(points_.begin(), points_.end(), comp_lex);
+    std::ranges::sort(points_, comp_lex);
   } else {
     tbb::parallel_sort(points_.begin(), points_.end(), comp_lex);
   }
@@ -168,7 +168,7 @@ void koshkin_n_convex_hull_binary_image_tbb::ConvexHullBinaryImage::PolarSort(co
 
   const std::size_t parallel_sort_threshold = 5000;
   if (points_.size() < parallel_sort_threshold) {
-    std::sort(points_.begin(), points_.end(), comp_polar);
+    std::ranges::sort(points_, comp_polar);
   } else {
     tbb::parallel_sort(points_.begin(), points_.end(), comp_polar);
   }
