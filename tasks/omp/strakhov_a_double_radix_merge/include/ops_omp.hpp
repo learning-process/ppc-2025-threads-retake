@@ -5,11 +5,11 @@
 
 #include "core/task/include/task.hpp"
 
-namespace strakhov_a_double_radix_merge_seq {
+namespace strakhov_a_double_radix_merge_omp {
 
-class DoubleRadixMergeSeq : public ppc::core::Task {
+class DoubleRadixMergeOmp : public ppc::core::Task {
  public:
-  explicit DoubleRadixMergeSeq(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit DoubleRadixMergeOmp(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -19,4 +19,4 @@ class DoubleRadixMergeSeq : public ppc::core::Task {
   std::vector<double> input_, output_;
 };
 
-}  // namespace strakhov_a_double_radix_merge_seq
+}  // namespace strakhov_a_double_radix_merge_omp

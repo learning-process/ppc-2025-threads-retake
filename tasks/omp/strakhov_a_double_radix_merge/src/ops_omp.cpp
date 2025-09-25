@@ -1,11 +1,11 @@
-#include "seq/strakhov_a_double_radix_merge/include/ops_seq.hpp"
+#include "omp/strakhov_a_double_radix_merge/include/ops_omp.hpp"
 
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <vector>
-bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::PreProcessingImpl() {
+bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   unsigned int size = task_data->inputs_count[0];
   input_ = std::vector<double>(in_ptr, in_ptr + size);
@@ -15,12 +15,12 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::PreProcessingImpl()
   return true;
 }
 
-bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::ValidationImpl() {
+bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::ValidationImpl() {
   // Check equality of counts elements
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
+bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
   unsigned int size = task_data->inputs_count[0];
   if (size == 0) {
     return true;
@@ -80,7 +80,7 @@ bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::RunImpl() {
   return true;
 }
 
-bool strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq::PostProcessingImpl() {
+bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
   }
