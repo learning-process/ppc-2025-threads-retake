@@ -50,13 +50,16 @@ bool makhov_m_jarvis_algorithm_seq::TaskSequential::PostProcessingImpl() {
     task_data->outputs.push_back(output_buffer);
     task_data->outputs_count.push_back(output_size);
   } else {
-    if (task_data->outputs[0] != nullptr) {
-      delete[] task_data->outputs[0];
-    }
+    // if (task_data->outputs[0] != nullptr) {
+    //   delete[] task_data->outputs[0];
+    // }
     task_data->outputs[0] = output_buffer;
     task_data->outputs_count[0] = output_size;
   }
 
+  if (output_buffer != nullptr) {
+    delete[] output_buffer;
+  }
   return true;
 }
 
