@@ -1,10 +1,9 @@
 #pragma once
-#include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
-#include <random>
 #include <utility>
 #include <vector>
 
@@ -72,8 +71,8 @@ class TaskSequential : public ppc::core::Task {
   static Point GetRandomPoint(XCoord min_x, XCoord max_x, YCoord min_y, YCoord max_y);
 
  private:
-  size_t FindLeftmostPoint(const std::vector<Point>& points) const;
-  size_t FindNextPoint(size_t current, const std::vector<Point>& points) const;
+  [[nodiscard]] static size_t FindLeftmostPoint(const std::vector<Point>& points) const;
+  [[nodiscard]] static size_t FindNextPoint(size_t current, const std::vector<Point>& points) const;
 
   std::vector<Point> input_;
   std::vector<Point> result_;

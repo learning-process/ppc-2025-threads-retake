@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <random>
 #include <vector>
 
 bool makhov_m_jarvis_algorithm_seq::TaskSequential::ValidationImpl() {
@@ -103,7 +104,7 @@ makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertByteArrayToPoints(const ui
   return points;
 }
 
-size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindLeftmostPoint(const std::vector<Point>& points) const {
+static size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindLeftmostPoint(const std::vector<Point>& points) const {
   size_t leftmost = 0;
 
   for (size_t i = 1; i < points.size(); ++i) {
@@ -115,12 +116,14 @@ size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindLeftmostPoint(const st
   return leftmost;
 }
 
-size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindNextPoint(size_t current,
-                                                                    const std::vector<Point>& points) const {
+static size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindNextPoint(size_t current,
+                                                                           const std::vector<Point>& points) const {
   size_t next = current;
 
   for (size_t i = 0; i < points.size(); ++i) {
-    if (i == current) continue;
+    if (i == current) {
+      continue
+    };
 
     double cross_product = Cross(points[current], points[next], points[i]);
 
