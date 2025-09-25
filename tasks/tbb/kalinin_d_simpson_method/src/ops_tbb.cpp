@@ -10,33 +10,31 @@ namespace kalinin_d_simpson_method_tbb {
 namespace {
 double EvaluateById(int id, const std::vector<double>& x) {
   switch (id) {
-    case 0: {
+    case 0:
       return 1.0;
-    }
     case 1: {
       double s = 0.0;
-      for (double v : x) {
-        s += v;
-      }
+      for (double v : x) s += v;
       return s;
     }
     case 2: {
       double p = 1.0;
-      for (double v : x) {
-        p *= v;
-      }
+      for (double v : x) p *= v;
       return p;
     }
     case 3: {
       double s = 0.0;
-      for (double v : x) {
-        s += v * v;
-      }
+      for (double v : x) s += v * v;
       return s;
     }
     default:
       return 0.0;
   }
+}
+
+inline int SimpsonWeight(int idx, int segments) {
+  if (idx == 0 || idx == segments) return 1;
+  return (idx % 2 == 1) ? 4 : 2;
 }
 }  // namespace
 
@@ -56,33 +54,19 @@ bool SimpsonNDTBB::PreProcessingImpl() {
 }
 
 bool SimpsonNDTBB::ValidationImpl() {
-  if (task_data->inputs_count.size() < 3) {
-    return false;
-  }
-  if (task_data->outputs_count.empty()) {
-    return false;
-  }
-  if (task_data->outputs_count[0] != 1) {
-    return false;
-  }
+  if (task_data->inputs_count.size() < 3) return false;
+  if (task_data->outputs_count.empty()) return false;
+  if (task_data->outputs_count[0] != 1) return false;
 
   const int dim = static_cast<int>(task_data->inputs_count[0]);
-  if (dim <= 0) {
-    return false;
-  }
-  if (static_cast<int>(task_data->inputs_count[1]) != dim) {
-    return false;
-  }
-  if (task_data->inputs_count[2] != 2) {
-    return false;
-  }
+  if (dim <= 0) return false;
+  if (static_cast<int>(task_data->inputs_count[1]) != dim) return false;
+  if (task_data->inputs_count[2] != 2) return false;
 
   const double* lb = reinterpret_cast<double*>(task_data->inputs[0]);
   const double* ub = reinterpret_cast<double*>(task_data->inputs[1]);
   for (int i = 0; i < dim; ++i) {
-    if (!(ub[i] > lb[i])) {
-      return false;
-    }
+    if (!(ub[i] > lb[i])) return false;
   }
 
   const int* params = reinterpret_cast<int*>(task_data->inputs[2]);
@@ -92,9 +76,8 @@ bool SimpsonNDTBB::ValidationImpl() {
 
 bool SimpsonNDTBB::RunImpl() {
   std::vector<double> h(dimension_);
-  for (int d = 0; d < dimension_; ++d) {
+  for (int d = 0; d < dimension_; ++d)
     h[d] = (upper_bounds_[d] - lower_bounds_[d]) / static_cast<double>(segments_per_dim_);
-  }
 
   const long long points_per_dim = static_cast<long long>(segments_per_dim_) + 1;
   const auto total_points = static_cast<long long>(std::pow(points_per_dim, dimension_));
@@ -105,8 +88,7 @@ bool SimpsonNDTBB::RunImpl() {
         std::vector<int> idx(dimension_, 0);
         std::vector<double> x(dimension_, 0.0);
 
-        long long linear_start = r.begin();
-        long long tmp = linear_start;
+        long long tmp = r.begin();
         for (int d = 0; d < dimension_; ++d) {
           idx[d] = static_cast<int>(tmp % points_per_dim);
           tmp /= points_per_dim;
@@ -114,16 +96,7 @@ bool SimpsonNDTBB::RunImpl() {
         }
 
         double weight = 1.0;
-        for (int d = 0; d < dimension_; ++d) {
-          const int id = idx[d];
-          if (id == 0 || id == segments_per_dim_) {
-            weight *= 1.0;
-          } else if ((id % 2) == 1) {
-            weight *= 4.0;
-          } else {
-            weight *= 2.0;
-          }
-        }
+        for (int d = 0; d < dimension_; ++d) weight *= SimpsonWeight(idx[d], segments_per_dim_);
 
         for (long long linear = r.begin(); linear < r.end(); ++linear) {
           local_sum += weight * EvaluateById(function_id_, x);
@@ -131,48 +104,29 @@ bool SimpsonNDTBB::RunImpl() {
           int d = 0;
           while (d < dimension_) {
             const int old = idx[d];
-            int old_wd;
-            if (old == 0 || old == segments_per_dim_) {
-              old_wd = 1;
-            } else if ((old % 2) == 1) {
-              old_wd = 4;
-            } else {
-              old_wd = 2;
-            }
+            int old_wd = SimpsonWeight(old, segments_per_dim_);
 
-            const int new_idx = old + 1;
+            int new_idx = old + 1;
             if (new_idx <= segments_per_dim_) {
               idx[d] = new_idx;
               x[d] += h[d];
-
-              int new_wd;
-              if (idx[d] == 0 || idx[d] == segments_per_dim_) {
-                new_wd = 1;
-              } else if ((idx[d] % 2) == 1) {
-                new_wd = 4;
-              } else {
-                new_wd = 2;
-              }
-
+              int new_wd = SimpsonWeight(idx[d], segments_per_dim_);
               weight = weight / static_cast<double>(old_wd) * static_cast<double>(new_wd);
               break;
-            } else {
-              idx[d] = 0;
-              x[d] = lower_bounds_[d];
-              weight = weight / static_cast<double>(old_wd) * 1.0;
-              ++d;
             }
+
+            idx[d] = 0;
+            x[d] = lower_bounds_[d];
+            weight = weight / static_cast<double>(old_wd) * 1.0;
+            ++d;
           }
         }
-
         return local_sum;
       },
       [](double a, double b) -> double { return a + b; });
 
   double scale = 1.0;
-  for (int d = 0; d < dimension_; ++d) {
-    scale *= h[d] / 3.0;
-  }
+  for (int d = 0; d < dimension_; ++d) scale *= h[d] / 3.0;
   result_ = sum * scale;
   return true;
 }
