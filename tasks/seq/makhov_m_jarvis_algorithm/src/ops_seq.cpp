@@ -56,10 +56,8 @@ bool makhov_m_jarvis_algorithm_seq::TaskSequential::PostProcessingImpl() {
     task_data->outputs[0] = output_buffer;
     task_data->outputs_count[0] = output_size;
   }
+  delete[] output_buffer;
 
-  if (output_buffer != nullptr) {
-    delete[] output_buffer;
-  }
   return true;
 }
 
@@ -107,7 +105,7 @@ makhov_m_jarvis_algorithm_seq::TaskSequential::ConvertByteArrayToPoints(const ui
   return points;
 }
 
-static size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindLeftmostPoint(const std::vector<Point>& points) const {
+size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindLeftmostPoint(const std::vector<Point>& points) {
   size_t leftmost = 0;
 
   for (size_t i = 1; i < points.size(); ++i) {
@@ -119,14 +117,13 @@ static size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindLeftmostPoint(c
   return leftmost;
 }
 
-static size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindNextPoint(size_t current,
-                                                                           const std::vector<Point>& points) const {
+size_t makhov_m_jarvis_algorithm_seq::TaskSequential::FindNextPoint(size_t current, const std::vector<Point>& points) {
   size_t next = current;
 
   for (size_t i = 0; i < points.size(); ++i) {
     if (i == current) {
-      continue
-    };
+      continue;
+    }
 
     double cross_product = Cross(points[current], points[next], points[i]);
 

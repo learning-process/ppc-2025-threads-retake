@@ -71,8 +71,8 @@ class TaskSequential : public ppc::core::Task {
   static Point GetRandomPoint(XCoord min_x, XCoord max_x, YCoord min_y, YCoord max_y);
 
  private:
-  [[nodiscard]] static size_t FindLeftmostPoint(const std::vector<Point>& points) const;
-  [[nodiscard]] static size_t FindNextPoint(size_t current, const std::vector<Point>& points) const;
+  [[nodiscard]] static size_t FindLeftmostPoint(const std::vector<Point>& points);
+  [[nodiscard]] static size_t FindNextPoint(size_t current, const std::vector<Point>& points);
 
   std::vector<Point> input_;
   std::vector<Point> result_;
