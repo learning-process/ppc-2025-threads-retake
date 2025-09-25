@@ -15,9 +15,9 @@ namespace {
 std::vector<double> RunMyTask(const std::vector<double> &input) {
   std::vector<double> out(input.size());
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint64_t *>(const_cast<double *>(input.data())));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(const_cast<double *>(input.data())));
   task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint64_t *>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
   strakhov_a_double_radix_merge_seq::DoubleRadixMergeSeq task(task_data_seq);
   EXPECT_TRUE(task.Validation());
