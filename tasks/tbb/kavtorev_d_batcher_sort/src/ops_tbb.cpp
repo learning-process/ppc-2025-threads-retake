@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <vector>
 
 namespace kavtorev_d_batcher_sort_tbb {
@@ -65,7 +66,6 @@ void RadixBatcherSortTBB::LsdRadixSortUint64(std::vector<uint64_t>& data) {
 
   for (int byte = 0; byte < kBytes; ++byte) {
     const int shift = byte * 8;
-
     tbb::combinable<std::vector<size_t>> local_hist([&] { return std::vector<size_t>(kRadix, 0); });
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n), [&](const tbb::blocked_range<size_t>& range) {
@@ -90,8 +90,7 @@ void RadixBatcherSortTBB::LsdRadixSortUint64(std::vector<uint64_t>& data) {
       sum += c;
     }
 
-    std::vector<std::atomic<size_t>> positions;
-    positions.resize(kRadix);
+    std::unique_ptr<std::atomic<size_t>[]> positions(new std::atomic<size_t>[kRadix]);
     for (int r = 0; r < kRadix; ++r) {
       positions[r].store(count[r], std::memory_order_relaxed);
     }
@@ -113,7 +112,6 @@ void RadixBatcherSortTBB::OddEvenMerge(std::vector<double>& a, int left, int siz
   if (m < size) {
     OddEvenMerge(a, left, size, m);
     OddEvenMerge(a, left + stride, size, m);
-
     std::vector<std::pair<int, int>> indices;
     for (int i = left + stride; i + stride < left + size; i += m) {
       indices.emplace_back(i, i + stride);
@@ -133,9 +131,7 @@ void RadixBatcherSortTBB::OddEvenMerge(std::vector<double>& a, int left, int siz
 void RadixBatcherSortTBB::OddEvenMergeSort(std::vector<double>& a, int left, int size) {
   if (size > 1) {
     int mid = size / 2;
-
     tbb::parallel_invoke([&]() { OddEvenMergeSort(a, left, mid); }, [&]() { OddEvenMergeSort(a, left + mid, mid); });
-
     OddEvenMerge(a, left, size, 1);
   }
 }
