@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/Veliev_E_MonteCarlo/include/ops_seq.hpp"
+#include "seq/veliev_e_montecarlo/include/ops_seq.hpp"
 
 constexpr double ESTIMATE = 1e-1;
 

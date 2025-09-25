@@ -1,4 +1,4 @@
-#include "seq/Veliev_E_MonteCarlo/include/ops_seq.hpp"
+#include "seq/veliev_e_montecarlo/include/ops_seq.hpp"
 
 #include <cmath>
 #include <cstddef>
