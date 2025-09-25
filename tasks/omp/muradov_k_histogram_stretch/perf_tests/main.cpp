@@ -42,8 +42,7 @@ TEST(muradov_k_histogram_stretch_omp, test_pipeline_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_omp::HistogramStretchOpenMP>(td);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  // Increase number of runs to ensure measured time >= 1s on CI
-  perf_attr->num_running = 2000;
+  perf_attr->num_running = 30000;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
@@ -81,8 +80,7 @@ TEST(muradov_k_histogram_stretch_omp, test_task_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_omp::HistogramStretchOpenMP>(td);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  // Increase number of runs to ensure measured time >= 1s on CI
-  perf_attr->num_running = 2000;
+  perf_attr->num_running = 30000;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
