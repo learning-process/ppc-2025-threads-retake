@@ -53,6 +53,7 @@ TEST(makhov_m_jarvis_algorithm_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   // Cleanup
+
   delete[] buffer;
 }
 
@@ -98,5 +99,6 @@ TEST(makhov_m_jarvis_algorithm_seq, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   // Cleanup
+
   delete[] buffer;
 }
