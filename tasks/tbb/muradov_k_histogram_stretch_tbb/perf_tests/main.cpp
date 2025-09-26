@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -31,13 +32,17 @@ uint64_t CalcIters(double single_time) {
   if (single_time <= 0.0) {
     return 1ULL;
   }
-  double target = 1.2;
-  double max_total = 8.0;
-  uint64_t need = static_cast<uint64_t>(std::ceil(target / single_time));
-  if (need == 0) need = 1;
-  uint64_t max_allowed = static_cast<uint64_t>(std::floor(max_total / single_time));
-  if (max_allowed == 0) max_allowed = 1;
-  if (need > max_allowed) need = max_allowed;
+  constexpr double target = 1.2;
+  constexpr double max_total = 8.0;
+  auto need = static_cast<uint64_t>(std::ceil(target / single_time));
+  if (need == 0) {
+    need = 1;
+  }
+  auto max_allowed = static_cast<uint64_t>(std::floor(max_total / single_time));
+  if (max_allowed == 0) {
+    max_allowed = 1;
+  }
+  need = std::min(need, max_allowed);
   return need;
 }
 }  // namespace
