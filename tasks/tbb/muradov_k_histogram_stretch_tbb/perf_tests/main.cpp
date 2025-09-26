@@ -67,4 +67,3 @@ TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(in.size(), out.size());
 }
-

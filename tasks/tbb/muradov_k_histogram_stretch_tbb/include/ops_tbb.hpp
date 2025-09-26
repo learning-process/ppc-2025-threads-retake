@@ -24,4 +24,3 @@ class HistogramStretchTBBTask : public ppc::core::Task {
 };
 
 }  // namespace muradov_k_histogram_stretch_tbb
-

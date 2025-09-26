@@ -1,13 +1,13 @@
 #include "tbb/muradov_k_histogram_stretch_tbb/include/ops_tbb.hpp"
 
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
-
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
 
 namespace muradov_k_histogram_stretch_tbb {
 
@@ -36,8 +36,8 @@ bool HistogramStretchTBBTask::RunImpl() {
       [&](const tbb::blocked_range<size_t> &r, MinMax local) {
         for (size_t i = r.begin(); i != r.end(); ++i) {
           uint8_t v = input_[i];
-            if (v < local.min_v) local.min_v = v;
-            if (v > local.max_v) local.max_v = v;
+          if (v < local.min_v) local.min_v = v;
+          if (v > local.max_v) local.max_v = v;
         }
         return local;
       },
@@ -73,4 +73,3 @@ bool HistogramStretchTBBTask::PostProcessingImpl() {
 }
 
 }  // namespace muradov_k_histogram_stretch_tbb
-
