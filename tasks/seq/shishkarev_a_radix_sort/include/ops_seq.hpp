@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utility>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
