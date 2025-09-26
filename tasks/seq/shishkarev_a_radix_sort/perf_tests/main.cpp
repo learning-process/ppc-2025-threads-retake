@@ -11,7 +11,7 @@
 #include "seq/shishkarev_a_radix_sort/include/ops_seq.hpp"
 
 TEST(shishkarev_a_radix_sort_seq, test_pipeline_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
@@ -45,7 +45,7 @@ TEST(shishkarev_a_radix_sort_seq, test_pipeline_run) {
 }
 
 TEST(shishkarev_a_radix_sort_seq, test_task_run) {
-  constexpr int kCount = 50000;
+  constexpr int kCount = 100000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
