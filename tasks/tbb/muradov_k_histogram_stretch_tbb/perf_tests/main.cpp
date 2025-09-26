@@ -17,7 +17,7 @@ static void FillRandom(std::vector<uint8_t>& data) {
 }
 
 TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
-  size_t n = 40000000;
+  size_t n = 100000000;
   std::vector<uint8_t> in(n);
   std::vector<uint8_t> out(n, 0);
   FillRandom(in);
@@ -43,7 +43,7 @@ TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
 }
 
 TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
-  size_t n = 40000000;
+  size_t n = 100000000;
   std::vector<uint8_t> in(n);
   std::vector<uint8_t> out(n, 0);
   FillRandom(in);
