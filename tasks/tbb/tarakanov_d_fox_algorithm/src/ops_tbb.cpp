@@ -9,8 +9,15 @@
 #include "oneapi/tbb/parallel_for.h"
 
 namespace {
-void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
-                 int block_size, int stage, int i, int j, int k) {
+struct CountersStruct {
+  int i;
+  int j;
+  int k;
+} void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
+                   CountersStruct counters, int block_size) {
+  int& i = counters.i;
+  int& j = counters.j;
+  int& k = counters.k;
   for (int bi = i; bi < std::min(i + block_size, n); ++bi) {
     for (int bj = j; bj < std::min(j + block_size, n); ++bj) {
       double sum = 0.0;
@@ -80,7 +87,7 @@ bool tarakanov_d_fox_algorithm_tbb::TestTaskTBB::RunImpl() {
 
     for (int step = 0; step < num_blocks; ++step) {
       int k = (i + step) % num_blocks;
-      FoxBlockMul(A_, B_, output_, n_, block_size_, step, i * block_size_, j * block_size_, k * block_size_);
+      FoxBlockMul(A_, B_, output_, n_, i * block_size_, j * block_size_, k * block_size_, block_size_);
     }
   });
 
