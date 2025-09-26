@@ -131,9 +131,9 @@ bool guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL::RunImpl() {
     n_threads = 4;
   }
 
-  const std::size_t rows = static_cast<std::size_t>(Result_->n_rows);
-  const std::size_t threads_sz = static_cast<std::size_t>(n_threads);
-  const std::size_t rows_per_thread = (rows + threads_sz - 1) / threads_sz;
+  auto rows = static_cast<std::size_t>(Result_->n_rows);
+  auto threads_sz = static_cast<std::size_t>(n_threads);
+  auto rows_per_thread = (rows + threads_sz - 1) / threads_sz;
 
   auto worker = [&](std::size_t start, std::size_t end) {
     for (std::size_t i = start; i < end; ++i) {
@@ -143,9 +143,9 @@ bool guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL::RunImpl() {
 
   std::vector<std::thread> threads;
   threads.reserve(n_threads);
-  for (size_t t = 0; t < n_threads; ++t) {
+  for (size_t t = 0; t < static_cast<size_t>(n_threads); ++t) {
     const std::size_t start = static_cast<std::size_t>(t) * rows_per_thread;
-    const std::size_t end = std::min(rows, (static_cast<std::size_t>(t) + 1u) * rows_per_thread);
+    const std::size_t end = std::min(rows, (static_cast<std::size_t>(t) + 1U) * rows_per_thread);
     if (start < end) {
       threads.emplace_back(worker, start, end);
     }
