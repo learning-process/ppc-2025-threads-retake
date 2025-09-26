@@ -1,5 +1,6 @@
 #include "stl/guseynov_e_sparse_matrix_multiply_crs/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -64,6 +65,24 @@ bool IsCrs(const CRSMatrix& m) {
   }
   return true;
 }
+void MultiplyRowSTL(std::size_t i,
+                     const guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix* A,
+                     const guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix* B,
+                     std::vector<std::vector<std::pair<int, double>>>& temp) {
+   for (int j = 0; j < B->n_rows; ++j) {
+     double sum = 0.0;
+     for (int k_a = A->pointer[i]; k_a < A->pointer[i + 1]; ++k_a) {
+       for (int k_b = B->pointer[j]; k_b < B->pointer[j + 1]; ++k_b) {
+         if (A->col_indexes[k_a] == B->col_indexes[k_b]) {
+           sum += A->non_zero_values[k_a] * B->non_zero_values[k_b];
+         }
+       }
+     }
+     if (std::abs(sum) > 1e-12) {
+       temp[i].emplace_back(j, sum);
+     }
+   }
+ }
 }  // namespace
 
 bool guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL::PreProcessingImpl() {
@@ -109,34 +128,23 @@ bool guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL::RunImpl() {
   std::vector<std::vector<std::pair<int, double>>> temp(Result_->n_rows);
 
   auto n_threads = ppc::util::GetPPCNumThreads();
-  if (n_threads == 0) {
-    n_threads = 4;
-  }
+  if (n_threads == 0) n_threads = 4u;
 
-  auto worker = [&](int start, int end) {
-    for (int i = start; i < end; i++) {
-      for (int j = 0; j < B_mat_->n_rows; j++) {
-        double sum = 0.0;
-        for (int k_a = A_mat_->pointer[i]; k_a < A_mat_->pointer[i + 1]; k_a++) {
-          for (int k_b = B_mat_->pointer[j]; k_b < B_mat_->pointer[j + 1]; k_b++) {
-            if (A_mat_->col_indexes[k_a] == B_mat_->col_indexes[k_b]) {
-              sum += A_mat_->non_zero_values[k_a] * B_mat_->non_zero_values[k_b];
-            }
-          }
-        }
-        if (std::abs(sum) > 1e-12) {
-          temp[i].emplace_back(j, sum);
-        }
-      }
+  const std::size_t rows = static_cast<std::size_t>(Result_->n_rows);
+  const std::size_t threads_sz = static_cast<std::size_t>(n_threads);
+  const std::size_t rows_per_thread = (rows + threads_sz - 1) / threads_sz;
+
+  auto worker = [&](std::size_t start, std::size_t end) {
+    for (std::size_t i = start; i < end; ++i) {
+      MultiplyRowSTL(i, A_mat_, B_mat_, temp);
     }
   };
 
   std::vector<std::thread> threads;
-  int rows_per_thread = (Result_->n_rows + n_threads - 1) / n_threads;
-
-  for (int t = 0; t < n_threads; t++) {
-    int start = t * rows_per_thread;
-    int end = std::min(Result_->n_rows, static_cast<int>((t + 1) * rows_per_thread));
+  threads.reserve(n_threads);
+  for (size_t t = 0; t < n_threads; ++t) {
+    const std::size_t start = static_cast<std::size_t>(t) * rows_per_thread;
+    const std::size_t end = std::min(rows, (static_cast<std::size_t>(t) + 1u) * rows_per_thread);
     if (start < end) {
       threads.emplace_back(worker, start, end);
     }
@@ -146,11 +154,11 @@ bool guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL::RunImpl() {
     th.join();
   }
 
-  for (int i = 0; i < Result_->n_rows; i++) {
+  for (std::size_t i = 0; i < rows; ++i) {
     Result_->pointer[i + 1] = Result_->pointer[i];
-    for (auto& j : temp[i]) {
-      Result_->col_indexes.push_back(j.first);
-      Result_->non_zero_values.push_back(j.second);
+    for (auto& p : temp[i]) {
+      Result_->col_indexes.push_back(p.first);
+      Result_->non_zero_values.push_back(p.second);
       Result_->pointer[i + 1]++;
     }
   }
