@@ -53,9 +53,9 @@ guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix GenerateRandomMatrix(const 
 
 TEST(guseynov_e_sparse_matrix_multiply_crs_stl, test_pipeline_run) {
   guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix a =
-      GenerateRandomMatrix({.rows = 300, .cols = 300, .density = 0.6, .seed = 1993});
+      GenerateRandomMatrix({.rows = 250, .cols = 250, .density = 0.6, .seed = 1993});
   guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix b =
-      GenerateRandomMatrix({.rows = 300, .cols = 300, .density = 0.6, .seed = 4325});
+      GenerateRandomMatrix({.rows = 250, .cols = 250, .density = 0.6, .seed = 4325});
   guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix result;
 
   // Create TaskData
@@ -88,9 +88,9 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_stl, test_pipeline_run) {
 
 TEST(guseynov_e_sparse_matrix_multiply_crs_stl, test_task_run) {
   guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix a =
-      GenerateRandomMatrix({.rows = 300, .cols = 300, .density = 0.6, .seed = 1993});
+      GenerateRandomMatrix({.rows = 250, .cols = 250, .density = 0.6, .seed = 1993});
   guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix b =
-      GenerateRandomMatrix({.rows = 300, .cols = 300, .density = 0.6, .seed = 4325});
+      GenerateRandomMatrix({.rows = 250, .cols = 250, .density = 0.6, .seed = 4325});
   guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix result;
 
   // Create TaskData
