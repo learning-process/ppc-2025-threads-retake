@@ -1,11 +1,11 @@
-#include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
-
 #include <tbb/blocked_range.h>
 #include <tbb/combinable.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
 #include <tbb/parallel_reduce.h>
 #include <tbb/parallel_scan.h>
+
+#include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
 
 #include <algorithm>
 #include <atomic>
