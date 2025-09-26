@@ -65,24 +65,23 @@ bool IsCrs(const CRSMatrix& m) {
   }
   return true;
 }
-void MultiplyRowSTL(std::size_t i,
-                     const guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix* a,
-                     const guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix* b,
-                     std::vector<std::vector<std::pair<int, double>>>& temp) {
-   for (int j = 0; j < b->n_rows; ++j) {
-     double sum = 0.0;
-     for (int k_a = a->pointer[i]; k_a < a->pointer[i + 1]; ++k_a) {
-       for (int k_b = b->pointer[j]; k_b < b->pointer[j + 1]; ++k_b) {
-         if (a->col_indexes[k_a] == b->col_indexes[k_b]) {
-           sum += a->non_zero_values[k_a] * b->non_zero_values[k_b];
-         }
-       }
-     }
-     if (std::abs(sum) > 1e-12) {
-       temp[i].emplace_back(j, sum);
-     }
-   }
- }
+void MultiplyRowSTL(std::size_t i, const guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix* a,
+                    const guseynov_e_sparse_matrix_multiply_crs_stl::CRSMatrix* b,
+                    std::vector<std::vector<std::pair<int, double>>>& temp) {
+  for (int j = 0; j < b->n_rows; ++j) {
+    double sum = 0.0;
+    for (int k_a = a->pointer[i]; k_a < a->pointer[i + 1]; ++k_a) {
+      for (int k_b = b->pointer[j]; k_b < b->pointer[j + 1]; ++k_b) {
+        if (a->col_indexes[k_a] == b->col_indexes[k_b]) {
+          sum += a->non_zero_values[k_a] * b->non_zero_values[k_b];
+        }
+      }
+    }
+    if (std::abs(sum) > 1e-12) {
+      temp[i].emplace_back(j, sum);
+    }
+  }
+}
 }  // namespace
 
 bool guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL::PreProcessingImpl() {
