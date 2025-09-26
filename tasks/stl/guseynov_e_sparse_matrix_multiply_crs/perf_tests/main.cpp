@@ -65,8 +65,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_stl, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
 
   // Create Task
-  auto test_task =
-      std::make_shared<guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL>(task_data);
+  auto test_task = std::make_shared<guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -101,8 +100,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_stl, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
 
   // Create Task
-  auto test_task =
-      std::make_shared<guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL>(task_data);
+  auto test_task = std::make_shared<guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

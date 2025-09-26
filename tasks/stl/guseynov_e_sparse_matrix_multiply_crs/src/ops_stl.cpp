@@ -109,8 +109,8 @@ bool guseynov_e_sparse_matrix_multiply_crs_stl::SparseMatMultSTL::RunImpl() {
   std::vector<std::vector<std::pair<int, double>>> temp(Result_->n_rows);
 
   auto n_threads = ppc::util::GetPPCNumThreads();
-  if (n_threads == 0){
-     n_threads = 4;
+  if (n_threads == 0) {
+    n_threads = 4;
   }
 
   auto worker = [&](int start, int end) {
