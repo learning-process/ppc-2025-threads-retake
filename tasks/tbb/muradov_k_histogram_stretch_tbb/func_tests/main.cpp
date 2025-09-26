@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -15,9 +16,9 @@ std::vector<uint8_t> StretchRef(const std::vector<uint8_t>& in) {
   if (in.empty()) {
     return {};
   }
-  auto mm = std::minmax_element(in.begin(), in.end());
-  int min_v = *mm.first;
-  int max_v = *mm.second;
+  auto mm = std::ranges::minmax_element(in);
+  int min_v = *mm.min;
+  int max_v = *mm.max;
   if (min_v == max_v) {
     return std::vector<uint8_t>(in.size(), 0);
   }

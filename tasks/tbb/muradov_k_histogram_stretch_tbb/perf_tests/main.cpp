@@ -32,13 +32,13 @@ uint64_t CalcIters(double single_time) {
   if (single_time <= 0.0) {
     return 1ULL;
   }
-  constexpr double target = 1.2;
-  constexpr double max_total = 8.0;
-  auto need = static_cast<uint64_t>(std::ceil(target / single_time));
+  constexpr double kTarget = 1.2;
+  constexpr double kMaxTotal = 8.0;
+  auto need = static_cast<uint64_t>(std::ceil(kTarget / single_time));
   if (need == 0) {
     need = 1;
   }
-  auto max_allowed = static_cast<uint64_t>(std::floor(max_total / single_time));
+  auto max_allowed = static_cast<uint64_t>(std::floor(kMaxTotal / single_time));
   if (max_allowed == 0) {
     max_allowed = 1;
   }
