@@ -51,7 +51,7 @@ guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix GenerateRandomMatrix(const 
 }
 }  // namespace
 
-TEST(guseynov_e_sparse_matrix_multiply_crs_tbb_seq, test_pipeline_run) {
+TEST(guseynov_e_sparse_matrix_multiply_crs_tbb, test_pipeline_run) {
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix a =
       GenerateRandomMatrix({.rows = 200, .cols = 200, .density = 0.6, .seed = 1993});
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix b =
@@ -59,14 +59,13 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_tbb_seq, test_pipeline_run) {
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix result;
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB>(task_data_seq);
+  auto test_task = std::make_shared<guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -82,12 +81,12 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_tbb_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(guseynov_e_sparse_matrix_multiply_crs_tbb_seq, test_task_run) {
+TEST(guseynov_e_sparse_matrix_multiply_crs_tbb, test_task_run) {
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix a =
       GenerateRandomMatrix({.rows = 200, .cols = 200, .density = 0.6, .seed = 1993});
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix b =
@@ -95,14 +94,13 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_tbb_seq, test_task_run) {
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix result;
 
   // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB>(task_data_seq);
+  auto test_task = std::make_shared<guseynov_e_sparse_matrix_multiply_crs_tbb::SparseMatMultTBB>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -118,7 +116,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_tbb_seq, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
