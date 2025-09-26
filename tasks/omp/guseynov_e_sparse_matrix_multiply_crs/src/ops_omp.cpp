@@ -1,4 +1,4 @@
-#include "omp/guseynov_e_sparse_matrix_multiply_crs/include/ops_seq.hpp"
+#include "omp/guseynov_e_sparse_matrix_multiply_crs/include/ops_omp.hpp"
 
 #include <cmath>
 #include <cstddef>

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/guseynov_e_sparse_matrix_multiply_crs/include/ops_seq.hpp"
+#include "omp/guseynov_e_sparse_matrix_multiply_crs/include/ops_omp.hpp"
 
 using guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix;
 using guseynov_e_sparse_matrix_multiply_crs_omp::SparseMatMultOMP;
@@ -59,7 +59,7 @@ void CompareMatrices(const CRSMatrix& result, const CRSMatrix& expected) {
 }
 }  // namespace
 
-TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_square_matrix_by_itself) {
+TEST(guseynov_e_sparse_matrix_multiply_crs_omp, test_square_matrix_by_itself) {
   CRSMatrix a{.n_rows = 5,
               .n_cols = 5,
               .non_zero_values = {1, -1, -3, -2, 5, 4, 6, 4, -4, 2, 7, 8, -5},
@@ -80,7 +80,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_square_matrix_by_itself) {
   CompareMatrices(RunTask({.left = a, .right = b}), expected);
 }
 
-TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_square_matrix) {
+TEST(guseynov_e_sparse_matrix_multiply_crs_omp, test_square_matrix) {
   CRSMatrix a{.n_rows = 4,
               .n_cols = 4,
               .non_zero_values = {1, 5, 2, 3, 4, 1, 2},
@@ -101,7 +101,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_square_matrix) {
   CompareMatrices(RunTask({.left = a, .right = b}), expected);
 }
 
-TEST(guseynov_e_sparse_matrix_multiply_crs_seq, test_non_square_matrix) {
+TEST(guseynov_e_sparse_matrix_multiply_crs_omp, test_non_square_matrix) {
   CRSMatrix a{.n_rows = 2, .n_cols = 3, .non_zero_values = {1, 2, 3}, .pointer = {0, 2, 3}, .col_indexes = {0, 2, 1}};
   CRSMatrix b{
       .n_rows = 3, .n_cols = 3, .non_zero_values = {4, 7, 6, 8}, .pointer = {0, 2, 3, 4}, .col_indexes = {0, 2, 1, 1}};
