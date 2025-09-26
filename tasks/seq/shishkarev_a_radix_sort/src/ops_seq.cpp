@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
+#include <cstddef>
 #include <vector>
 
 bool shishkarev_a_radix_sort::TestTaskSequential::PreProcessingImpl() {
@@ -36,7 +36,7 @@ bool shishkarev_a_radix_sort::TestTaskSequential::RunImpl() {
   output_ = input_;
   
   // Выполняем поразрядную сортировку
-  radixSort(output_);
+  RadixSort(output_);
   
   return true;
 }
@@ -53,25 +53,24 @@ bool shishkarev_a_radix_sort::TestTaskSequential::PostProcessingImpl() {
 
 // Вспомогательные функции для поразрядной сортировки
 
-int shishkarev_a_radix_sort::TestTaskSequential::getMax(const std::vector<int>& arr) {
-  if (arr.empty()) return 0;
+int shishkarev_a_radix_sort::TestTaskSequential::GetMax(const std::vector<int>& arr) {
+  if (arr.empty()) { return 0; }
   
   int max_val = arr[0];
   for (size_t i = 1; i < arr.size(); i++) {
-    if (arr[i] > max_val) {
-      max_val = arr[i];
-    }
+    max_val = std::max(arr[i], max_val);
+
   }
   return max_val;
 }
 
-void shishkarev_a_radix_sort::TestTaskSequential::countSort(std::vector<int>& arr, int exp) {
-  int n = arr.size();
+void shishkarev_a_radix_sort::TestTaskSequential::CountSort(std::vector<int>& arr, int exp) {
+  size_t n = arr.size();
   std::vector<int> output(n);
   std::vector<int> count(10, 0);
   
   // Подсчитываем количество вхождений каждой цифры
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < static_cast<int>(n); i++) {
     int digit = (std::abs(arr[i]) / exp) % 10;
     count[digit]++;
   }
@@ -89,16 +88,17 @@ void shishkarev_a_radix_sort::TestTaskSequential::countSort(std::vector<int>& ar
   }
   
   // Копируем отсортированный массив обратно в arr[]
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < static_cast<int>(n); i++) {
     arr[i] = output[i];
   }
 }
 
-void shishkarev_a_radix_sort::TestTaskSequential::radixSort(std::vector<int>& arr) {
-  if (arr.size() <= 1) return;
+void shishkarev_a_radix_sort::TestTaskSequential::RadixSort(std::vector<int>& arr) {
+  if (arr.size() <= 1) { return; }
   
   // Разделяем положительные и отрицательные числа
-  std::vector<int> negative, positive;
+  std::vector<int> negative;
+  std::vector<int> positive;
   for (int num : arr) {
     if (num < 0) {
       negative.push_back(-num);  // Работаем с модулями для отрицательных
@@ -109,12 +109,12 @@ void shishkarev_a_radix_sort::TestTaskSequential::radixSort(std::vector<int>& ar
   
   // Сортируем отрицательные числа (по модулю) в обратном порядке
   if (!negative.empty()) {
-    int max_neg = getMax(negative);
+    int max_neg = GetMax(negative);
     for (int exp = 1; max_neg / exp > 0; exp *= 10) {
-      countSort(negative, exp);
+      CountSort(negative, exp);
     }
     // Разворачиваем отсортированные по модулю отрицательные числа
-    std::reverse(negative.begin(), negative.end());
+    std::ranges::reverse(negative);
     // Возвращаем знак минус
     for (size_t i = 0; i < negative.size(); i++) {
       negative[i] = -negative[i];
@@ -123,9 +123,9 @@ void shishkarev_a_radix_sort::TestTaskSequential::radixSort(std::vector<int>& ar
   
   // Сортируем положительные числа
   if (!positive.empty()) {
-    int max_pos = getMax(positive);
+    int max_pos = GetMax(positive);
     for (int exp = 1; max_pos / exp > 0; exp *= 10) {
-      countSort(positive, exp);
+      CountSort(positive, exp);
     }
   }
   
@@ -140,15 +140,15 @@ void shishkarev_a_radix_sort::TestTaskSequential::radixSort(std::vector<int>& ar
   
   // Применяем четно-нечетное слияние Бэтчера для финальной корректировки
   if (arr.size() > 1) {
-    batcherOddEvenMerge(arr, 0, arr.size() - 1);
+    BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()) - 1);
   }
 }
 
 // Четно-нечетное слияние Бэтчера
-void shishkarev_a_radix_sort::TestTaskSequential::batcherOddEvenMerge(std::vector<int>& arr, int left, int right) {
+void shishkarev_a_radix_sort::TestTaskSequential::BatcherOddEvenMerge(std::vector<int>& arr, int left, int right) {
   int n = right - left + 1;
   
-  if (n <= 1) return;
+  if (n <= 1) { return; }
   
   // Упрощенная реализация
   for (int gap = n / 2; gap > 0; gap /= 2) {

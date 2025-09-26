@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
+#include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
@@ -19,10 +20,10 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<int> input_;
   std::vector<int> output_;
   
-  void radixSort(std::vector<int>& arr);
-  int getMax(const std::vector<int>& arr);
-  void countSort(std::vector<int>& arr, int exp);
-  void batcherOddEvenMerge(std::vector<int>& arr, int left, int right);
+  void RadixSort(std::vector<int>& arr);
+  static int GetMax(const std::vector<int>& arr);
+  static void CountSort(std::vector<int>& arr, int exp);
+  static void BatcherOddEvenMerge(std::vector<int>& arr, int left, int right);
 };
 
 }  // namespace shishkarev_a_radix_sort
