@@ -2,6 +2,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cstddef>
 
 namespace muradov_k_histogram_stretch_omp {
@@ -48,13 +49,13 @@ bool HistogramStretchOpenMP::RunImpl() {
 #pragma omp for nowait
     for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
       int v = input_image_[i];
-      if (v < local_min) local_min = v;
-      if (v > local_max) local_max = v;
+      local_min = std::min(v, local_min);
+      local_max = std::max(v, local_max);
     }
 #pragma omp critical
     {
-      if (local_min < global_min) global_min = local_min;
-      if (local_max > global_max) global_max = local_max;
+      global_min = std::min(local_min, global_min);
+      global_max = std::max(local_max, global_max);
     }
   }
   min_val_ = global_min;
@@ -72,10 +73,11 @@ bool HistogramStretchOpenMP::RunImpl() {
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(input_image_.size()); ++i) {
     int stretched = (input_image_[i] - min_val_) * 255 / range;
-    if (stretched < 0)
+    if (stretched < 0) {
       stretched = 0;
-    else if (stretched > 255)
+    } else if (stretched > 255) {
       stretched = 255;
+    }
     output_image_[i] = stretched;
   }
   return true;
