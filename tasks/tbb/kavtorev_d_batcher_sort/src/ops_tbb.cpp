@@ -1,5 +1,6 @@
 #include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
 
+#include <tbb/blocked_range.h>
 #include <tbb/combinable.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
@@ -15,15 +16,18 @@
 #include <cstring>
 #include <limits>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace kavtorev_d_batcher_sort_tbb {
 
-static inline void CompSwap(double& a, double& b) {
+namespace {
+inline void CompSwap(double& a, double& b) {
   if (a > b) {
     std::swap(a, b);
   }
 }
+}  // namespace
 
 inline uint64_t RadixBatcherSortTBB::ToOrderedUint64(double value) {
   uint64_t bits = 0;
