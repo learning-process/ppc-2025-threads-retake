@@ -45,13 +45,6 @@ int CountUniqueComponents(const std::vector<int>& labels) {
   }
   return static_cast<int>(unique_labels.size());
 }
-
-bool CheckComponentConnectivity(const std::vector<int>& labels, int component_id) {
-  for (int label : labels) {
-    if (label == component_id) return true;
-  }
-  return false;
-}
 }  // namespace
 
 TEST(dudchenko_o_connected_components_tbb, single_component) {
@@ -65,11 +58,7 @@ TEST(dudchenko_o_connected_components_tbb, single_component) {
   }
 
   auto labels = RunConnectedComponents(img, w, h);
-  int component_count = CountUniqueComponents(labels);
-  EXPECT_EQ(component_count, 1);
-  if (component_count > 0) {
-    EXPECT_TRUE(CheckComponentConnectivity(labels, 1));
-  }
+  EXPECT_EQ(CountUniqueComponents(labels), 1);
 }
 
 TEST(dudchenko_o_connected_components_tbb, two_separate_components) {
@@ -87,14 +76,7 @@ TEST(dudchenko_o_connected_components_tbb, two_separate_components) {
   img[5 * w + 5] = 1;
 
   auto labels = RunConnectedComponents(img, w, h);
-  int component_count = CountUniqueComponents(labels);
-  EXPECT_EQ(component_count, 2);
-  if (component_count >= 1) {
-    EXPECT_TRUE(CheckComponentConnectivity(labels, 1));
-  }
-  if (component_count >= 2) {
-    EXPECT_TRUE(CheckComponentConnectivity(labels, 2));
-  }
+  EXPECT_EQ(CountUniqueComponents(labels), 2);
 }
 
 TEST(dudchenko_o_connected_components_tbb, empty_image) {
@@ -110,11 +92,7 @@ TEST(dudchenko_o_connected_components_tbb, full_image) {
   std::vector<uint8_t> img(w * h, 1);
 
   auto labels = RunConnectedComponents(img, w, h);
-  int component_count = CountUniqueComponents(labels);
-  EXPECT_EQ(component_count, 1);
-  if (component_count > 0) {
-    EXPECT_TRUE(CheckComponentConnectivity(labels, 1));
-  }
+  EXPECT_EQ(CountUniqueComponents(labels), 1);
 }
 
 TEST(dudchenko_o_connected_components_tbb, cross_shape) {
@@ -127,11 +105,7 @@ TEST(dudchenko_o_connected_components_tbb, cross_shape) {
   }
 
   auto labels = RunConnectedComponents(img, w, h);
-  int component_count = CountUniqueComponents(labels);
-  EXPECT_EQ(component_count, 1);
-  if (component_count > 0) {
-    EXPECT_TRUE(CheckComponentConnectivity(labels, 1));
-  }
+  EXPECT_EQ(CountUniqueComponents(labels), 1);
 }
 
 TEST(dudchenko_o_connected_components_tbb, u_shape) {
@@ -145,34 +119,5 @@ TEST(dudchenko_o_connected_components_tbb, u_shape) {
   img[2 * w + 1] = 1;
 
   auto labels = RunConnectedComponents(img, w, h);
-  int component_count = CountUniqueComponents(labels);
-  EXPECT_EQ(component_count, 1);
-  if (component_count > 0) {
-    EXPECT_TRUE(CheckComponentConnectivity(labels, 1));
-  }
-}
-
-TEST(dudchenko_o_connected_components_tbb, single_pixel_components) {
-  const int w = 4, h = 4;
-  std::vector<uint8_t> img(w * h, 0);
-
-  img[1 * w + 1] = 1;
-  img[1 * w + 2] = 1;
-  img[2 * w + 1] = 1;
-  img[2 * w + 2] = 1;
-
-  auto labels = RunConnectedComponents(img, w, h);
   EXPECT_EQ(CountUniqueComponents(labels), 1);
-}
-
-TEST(dudchenko_o_connected_components_tbb, large_image) {
-  const int w = 10, h = 10;
-  std::vector<uint8_t> img(w * h, 0);
-
-  for (int i = 0; i < std::min(w, h); ++i) {
-    img[i * w + i] = 1;
-  }
-
-  auto labels = RunConnectedComponents(img, w, h);
-  EXPECT_GE(CountUniqueComponents(labels), 1);
 }

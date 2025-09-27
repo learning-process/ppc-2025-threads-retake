@@ -15,14 +15,13 @@ using dudchenko_o_connected_components_tbb::ConnectedComponentsTbb;
 namespace {
 constexpr int kSmallSize = 256;
 constexpr int kMediumSize = 512;
-constexpr int kLargeSize = 1024;
 
 std::vector<uint8_t> CreateTestImage(int size) {
   std::vector<uint8_t> img(size * size, 0);
-
-  for (int y = 0; y < size; y += size / 8) {
-    for (int x = 0; x < size; x += size / 8) {
-      int block_size = size / 16;
+  
+  for (int y = 0; y < size; y += size/8) {
+    for (int x = 0; x < size; x += size/8) {
+      int block_size = size/16;
       for (int dy = 0; dy < block_size; ++dy) {
         for (int dx = 0; dx < block_size; ++dx) {
           if (y + dy < size && x + dx < size) {
