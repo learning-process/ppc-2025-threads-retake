@@ -17,10 +17,9 @@ class HistogramStretchTBBTask : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<uint8_t> input_;
-  std::vector<uint8_t> output_;
-  uint8_t min_val_{};
-  uint8_t max_val_{};
+  std::vector<int> input_image_, output_image_;
+  int min_val_{0};
+  int max_val_{0};
 };
 
 }  // namespace muradov_k_histogram_stretch_tbb
