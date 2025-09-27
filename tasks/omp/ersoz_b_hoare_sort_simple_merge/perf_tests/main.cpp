@@ -13,7 +13,7 @@
 #include "omp/ersoz_b_hoare_sort_simple_merge/include/ops_omp.hpp"
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
-  const std::size_t n = 2'000'000;
+  const std::size_t n = 5'000'000;
   std::vector<int> in(n);
   std::vector<int> out(n, 0);
   std::mt19937 gen(123);
@@ -47,7 +47,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, test_task_run) {
-  const std::size_t n = 2'000'000;
+  const std::size_t n = 5'000'000;
   std::vector<int> in(n);
   std::vector<int> out(n, 0);
   std::mt19937 gen(456);
