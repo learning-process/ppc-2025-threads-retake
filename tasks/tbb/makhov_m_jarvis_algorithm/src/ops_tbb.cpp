@@ -1,8 +1,8 @@
 #include "tbb/makhov_m_jarvis_algorithm/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <chrono>
 #include <cmath>
@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <random>
 #include <vector>
+
 
 namespace {
 
