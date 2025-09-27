@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/vragov_i_gaussian_filter_vertical/include/filter.hpp"
+#include "omp/vragov_i_gaussian_filter_vertical/include/filter.hpp"
 
 // Helper to create a simple vertical test image
 template <typename T>
@@ -17,7 +17,7 @@ std::vector<T> make_vertical_gradient(int x, int y) {
   return img;
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, identity_on_constant_image) {
+TEST(vragov_i_gaussian_filter_vertical_omp, identity_on_constant_image) {
   constexpr int x = 5, y = 5;
   std::vector<int> in(x * y, 42);
   std::vector<int> out(x * y, 0);
@@ -30,7 +30,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, identity_on_constant_image) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential task(task_data);
+  vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -41,7 +41,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, identity_on_constant_image) {
   }
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, vertical_gradient_blur) {
+TEST(vragov_i_gaussian_filter_vertical_omp, vertical_gradient_blur) {
   constexpr int x = 3, y = 7;
   auto in = make_vertical_gradient<int>(x, y);
   std::vector<int> out(x * y, 0);
@@ -54,7 +54,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, vertical_gradient_blur) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential task(task_data);
+  vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -71,7 +71,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, vertical_gradient_blur) {
   }
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, handles_empty_image) {
+TEST(vragov_i_gaussian_filter_vertical_omp, handles_empty_image) {
   std::vector<int> in;
   std::vector<int> out;
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -82,7 +82,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, handles_empty_image) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(0);
 
-  vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential task(task_data);
+  vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -90,7 +90,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, handles_empty_image) {
   EXPECT_TRUE(out.empty());
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, invalid_dimensions_fail_validation) {
+TEST(vragov_i_gaussian_filter_vertical_omp, invalid_dimensions_fail_validation) {
   constexpr int x = 4, y = 5;
   // Only 10 elements, but x*y = 20
   std::vector<int> in(10, 1);
@@ -104,11 +104,11 @@ TEST(vragov_i_gaussian_filter_vertical_seq, invalid_dimensions_fail_validation) 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential task(task_data);
+  vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask task(task_data);
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, single_element_image) {
+TEST(vragov_i_gaussian_filter_vertical_omp, single_element_image) {
   constexpr int x = 1, y = 1;
   std::vector<int> in = {123};
   std::vector<int> out(1, 0);
@@ -121,7 +121,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, single_element_image) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential task(task_data);
+  vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -129,7 +129,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, single_element_image) {
   EXPECT_NEAR(out[0], 79, 2);
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, random_image_blur_average) {
+TEST(vragov_i_gaussian_filter_vertical_omp, random_image_blur_average) {
   constexpr int x = 20, y = 20;
   std::vector<int> in(x * y);
   std::vector<int> out(x * y, 0);
@@ -147,7 +147,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, random_image_blur_average) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential task(task_data);
+  vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();

@@ -5,11 +5,11 @@
 
 #include "core/task/include/task.hpp"
 
-namespace vragov_i_gaussian_filter_vertical_seq {
+namespace vragov_i_gaussian_filter_vertical_omp {
 
-class GaussianFilterTaskSequential : public ppc::core::Task {
+class GaussianFilterTask : public ppc::core::Task {
  public:
-  explicit GaussianFilterTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit GaussianFilterTask(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -21,4 +21,4 @@ class GaussianFilterTaskSequential : public ppc::core::Task {
   int y_{};
 };
 
-}  // namespace vragov_i_gaussian_filter_vertical_seq
+}  // namespace vragov_i_gaussian_filter_vertical_omp
