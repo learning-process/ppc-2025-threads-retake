@@ -1,8 +1,8 @@
+#include "seq/vragov_i_gaussian_filter_vertical/include/filter.hpp"
+
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
-#include "seq/vragov_i_gaussian_filter_vertical/include/filter.hpp"
 
 bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::PreProcessingImpl() {
   // Init value for input and output
@@ -46,10 +46,8 @@ bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::RunImp
       sum /= (sqrt(2.0 * pi) * 0.5);
       output_[i * y_ + j] = static_cast<int>(std::round(sum));
     }
-  
   }
   return true;
-  
 }
 
 bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::PostProcessingImpl() {

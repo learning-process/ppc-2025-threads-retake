@@ -21,4 +21,4 @@ class GaussianFilterTaskSequential : public ppc::core::Task {
   int y_{};
 };
 
-}
+}  // namespace vragov_i_gaussian_filter_vertical_seq
