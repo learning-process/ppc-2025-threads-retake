@@ -46,7 +46,7 @@ struct UnionFind {
         rank[rootX]++;
       }
     }
-}
+  }
 };
 
 }  // namespace
@@ -112,7 +112,7 @@ bool ConnectedComponentsOmp::RunImpl() {
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
       const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
-      
+
       if (input_image_[idx] == FOREGROUND) {
         int left_label = 0;
         int top_label = 0;
