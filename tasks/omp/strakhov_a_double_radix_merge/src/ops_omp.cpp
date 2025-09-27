@@ -1,5 +1,6 @@
 #include "omp/strakhov_a_double_radix_merge/include/ops_omp.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -29,7 +30,7 @@ static inline void strakhov_a_double_radix_merge_omp::MergeSorted(const uint64_t
     } else {
       output[k] = input[j];
       j++;
-      k++
+      k++;
     }
   }
   while (i < left_end) {
@@ -40,7 +41,7 @@ static inline void strakhov_a_double_radix_merge_omp::MergeSorted(const uint64_t
   while (j < right_end) {
     output[k] = input[j];
     j++;
-    k++
+    k++;
   }
 }
 bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::ValidationImpl() {
@@ -69,24 +70,23 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
     }
   }
   // radix sort
-  const size_t n = reinterpret_cast<size_t>(size);
+  const size_t n = static_cast<size_t>(size);
   const size_t chunk_size = 1u << 14;
   const size_t num_chunks = (n + chunk_size - 1) / chunk_size;
-  std::vector<uint64_t> true_vector(size);
-  std::vector<uint64_t> false_vector(size);
 
 #pragma omp parallel for schedule(static)
   for (ptrdiff_t t = 0; t < (ptrdiff_t)num_chunks; ++t) {
-    const size_t begin = (size_t)t * chunk_size;
-    const size_t end = std::min(begin + chunk_size, n);
-    const size_t len = end - begin;
-    if (len == 0) continue;
-
+    const size_t start = (size_t)t * chunk_size;
+    const size_t end = std::min(start + chunk_size, n);
+    const size_t chunk_size = end - start;
+    if (chunk_size == 0) continue;
+    std::vector<uint64_t> true_vector(chunk_size);
+    std::vector<uint64_t> false_vector(chunk_size);
     for (int i = 0; i < type_length; ++i) {
       const uint64_t bit_mask = (uint64_t{1} << i);
       unsigned int cnt_true = 0;
       unsigned int cnt_false = 0;
-      for (unsigned int j = 0; j < size; ++j) {
+      for (unsigned int j = start; j < end; ++j) {
         if ((temp_vector[j] & bit_mask) == bit_mask) {
           true_vector[cnt_true++] = temp_vector[j];
         } else {
@@ -95,11 +95,11 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
       }
 
       if (cnt_false > 0) {
-        std::memcpy(temp_vector.data(), false_vector.data(), static_cast<size_t>(cnt_false) * sizeof(uint64_t));
+        std::memcpy(temp_vector.data() + start, false_vector.data(), static_cast<size_t>(cnt_false) * sizeof(uint64_t));
       }
 
       if (cnt_true > 0) {
-        std::memcpy(temp_vector.data() + cnt_false, true_vector.data(),
+        std::memcpy(temp_vector.data() + start + cnt_false, true_vector.data(),
                     static_cast<size_t>(cnt_true) * sizeof(uint64_t));
       }
     }
