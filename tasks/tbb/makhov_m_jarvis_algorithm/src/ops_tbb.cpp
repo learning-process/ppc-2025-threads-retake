@@ -4,7 +4,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <random>
 #include <vector>
 
@@ -34,13 +33,11 @@ bool makhov_m_jarvis_algorithm_tbb::TaskTBB::RunImpl() {
     return true;
   }
 
-  // Используем TBB для поиска самой левой точки
   size_t leftmost = FindLeftmostPoint(input_);
   size_t current = leftmost;
 
   do {
     result_.push_back(input_[current]);
-    // Используем TBB для поиска следующей точки
     current = FindNextPoint(current, input_);
   } while (current != leftmost);
 
@@ -49,16 +46,17 @@ bool makhov_m_jarvis_algorithm_tbb::TaskTBB::RunImpl() {
 
 bool makhov_m_jarvis_algorithm_tbb::TaskTBB::PostProcessingImpl() {
   uint32_t output_size = 0;
-  auto output_buffer = ConvertPointsToByteArray(result_, output_size);
+  uint8_t* output_buffer = ConvertPointsToByteArray(result_, output_size);
 
   if (task_data->outputs.empty()) {
-    task_data->outputs.push_back(output_buffer.release());
+    task_data->outputs.push_back(output_buffer);
     task_data->outputs_count.push_back(output_size);
   } else {
+    // Освобождаем старую память, если нужно
     if (task_data->outputs[0] != nullptr) {
       delete[] task_data->outputs[0];
     }
-    task_data->outputs[0] = output_buffer.release();
+    task_data->outputs[0] = output_buffer;
     task_data->outputs_count[0] = output_size;
   }
 
@@ -73,11 +71,11 @@ double makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(const Point& a, const Point&
   return ((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y));
 }
 
-std::unique_ptr<uint8_t[]> makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(
-    const std::vector<Point>& points, uint32_t& out_size) {
+uint8_t* makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(const std::vector<Point>& points,
+                                                                          uint32_t& out_size) {
   out_size = static_cast<uint32_t>(points.size() * 2 * sizeof(double));
-  auto buffer = std::make_unique<uint8_t[]>(out_size);
-  auto* double_buffer = reinterpret_cast<double*>(buffer.get());
+  uint8_t* buffer = new uint8_t[out_size];
+  double* double_buffer = reinterpret_cast<double*>(buffer);
 
   // Распараллеливаем с помощью TBB parallel_for
   tbb::parallel_for(tbb::blocked_range<size_t>(0, points.size()), [&](const tbb::blocked_range<size_t>& range) {
@@ -119,9 +117,8 @@ size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindLeftmostPoint(const std::vect
 
   // Используем TBB parallel_reduce для поиска самой левой точки
   size_t leftmost = tbb::parallel_reduce(
-      tbb::blocked_range<size_t>(1, points.size()),  // Диапазон от 1 до size
-      0,                                             // Начальное значение - первая точка
-      [&](const tbb::blocked_range<size_t>& range, size_t local_leftmost) -> size_t {
+      tbb::blocked_range<size_t>(1, points.size()), 0,
+      [&](const tbb::blocked_range<size_t>& range, size_t local_leftmost) {
         for (size_t i = range.begin(); i != range.end(); ++i) {
           if (points[i].x < points[local_leftmost].x ||
               (points[i].x == points[local_leftmost].x && points[i].y < points[local_leftmost].y)) {
@@ -130,8 +127,7 @@ size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindLeftmostPoint(const std::vect
         }
         return local_leftmost;
       },
-      [&](size_t left1, size_t left2) -> size_t {
-        // Функция объединения результатов
+      [&](size_t left1, size_t left2) {
         if (points[left1].x < points[left2].x ||
             (points[left1].x == points[left2].x && points[left1].y < points[left2].y)) {
           return left1;
@@ -147,9 +143,8 @@ size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindNextPoint(size_t current, con
 
   // Используем TBB parallel_reduce для поиска следующей точки
   size_t next = tbb::parallel_reduce(
-      tbb::blocked_range<size_t>(0, points.size()),
-      current,  // Начальное значение - текущая точка
-      [&](const tbb::blocked_range<size_t>& range, size_t local_next) -> size_t {
+      tbb::blocked_range<size_t>(0, points.size()), current,
+      [&](const tbb::blocked_range<size_t>& range, size_t local_next) {
         for (size_t i = range.begin(); i != range.end(); ++i) {
           if (i == current) continue;
 
@@ -165,8 +160,7 @@ size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindNextPoint(size_t current, con
         }
         return local_next;
       },
-      [&](size_t next1, size_t next2) -> size_t {
-        // Функция объединения результатов
+      [&](size_t next1, size_t next2) {
         if (next1 == current) return next2;
         if (next2 == current) return next1;
 

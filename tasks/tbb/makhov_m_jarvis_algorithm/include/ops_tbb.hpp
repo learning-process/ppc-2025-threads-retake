@@ -66,7 +66,7 @@ class TaskTBB : public ppc::core::Task {
   // Публичные статические методы для использования в тестах
   static double Cross(const Point& a, const Point& b, const Point& c);
   static double Dist(const Point& a, const Point& b);
-  static std::unique_ptr<uint8_t[]> ConvertPointsToByteArray(const std::vector<Point>& points, uint32_t& out_size);
+  static uint8_t* ConvertPointsToByteArray(const std::vector<Point>& points, uint32_t& out_size);
   static std::vector<Point> ConvertByteArrayToPoints(const uint8_t* byte_array, uint32_t byte_array_size);
   static Point GetRandomPoint(XCoord min_x, XCoord max_x, YCoord min_y, YCoord max_y);
 
