@@ -13,8 +13,10 @@ struct CountersStruct {
   int i;
   int j;
   int k;
-} void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
-                   CountersStruct counters, int block_size) {
+};
+
+void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
+                 CountersStruct counters, int block_size) {
   int& i = counters.i;
   int& j = counters.j;
   int& k = counters.k;
@@ -87,7 +89,8 @@ bool tarakanov_d_fox_algorithm_tbb::TestTaskTBB::RunImpl() {
 
     for (int step = 0; step < num_blocks; ++step) {
       int k = (i + step) % num_blocks;
-      FoxBlockMul(A_, B_, output_, n_, i * block_size_, j * block_size_, k * block_size_, block_size_);
+      CountersStruct counters{.i = i * block_size_, .j = j * block_size_, .k = k * block_size_};
+      FoxBlockMul(A_, B_, output_, n_, counters, block_size_);
     }
   });
 
