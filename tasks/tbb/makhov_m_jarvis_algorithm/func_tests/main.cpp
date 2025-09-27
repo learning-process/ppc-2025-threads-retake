@@ -20,7 +20,7 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_two_points) {
 
   // Convert points to byte array
   uint32_t buffer_size = 0;
-  auto buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
+  auto *buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
 
   task_data_seq->inputs.emplace_back(buffer);
   task_data_seq->inputs_count.emplace_back(buffer_size);
@@ -48,7 +48,7 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_three_points) {
 
   // Convert points to byte array
   uint32_t buffer_size = 0;
-  auto buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
+  auto *buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
 
   task_data_seq->inputs.emplace_back(buffer);
   task_data_seq->inputs_count.emplace_back(buffer_size);
@@ -92,7 +92,7 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_five_points) {
 
   // Convert points to byte array
   uint32_t buffer_size = 0;
-  auto buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
+  auto *buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
 
   task_data_seq->inputs.emplace_back(buffer);
   task_data_seq->inputs_count.emplace_back(buffer_size);
@@ -135,7 +135,7 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_ten_points) {
 
   // Convert points to byte array
   uint32_t buffer_size = 0;
-  auto buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
+  auto *buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
 
   task_data_seq->inputs.emplace_back(buffer);
   task_data_seq->inputs_count.emplace_back(buffer_size);
@@ -175,7 +175,7 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_five_points_negative_coords) {
 
   // Convert points to byte array
   uint32_t buffer_size = 0;
-  auto buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
+  auto *buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
 
   task_data_seq->inputs.emplace_back(buffer);
   task_data_seq->inputs_count.emplace_back(buffer_size);
@@ -217,7 +217,7 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_hundred_rand_points) {
 
   // Convert points to byte array
   uint32_t buffer_size = 0;
-  auto buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
+  auto *buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
 
   task_data_seq->inputs.emplace_back(buffer);
   task_data_seq->inputs_count.emplace_back(buffer_size);
@@ -259,7 +259,7 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_thousand_rand_points) {
 
   // Convert points to byte array
   uint32_t buffer_size = 0;
-  auto buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
+  auto *buffer = makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(in, buffer_size);
 
   task_data_seq->inputs.emplace_back(buffer);
   task_data_seq->inputs_count.emplace_back(buffer_size);

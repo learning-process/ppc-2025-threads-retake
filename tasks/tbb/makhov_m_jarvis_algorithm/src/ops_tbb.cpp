@@ -1,5 +1,8 @@
 #include "tbb/makhov_m_jarvis_algorithm/include/ops_tbb.hpp"
 
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
+
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -74,8 +77,8 @@ double makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(const Point& a, const Point&
 uint8_t* makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertPointsToByteArray(const std::vector<Point>& points,
                                                                           uint32_t& out_size) {
   out_size = static_cast<uint32_t>(points.size() * 2 * sizeof(double));
-  uint8_t* buffer = new uint8_t[out_size];
-  double* double_buffer = reinterpret_cast<double*>(buffer);
+  auto* buffer = new uint8_t[out_size];
+  auto* double_buffer = reinterpret_cast<double*>(buffer);
 
   // Распараллеливаем с помощью TBB parallel_for
   tbb::parallel_for(tbb::blocked_range<size_t>(0, points.size()), [&](const tbb::blocked_range<size_t>& range) {
@@ -113,7 +116,9 @@ std::vector<makhov_m_jarvis_algorithm_tbb::Point> makhov_m_jarvis_algorithm_tbb:
 }
 
 size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindLeftmostPoint(const std::vector<Point>& points) {
-  if (points.empty()) return 0;
+  if (points.empty()) {
+    return 0;
+  }
 
   // Используем TBB parallel_reduce для поиска самой левой точки
   size_t leftmost = tbb::parallel_reduce(
@@ -139,14 +144,18 @@ size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindLeftmostPoint(const std::vect
 }
 
 size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindNextPoint(size_t current, const std::vector<Point>& points) {
-  if (points.size() < 2) return current;
+  if (points.size() < 2) {
+    return current;
+  }
 
   // Используем TBB parallel_reduce для поиска следующей точки
   size_t next = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, points.size()), current,
       [&](const tbb::blocked_range<size_t>& range, size_t local_next) {
         for (size_t i = range.begin(); i != range.end(); ++i) {
-          if (i == current) continue;
+          if (i == current) {
+            continue;
+          }
 
           double cross_product = Cross(points[current], points[local_next], points[i]);
 
@@ -161,14 +170,19 @@ size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindNextPoint(size_t current, con
         return local_next;
       },
       [&](size_t next1, size_t next2) {
-        if (next1 == current) return next2;
-        if (next2 == current) return next1;
+        if (next1 == current) {
+          return next2;
+        }
+        if (next2 == current) {
+          return next1;
+        }
 
         double cross_product = Cross(points[current], points[next1], points[next2]);
 
         if (cross_product > 0) {
           return next2;
-        } else if (cross_product == 0) {
+        }
+        if (cross_product == 0) {
           if (Dist(points[current], points[next2]) > Dist(points[current], points[next1])) {
             return next2;
           }
