@@ -21,9 +21,9 @@ class DoubleRadixMergeOmp : public ppc::core::Task {
   struct Range;
   inline void FloatToNormalized(std::vector<uint64_t> &input, unsigned size);
   inline void NormalizedToFloat(std::vector<uint64_t> &input, unsigned size);
-  inline void RadixGrandSort(size_t n, std::vector<uint64_t> &input, size_t chunk_size);
+  static inline void RadixGrandSort(size_t n, std::vector<uint64_t> &input, size_t chunk_size);
   std::vector<double> input_, output_;
-  inline void MergeSorted(const uint64_t *input, Range left, Range right, uint64_t *output, size_t output_start);
+  static inline void MergeSorted(const uint64_t *input, Range left, Range right, uint64_t *output, size_t output_start);
 };
 
 }  // namespace strakhov_a_double_radix_merge_omp

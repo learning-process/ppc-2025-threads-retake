@@ -21,9 +21,7 @@ struct strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::Range {
 inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::MergeSorted(const uint64_t *input, Range left,
                                                                                 Range right, uint64_t *output,
                                                                                 size_t output_start) {
-  size_t left_start = left.start;
   size_t left_end = left.end;
-  size_t right_start = right.start;
   size_t right_end = right.end;
   size_t i = left.start;
   size_t j = right.start;
@@ -134,7 +132,7 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
   // radix sort
   auto n = static_cast<size_t>(size);
   const size_t chunk_size = 1U << 14;
-  RadixGrandSort(n, temp_vector, chunk_size, type_length);
+  RadixGrandSort(n, temp_vector, chunk_size);
   // simple merge
   std::vector<uint64_t> shadow_vector(size);
   uint64_t *temp_ptr = temp_vector.data();
