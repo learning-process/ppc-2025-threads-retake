@@ -5,11 +5,11 @@
 
 #include "core/task/include/task.hpp"
 
-namespace tarakanov_d_fox_algorithm_tbb {
+namespace tarakanov_d_fox_algorithm_omp {
 
-class TestTaskTBB : public ppc::core::Task {
+class TestTaskOpenMP : public ppc::core::Task {
  public:
-  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -21,4 +21,4 @@ class TestTaskTBB : public ppc::core::Task {
   int block_size_;
 };
 
-}  // namespace tarakanov_d_fox_algorithm_tbb
+}  // namespace tarakanov_d_fox_algorithm_omp
