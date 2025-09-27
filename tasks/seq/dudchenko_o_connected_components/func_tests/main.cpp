@@ -153,9 +153,8 @@ TEST(dudchenko_o_connected_components, test_two_separate_components) {
   EXPECT_EQ(output_data[18], output_data[19]);
   EXPECT_EQ(output_data[18], output_data[23]);
   EXPECT_EQ(output_data[18], output_data[24]);
-  
+
   EXPECT_NE(output_data[0], output_data[18]);
-  
   EXPECT_EQ(output_data[2], 0);
   EXPECT_EQ(output_data[7], 0);
   EXPECT_EQ(output_data[12], 0);
