@@ -1,15 +1,15 @@
 #include "tbb/makhov_m_jarvis_algorithm/include/ops_tbb.hpp"
 
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
+
 #include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <random>
 #include <vector>
-
-#include "tbb/blocked_range.h"
-#include "tbb/parallel_for.h"
-#include "tbb/parallel_reduce.h"
 
 namespace {
 
