@@ -11,7 +11,6 @@
 #include <random>
 #include <vector>
 
-
 namespace {
 
 // Вспомогательная функция для обработки одного диапазона в parallel_reduce
