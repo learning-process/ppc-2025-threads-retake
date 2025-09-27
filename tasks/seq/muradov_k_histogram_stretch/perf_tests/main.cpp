@@ -24,7 +24,7 @@ void ExtraCheck(const std::vector<int>& out) {
 }  // namespace
 
 TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
-  const int k_size = 700000;
+  const int k_size = 600000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);
   std::mt19937 gen(42);
@@ -42,7 +42,7 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_seq::HistogramStretchSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 7;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
@@ -62,7 +62,7 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
 }
 
 TEST(muradov_k_histogram_stretch_seq, test_task_run) {
-  const int k_size = 700000;
+  const int k_size = 600000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);
   std::mt19937 gen(777);
@@ -80,7 +80,7 @@ TEST(muradov_k_histogram_stretch_seq, test_task_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_seq::HistogramStretchSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 7;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
