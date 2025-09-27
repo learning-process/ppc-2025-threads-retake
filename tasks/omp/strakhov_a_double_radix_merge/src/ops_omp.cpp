@@ -16,9 +16,9 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PreProcessingImpl()
   return true;
 }
 
-static inline void strakhov_a_double_radix_merge_omp::MergeSorted(const uint64_t *input, size_t left_start,
-                                                                  size_t left_end, size_t right_start, size_t right_end,
-                                                                  uint64_t *output, size_t output_start) {
+inline void strakhov_a_double_radix_merge_omp::MergeSorted(size_t left_start, size_t left_end, const uint64_t *input,
+                                                           size_t right_start, size_t right_end, uint64_t *output,
+                                                           size_t output_start) {
   size_t i = left_start;
   size_t j = right_start;
   size_t k = output_start;
@@ -117,7 +117,7 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
       size_t right_start = left_end;
       size_t right_end = std::min(left_end + run, n);
       if (right_start < right_end) {
-        MergeSorted(temp_ptr, left_start, left_end, right_start, right_end, shadow_ptr, left_start);
+        MergeSorted(left_start, left_end, temp_ptr, right_start, right_end, shadow_ptr, left_start);
       } else {
         for (size_t i = left_start; i < left_end; i++) shadow_ptr[i] = temp_ptr[i];
       }

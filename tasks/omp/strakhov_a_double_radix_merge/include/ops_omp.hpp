@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -17,8 +18,8 @@ class DoubleRadixMergeOmp : public ppc::core::Task {
 
  private:
   std::vector<double> input_, output_;
-  static inline void MergeSorted(const uint64_t *input, size_t left_start, size_t left_end, size_t right_start,
-                                 size_t right_end, uint64_t *output, size_t output_start);
+  inline void MergeSorted(size_t left_start, size_t left_end, const uint64_t *input, size_t right_start,
+                          size_t right_end, uint64_t *output, size_t output_start);
 };
 
 }  // namespace strakhov_a_double_radix_merge_omp
