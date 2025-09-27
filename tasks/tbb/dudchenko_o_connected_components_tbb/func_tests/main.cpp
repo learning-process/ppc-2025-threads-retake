@@ -160,6 +160,11 @@ TEST(dudchenko_o_connected_components_tbb, single_pixel_components) {
   img[1 * w + 2] = 1;
   img[2 * w + 1] = 1;
   img[2 * w + 2] = 1;
+ 
+  img[4 * w + 4] = 1;
+  img[4 * w + 5] = 1;
+  img[5 * w + 4] = 1;
+  img[5 * w + 5] = 1;
 
   auto labels = RunConnectedComponents(img, w, h);
   EXPECT_EQ(CountUniqueComponents(labels), 1);
