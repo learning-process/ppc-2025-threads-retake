@@ -1,0 +1,96 @@
+#include <gtest/gtest.h>
+
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+#include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
+#include "tbb/dudchenko_o_connected_components_tbb/include/ops_tbb.hpp"
+
+using dudchenko_o_connected_components_tbb::ConnectedComponentsTbb;
+
+namespace {
+constexpr int kW = 512;
+constexpr int kH = 512;
+
+std::vector<uint8_t> CreateTestImage() {
+  std::vector<uint8_t> img(kW * kH, 0);
+  
+  for (int y = 0; y < kH; y += 50) {
+    for (int x = 0; x < kW; x += 50) {
+      for (int dy = 0; dy < 10; ++dy) {
+        for (int dx = 0; dx < 10; ++dx) {
+          if (y + dy < kH && x + dx < kW) {
+            img[(y + dy) * kW + (x + dx)] = 1;
+          }
+        }
+      }
+    }
+  }
+  return img;
+}
+
+std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
+  auto a = std::make_shared<ppc::core::PerfAttr>();
+  a->num_running = runs;
+  a->current_timer = [] {
+    using Clock = std::chrono::high_resolution_clock;
+    static auto t0 = Clock::now();
+    return std::chrono::duration<double>(Clock::now() - t0).count();
+  };
+  return a;
+}
+}  // namespace
+
+TEST(dudchenko_o_connected_components_tbb, test_pipeline_run) {
+  auto img = CreateTestImage();
+  std::vector<int> out(img.size());
+  int w = kW, h = kH;
+
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
+  td->inputs_count.emplace_back(img.size());
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
+  td->inputs_count.emplace_back(1);
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
+  td->inputs_count.emplace_back(1);
+  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  td->outputs_count.emplace_back(out.size());
+
+  auto task = std::make_shared<ConnectedComponentsTbb>(td);
+  auto perf_attr = MakePerfAttr(10);
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+  auto perf = std::make_shared<ppc::core::Perf>(task);
+
+  perf->PipelineRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
+}
+
+TEST(dudchenko_o_connected_components_tbb, test_task_run) {
+  auto img = CreateTestImage();
+  std::vector<int> out(img.size());
+  int w = kW, h = kH;
+
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
+  td->inputs_count.emplace_back(img.size());
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
+  td->inputs_count.emplace_back(1);
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
+  td->inputs_count.emplace_back(1);
+  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  td->outputs_count.emplace_back(out.size());
+
+  auto task = std::make_shared<ConnectedComponentsTbb>(td);
+  auto perf_attr = MakePerfAttr(10);
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+  auto perf = std::make_shared<ppc::core::Perf>(task);
+
+  task->ValidationImpl();
+  task->PreProcessingImpl();
+  perf->TaskRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
+}
