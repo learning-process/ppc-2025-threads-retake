@@ -1,9 +1,5 @@
 #include "tbb/makhov_m_jarvis_algorithm/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
-
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -11,29 +7,19 @@
 #include <random>
 #include <vector>
 
+#include "tbb/blocked_range.h"
+#include "tbb/parallel_for.h"
+#include "tbb/parallel_reduce.h"
+
 namespace {
-
-// Вспомогательная функция для сравнения точек при поиске следующей точки
-bool IsBetterCandidate(const makhov_m_jarvis_algorithm_tbb::Point& current_point,
-                       const makhov_m_jarvis_algorithm_tbb::Point& candidate,
-                       const makhov_m_jarvis_algorithm_tbb::Point& new_candidate) {
-  double cross_product = makhov_m_jarvis_algorithm_tbb::TaskTBB::Cross(current_point, candidate, new_candidate);
-
-  if (cross_product > 0) {
-    return true;
-  } else if (cross_product == 0) {
-    double dist_current = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(current_point, new_candidate);
-    double dist_candidate = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(current_point, candidate);
-    return dist_current > dist_candidate;
-  }
-  return false;
-}
 
 // Вспомогательная функция для обработки одного диапазона в parallel_reduce
 size_t ProcessRangeForNextPoint(size_t current, size_t local_next, const tbb::blocked_range<size_t>& range,
                                 const std::vector<makhov_m_jarvis_algorithm_tbb::Point>& points) {
   for (size_t i = range.begin(); i != range.end(); ++i) {
-    if (i == current) continue;
+    if (i == current) {
+      continue;
+    }
 
     if (local_next == current) {
       local_next = i;
@@ -58,14 +44,19 @@ size_t ProcessRangeForNextPoint(size_t current, size_t local_next, const tbb::bl
 // Функция объединения результатов для parallel_reduce
 size_t CombineNextPointResults(size_t current, size_t next1, size_t next2,
                                const std::vector<makhov_m_jarvis_algorithm_tbb::Point>& points) {
-  if (next1 == current) return next2;
-  if (next2 == current) return next1;
+  if (next1 == current) {
+    return next2;
+  }
+  if (next2 == current) {
+    return next1;
+  }
 
   double cross_product = makhov_m_jarvis_algorithm_tbb::TaskTBB::Cross(points[current], points[next1], points[next2]);
 
   if (cross_product > 0) {
     return next2;
-  } else if (cross_product == 0) {
+  }
+  if (cross_product == 0) {
     double dist2 = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(points[current], points[next2]);
     double dist1 = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(points[current], points[next1]);
     if (dist2 > dist1) {
