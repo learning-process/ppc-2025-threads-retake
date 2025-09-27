@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -126,4 +127,39 @@ TEST(vragov_i_gaussian_filter_vertical_seq, single_element_image) {
   task.Run();
   task.PostProcessing();
   EXPECT_NEAR(out[0], 79, 2);
+}
+
+TEST(vragov_i_gaussian_filter_vertical_seq, random_image_blur_average) {
+  constexpr int x = 20, y = 20;
+  std::vector<int> in(x * y);
+  std::vector<int> out(x * y, 0);
+
+  // Fill with random values in [0, 255]
+  std::mt19937 gen(42);
+  std::uniform_int_distribution<int> dist(0, 255);
+  for (auto& v : in) v = dist(gen);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->inputs_count.emplace_back(x);
+  task_data->inputs_count.emplace_back(y);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential task(task_data);
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  task.Run();
+  task.PostProcessing();
+
+  // Compute average of input and output
+  double avg_in = 0.0, avg_out = 0.0;
+  for (int v : in) avg_in += v;
+  for (int v : out) avg_out += v;
+  avg_in /= in.size();
+  avg_out /= out.size();
+
+  // Output average should be about 0.64 of input average (±0.05 margin)
+  EXPECT_NEAR(avg_out, avg_in * 0.64, avg_in * 0.05);
 }
