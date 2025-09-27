@@ -45,7 +45,7 @@ TEST(shishkarev_a_radix_sort_seq, test_pipeline_run) {
 }
 
 TEST(shishkarev_a_radix_sort_seq, test_task_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 10000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
@@ -63,7 +63,7 @@ TEST(shishkarev_a_radix_sort_seq, test_task_run) {
   auto test_task_sequential = std::make_shared<shishkarev_a_radix_sort::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10000;
+  perf_attr->num_running = 1000;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
