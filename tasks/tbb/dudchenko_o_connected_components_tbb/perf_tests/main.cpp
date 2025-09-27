@@ -18,7 +18,7 @@ constexpr int kMediumSize = 512;
 
 std::vector<uint8_t> CreateTestImage(int size) {
   std::vector<uint8_t> img(size * size, 0);
-  
+
   for (int y = 0; y < size; y += size / 8) {
     for (int x = 0; x < size; x += size / 8) {
       int block_size = size / 16;
