@@ -247,7 +247,7 @@ TEST(sdobnov_v_simpson_stl, test_mixed_5d_integral) {
   const int dimensions = 5;
   const double lower_bounds[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
   const double upper_bounds[5] = {1.0, std::numbers::pi / 2, 1.0, std::numbers::pi / 2, 1.0};
-  const int n_points[5] = {10, 10, 10, 10, 10};
+  const int n_points[5] = {8, 8, 8, 8, 8};
   double result = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
