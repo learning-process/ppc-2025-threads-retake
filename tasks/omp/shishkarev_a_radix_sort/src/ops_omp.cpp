@@ -67,7 +67,7 @@ int shishkarev_a_radix_sort_omp::TestTaskOpenMP::GetMax(const std::vector<int>& 
     int local_max = max_val;
 
 #pragma omp for nowait
-    for (size_t i = 1; i < arr.size(); i++) {
+    for (int i = 1; i < static_cast<int>(arr.size()); i++) {
       if (arr[i] > local_max) {
         local_max = arr[i];
       }
@@ -159,7 +159,7 @@ void shishkarev_a_radix_sort_omp::TestTaskOpenMP::RadixSort(std::vector<int>& ar
     std::vector<int> local_positive;
 
 #pragma omp for nowait
-    for (size_t i = 0; i < arr.size(); i++) {
+    for (int i = 0; i < static_cast<int>(arr.size()); i++) {
       if (arr[i] < 0) {
         local_negative.push_back(-arr[i]);  // Работаем с модулями для отрицательных
       } else {
