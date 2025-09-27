@@ -93,7 +93,7 @@ inline void strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::RadixGrandSo
   oneapi::tbb::parallel_for(
       oneapi::tbb::blocked_range<size_t>(0, num_chunks), [&](const oneapi::tbb::blocked_range<size_t> &rr) {
         for (size_t t = rr.begin(); t != rr.end(); ++t) {
-          const size_t start = (size_t)t * chunk_size;
+          const size_t start = t * chunk_size;
           const size_t end = std::min(start + chunk_size, n);
           const size_t chunk_length = end - start;
           if (chunk_length == 0) {
@@ -152,7 +152,7 @@ bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::RunImpl() {
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, n, (run << 1)),
                               [&](const oneapi::tbb::blocked_range<size_t> &r) {
                                 for (size_t base = r.begin(); base < r.end(); base += (run << 1)) {
-                                  auto left_start = (size_t)base;
+                                  auto left_start = base;
                                   size_t left_end = std::min(left_start + run, n);
                                   size_t right_start = left_end;
                                   size_t right_end = std::min(left_end + run, n);
@@ -168,23 +168,25 @@ bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::RunImpl() {
                               });
     std::swap(temp_ptr, shadow_ptr);
   }
+
   if (temp_ptr != temp_vector.data()) {
     oneapi::tbb::parallel_for(
         oneapi::tbb::blocked_range<size_t>(0, n), [&](const oneapi::tbb::blocked_range<size_t> &r) {
           std::memcpy(temp_vector.data() + r.begin(), temp_ptr + r.begin(), (r.end() - r.begin()) * sizeof(uint64_t));
         });
-    NormalizedToFloat(temp_vector, size);
-    return true;
   }
+  NormalizedToFloat(temp_vector, size);
+  return true;
+}
 
-  bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::PostProcessingImpl() {
-    unsigned long size = output_.size();
+bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::PostProcessingImpl() {
+  unsigned long size = output_.size();
 
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, size),
-                              [&](const oneapi::tbb::blocked_range<size_t> &r) {
-                                for (size_t i = r.begin(); i != r.end(); ++i) {
-                                  reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
-                                }
-                              });
-    return true;
-  }
+  oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, size),
+                            [&](const oneapi::tbb::blocked_range<size_t> &r) {
+                              for (size_t i = r.begin(); i != r.end(); ++i) {
+                                reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
+                              }
+                            });
+  return true;
+}
