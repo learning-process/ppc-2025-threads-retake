@@ -1,11 +1,6 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <future>
-#include <numeric>
-#include <thread>
 #include <utility>
 #include <vector>
 

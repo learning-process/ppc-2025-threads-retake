@@ -1,6 +1,7 @@
 #include "stl/sdobnov_v_simpson/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <future>
 #include <numeric>
 #include <thread>
@@ -169,7 +170,14 @@ double SimpsonIntegralStl::ParallelSimpsonAsync() {
       double local_sum = 0.0;
       for (int i = chunk_start; i < chunk_end; i++) {
         double x = a + (i * h);
-        double weight = (i == 0 || i == n) ? 1 : (i % 2 == 0) ? 2 : 4;
+        double weight = 0;
+        if (i == 0 || i == n) {
+          weight = 1;
+        } else if (i % 2 == 0) {
+          weight = 2;
+        } else {
+          weight = 4;
+        }
 
         std::vector<double> point = {x};
         double partial_sum = SimpsonRecursive(1, point);
@@ -208,21 +216,30 @@ double SimpsonIntegralStl::ParallelSimpsonThreads() {
   double h = (b - a) / n;
 
   unsigned int num_threads = std::thread::hardware_concurrency();
-  if (num_threads == 0) num_threads = 4;
+  if (num_threads == 0) {
+    num_threads = 4;
+  }
 
   std::vector<std::thread> threads;
   std::vector<double> partial_sums(num_threads, 0.0);
   int chunk_size = std::max(1, n / static_cast<int>(num_threads));
 
   for (unsigned int t = 0; t < num_threads; ++t) {
-    int chunk_start = t * chunk_size;
+    int chunk_start = static_cast<int>(t) * chunk_size;
     int chunk_end = (t == num_threads - 1) ? n + 1 : chunk_start + chunk_size;
 
     threads.emplace_back([=, this, &partial_sums]() {
       double local_sum = 0.0;
       for (int i = chunk_start; i < chunk_end && i <= n; i++) {
         double x = a + (i * h);
-        double weight = (i == 0 || i == n) ? 1 : (i % 2 == 0) ? 2 : 4;
+        double weight = 0;
+        if (i == 0 || i == n) {
+          weight = 1;
+        } else if (i % 2 == 0) {
+          weight = 2;
+        } else {
+          weight = 4;
+        }
 
         std::vector<double> point = {x};
         double partial_sum = SimpsonRecursive(1, point);
@@ -261,7 +278,14 @@ double SimpsonIntegralStl::ProcessPoint(int i) {
   double h = (b - a) / n;
 
   double x = a + (i * h);
-  double weight = (i == 0 || i == n) ? 1 : (i % 2 == 0) ? 2 : 4;
+  double weight = 0;
+  if (i == 0 || i == n) {
+    weight = 1;
+  } else if (i % 2 == 0) {
+    weight = 2;
+  } else {
+    weight = 4;
+  }
 
   std::vector<double> point = {x};
   return weight * SimpsonRecursive(1, point);
@@ -284,7 +308,7 @@ double SimpsonIntegralStl::SimpsonRecursive(int dim_index, const std::vector<dou
 
   for (int i = 0; i <= n; i++) {
     double x = a + (i * h);
-    double weight;
+    double weight = 0;
     if (i == 0 || i == n) {
       weight = 1;
     } else if (i % 2 == 0) {
