@@ -18,10 +18,9 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PreProcessingImpl()
 struct strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::Range {
   size_t start, end;
 };
-static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::MergeSorted(const uint64_t *input,
-                                                                                       Range left, Range right,
-                                                                                       uint64_t *output,
-                                                                                       size_t output_start) {
+inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::MergeSorted(const uint64_t *input, Range left,
+                                                                                Range right, uint64_t *output,
+                                                                                size_t output_start) {
   size_t left_start = left.start;
   size_t left_end = left.end;
   size_t right_start = right.start;
@@ -80,12 +79,11 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::NormalizedTo
   }
 }
 
-static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RadixGrandSort(size_t n,
-                                                                                          std::vector<uint64_t> &input,
-                                                                                          size_t chunk_size,
-                                                                                          int type_length) {
+inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RadixGrandSort(size_t n,
+                                                                                   std::vector<uint64_t> &input,
+                                                                                   size_t chunk_size) {
   const size_t num_chunks = (n + chunk_size - 1) / chunk_size;
-
+  const int type_length = sizeof(double) * 8;
 #pragma omp parallel for schedule(static)
   for (ptrdiff_t t = 0; t < (ptrdiff_t)num_chunks; ++t) {
     const size_t start = (size_t)t * chunk_size;
@@ -131,8 +129,6 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
     return true;
   }
 
-  const int type_length = sizeof(double) * 8;
-
   std::vector<uint64_t> temp_vector(size);
   FloatToNormalized(temp_vector, size);
   // radix sort
@@ -152,7 +148,8 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
       size_t right_start = left_end;
       size_t right_end = std::min(left_end + run, n);
       if (right_start < right_end) {
-        MergeSorted(temp_ptr, Range{left_start, left_end}, Range{right_start, right_end}, shadow_ptr, left_start);
+        MergeSorted(temp_ptr, Range{.start = left_start, .end = left_end},
+                    Range{.start = right_start, .end = right_end}, shadow_ptr, left_start);
       } else {
         for (size_t i = left_start; i < left_end; i++) {
           shadow_ptr[i] = temp_ptr[i];
