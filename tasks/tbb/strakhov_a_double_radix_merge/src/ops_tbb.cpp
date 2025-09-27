@@ -1,6 +1,5 @@
-#include <oneapi/tbb/oneapi::tbb::blocked_range.h>
+#include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -8,9 +7,9 @@
 #include <cstring>
 #include <vector>
 
-#include "omp/strakhov_a_double_radix_merge/include/ops_omp.hpp"
+#include "tbb/strakhov_a_double_radix_merge/include/ops_tbb.hpp"
 
-bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PreProcessingImpl() {
+bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   unsigned int size = task_data->inputs_count[0];
   input_ = std::vector<double>(in_ptr, in_ptr + size);
@@ -19,10 +18,10 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PreProcessingImpl()
 
   return true;
 }
-struct strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::Range {
+struct strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::Range {
   size_t start, end;
 };
-inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::MergeSorted(const uint64_t *input, Range left,
+inline void strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::MergeSorted(const uint64_t *input, Range left,
                                                                                 Range right, uint64_t *output,
                                                                                 size_t output_start) {
   size_t left_end = left.end;
@@ -53,7 +52,7 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::MergeSorted(
   }
 }
 
-inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::FloatToNormalized(std::vector<uint64_t> &input,
+inline void strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::FloatToNormalized(std::vector<uint64_t> &input,
                                                                                       unsigned size) {
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, size),
                             [&](const oneapi::tbb::blocked_range<size_t> &r) {
@@ -68,7 +67,7 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::FloatToNorma
                               }
                             });
 }
-inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::NormalizedToFloat(std::vector<uint64_t> &input,
+inline void strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::NormalizedToFloat(std::vector<uint64_t> &input,
                                                                                       unsigned size) {
   // uint64 to float
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, size),
@@ -85,7 +84,7 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::NormalizedTo
                             });
 }
 
-inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RadixGrandSort(size_t n,
+inline void strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::RadixGrandSort(size_t n,
                                                                                    std::vector<uint64_t> &input,
                                                                                    size_t chunk_size) {
   const size_t num_chunks = (n + chunk_size - 1) / chunk_size;
@@ -126,12 +125,12 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RadixGrandSo
       });
 }
 
-bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::ValidationImpl() {
+bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::ValidationImpl() {
   // Check equality of counts elements
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
+bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::RunImpl() {
   unsigned int size = task_data->inputs_count[0];
   if (size == 0) {
     return true;
@@ -177,7 +176,7 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
     return true;
   }
 
-  bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PostProcessingImpl() {
+  bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::PostProcessingImpl() {
     unsigned long size = output_.size();
 
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, size),

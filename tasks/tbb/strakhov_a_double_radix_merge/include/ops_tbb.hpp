@@ -7,11 +7,11 @@
 
 #include "core/task/include/task.hpp"
 
-namespace strakhov_a_double_radix_merge_omp {
+namespace strakhov_a_double_radix_merge_tbb {
 
-class DoubleRadixMergeOmp : public ppc::core::Task {
+class DoubleRadixMergeTbb : public ppc::core::Task {
  public:
-  explicit DoubleRadixMergeOmp(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit DoubleRadixMergeTbb(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -26,4 +26,4 @@ class DoubleRadixMergeOmp : public ppc::core::Task {
   static inline void MergeSorted(const uint64_t *input, Range left, Range right, uint64_t *output, size_t output_start);
 };
 
-}  // namespace strakhov_a_double_radix_merge_omp
+}  // namespace strakhov_a_double_radix_merge_tbb

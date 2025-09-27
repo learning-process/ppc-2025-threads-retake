@@ -9,9 +9,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/strakhov_a_double_radix_merge/include/ops_omp.hpp"
+#include "tbb/strakhov_a_double_radix_merge/include/ops_tbb.hpp"
 
-TEST(strakhov_a_double_radix_merge_omp, test_pipeline_run) {
+TEST(strakhov_a_double_radix_merge_tbb, test_pipeline_run) {
   constexpr int kCount = 1000000;
 
   // Create data
@@ -25,14 +25,14 @@ TEST(strakhov_a_double_radix_merge_omp, test_pipeline_run) {
   }
 
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_ompuential = std::make_shared<strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp>(task_data_omp);
+  auto test_task_tbbuential = std::make_shared<strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -48,13 +48,13 @@ TEST(strakhov_a_double_radix_merge_omp, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbbuential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(in.size(), out.size());
 }
 
-TEST(strakhov_a_double_radix_merge_omp, test_task_run) {
+TEST(strakhov_a_double_radix_merge_tbb, test_task_run) {
   constexpr int kCount = 1000000;
 
   // Create data
@@ -68,14 +68,14 @@ TEST(strakhov_a_double_radix_merge_omp, test_task_run) {
   }
 
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_ompuential = std::make_shared<strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp>(task_data_omp);
+  auto test_task_tbbuential = std::make_shared<strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -91,7 +91,7 @@ TEST(strakhov_a_double_radix_merge_omp, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbbuential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(in.size(), out.size());
