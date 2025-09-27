@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -10,6 +11,18 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "tbb/muradov_k_histogram_stretch_tbb/include/ops_tbb.hpp"
+
+namespace {
+void ExtraWork(const std::vector<uint8_t>& v) {
+  volatile int acc = 0;
+  for (int r = 0; r < 16; ++r) {
+    for (uint8_t x : v) {
+      acc += x & 1;
+    }
+  }
+  (void)acc;
+}
+}  // namespace
 
 TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
   const size_t k_size = 120000;
@@ -30,7 +43,7 @@ TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_tbb::HistogramStretchTBBTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 7;  // фиксированное число повторов
+  perf_attr->num_running = 7;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
@@ -46,6 +59,7 @@ TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
   auto mm = std::ranges::minmax_element(out);
   ASSERT_EQ(*mm.min, 0);
   ASSERT_EQ(*mm.max, 255);
+  ExtraWork(out);
 }
 
 TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
@@ -67,7 +81,7 @@ TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
   auto task = std::make_shared<muradov_k_histogram_stretch_tbb::HistogramStretchTBBTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 7;  // фиксированное число повторов
+  perf_attr->num_running = 7;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&]() -> double {
     auto now = std::chrono::high_resolution_clock::now();
@@ -83,4 +97,5 @@ TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
   auto mm = std::ranges::minmax_element(out);
   ASSERT_EQ(*mm.min, 0);
   ASSERT_EQ(*mm.max, 255);
+  ExtraWork(out);
 }
