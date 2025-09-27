@@ -143,7 +143,7 @@ bool ConnectedComponentsOmp::RunImpl() {
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
       const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
-      
+
       if (labels[idx] > 0) {
         labels[idx] = FindRoot(parent, labels[idx]);
       }
@@ -178,7 +178,7 @@ bool ConnectedComponentsOmp::RunImpl() {
 
   components_count_ = current_label - 1;
 
-  #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
   for (int i = 0; i < static_cast<int>(image_size); ++i) {
     if (labels[i] > 0) {
       output_labels_[i] = label_map[labels[i]];
@@ -201,7 +201,7 @@ bool ConnectedComponentsOmp::PostProcessingImpl() {
   }
 
   const size_t copy_size = std::min(static_cast<size_t>(output_capacity), data_size);
-  #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
   for (size_t i = 0; i < copy_size; ++i) {
     output_data[i] = output_labels_[i];
   }
