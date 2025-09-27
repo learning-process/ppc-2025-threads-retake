@@ -18,8 +18,7 @@ bool dudchenko_o_connected_components::TestTaskSequential::PreProcessingImpl() {
 }
 
 bool dudchenko_o_connected_components::TestTaskSequential::ValidationImpl() {
-  if (!task_data || (task_data->inputs[0] == nullptr) ||
-      (task_data->outputs[0] == nullptr)) {
+  if (!task_data || (task_data->inputs[0] == nullptr) || (task_data->outputs[0] == nullptr)) {
     return false;
   }
 
@@ -33,8 +32,7 @@ bool dudchenko_o_connected_components::TestTaskSequential::ValidationImpl() {
   size_t expected_size = 2 + static_cast<size_t>(width) * height;
   size_t output_expected_size = static_cast<size_t>(width) * height;
 
-  return task_data->inputs_count[0] >= expected_size &&
-         task_data->outputs_count[0] >= output_expected_size;
+  return task_data->inputs_count[0] >= expected_size && task_data->outputs_count[0] >= output_expected_size;
 }
 
 bool dudchenko_o_connected_components::TestTaskSequential::RunImpl() {
@@ -64,8 +62,8 @@ void dudchenko_o_connected_components::TestTaskSequential::LabelComponents() {
   output_ = labels;
 }
 
-void dudchenko_o_connected_components::TestTaskSequential::FirstPass(
-    std::vector<int>& labels, std::vector<int>& parent) {
+void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector<int>& labels,
+                                                                     std::vector<int>& parent) {
   int next_label = 1;
 
   for (int y = 0; y < height_; ++y) {
@@ -102,8 +100,8 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(
   }
 }
 
-void dudchenko_o_connected_components::TestTaskSequential::SecondPass(
-    std::vector<int>& labels, const std::vector<int>& parent) {
+void dudchenko_o_connected_components::TestTaskSequential::SecondPass(std::vector<int>& labels,
+                                                                      const std::vector<int>& parent) {
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
       labels[i] = FindRoot(const_cast<std::vector<int>&>(parent), labels[i]);
@@ -111,16 +109,14 @@ void dudchenko_o_connected_components::TestTaskSequential::SecondPass(
   }
 }
 
-int dudchenko_o_connected_components::TestTaskSequential::FindRoot(
-    std::vector<int>& parent, int x) {
+int dudchenko_o_connected_components::TestTaskSequential::FindRoot(std::vector<int>& parent, int x) {
   if (parent[x] != x) {
     parent[x] = FindRoot(parent, parent[x]);
   }
   return parent[x];
 }
 
-void dudchenko_o_connected_components::TestTaskSequential::UnionSets(
-    std::vector<int>& parent, int x, int y) {
+void dudchenko_o_connected_components::TestTaskSequential::UnionSets(std::vector<int>& parent, int x, int y) {
   int root_x = FindRoot(parent, x);
   int root_y = FindRoot(parent, y);
 
