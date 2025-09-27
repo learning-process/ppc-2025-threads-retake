@@ -121,7 +121,6 @@ bool ConnectedComponentsOmp::RunImpl() {
 
             if (new_root != old_root) {
               parent[old_root] = new_root;
-
               parent[max_label] = new_root;
               parent[min_label] = new_root;
             }
@@ -162,7 +161,7 @@ bool ConnectedComponentsOmp::RunImpl() {
   components_count_ = current_label - 1;
 
 #pragma omp parallel for schedule(static)
-  for (size_t i = 0; i < image_size; ++i) {
+  for (int i = 0; i < static_cast<int>(image_size); ++i) {
     if (labels[i] > 0) {
       output_labels_[i] = label_map[labels[i]];
     } else {
