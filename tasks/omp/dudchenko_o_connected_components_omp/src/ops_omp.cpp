@@ -67,62 +67,66 @@ bool ConnectedComponentsOmp::PreProcessingImpl() {
   return true;
 }
 
+int ConnectedComponentsOmp::FindRoot(std::vector<int>& parent, int x) const {
+  while (parent[x] != x) {
+    parent[x] = parent[parent[x]];
+    x = parent[x];
+  }
+  return x;
+}
+
 bool ConnectedComponentsOmp::RunImpl() {
   const size_t image_size = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   std::vector<int> labels(image_size, 0);
 
+  std::vector<int> parent(image_size + 1, 0);
   int next_label = 1;
-  std::vector<int> parent(1000, 0);
 
-  for (int y = 0; y < height_; ++y) {
-    for (int x = 0; x < width_; ++x) {
-      const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
+#pragma omp parallel
+  {
+    std::vector<int> local_parent(1000, 0);
+    int local_next_label = 1;
 
-      if (input_image_[idx] == FOREGROUND) {
-        int left_label = 0;
-        int top_label = 0;
+#pragma omp for schedule(static) nowait
+    for (int y = 0; y < height_; ++y) {
+      for (int x = 0; x < width_; ++x) {
+        const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
 
-        if (x > 0 && input_image_[idx - 1] == FOREGROUND) {
-          left_label = labels[idx - 1];
-        }
-        if (y > 0 && input_image_[idx - width_] == FOREGROUND) {
-          top_label = labels[idx - width_];
-        }
+        if (input_image_[idx] == FOREGROUND) {
+          int left_label = (x > 0 && input_image_[idx - 1] == FOREGROUND) ? labels[idx - 1] : 0;
+          int top_label = (y > 0 && input_image_[idx - width_] == FOREGROUND) ? labels[idx - width_] : 0;
 
-        if (left_label == 0 && top_label == 0) {
-          labels[idx] = next_label;
-          if (static_cast<size_t>(next_label) >= parent.size()) {
-            parent.resize(next_label * 2, 0);
-          }
-          parent[next_label] = next_label;
-          next_label++;
-        } else if (left_label != 0 && top_label == 0) {
-          labels[idx] = left_label;
-        } else if (left_label == 0 && top_label != 0) {
-          labels[idx] = top_label;
-        } else {
-          int min_label = std::min(left_label, top_label);
-          int max_label = std::max(left_label, top_label);
-          labels[idx] = min_label;
-
-          if (min_label != max_label) {
-            int root_min = min_label;
-            while (parent[root_min] != root_min) {
-              root_min = parent[root_min];
+          if (left_label == 0 && top_label == 0) {
+#pragma omp critical
+            {
+              labels[idx] = next_label;
+              if (static_cast<size_t>(next_label) >= parent.size()) {
+                parent.resize(next_label * 2, 0);
+              }
+              parent[next_label] = next_label;
+              next_label++;
             }
+          } else if (left_label != 0 && top_label == 0) {
+            labels[idx] = left_label;
+          } else if (left_label == 0 && top_label != 0) {
+            labels[idx] = top_label;
+          } else {
+            int min_label = std::min(left_label, top_label);
+            int max_label = std::max(left_label, top_label);
+            labels[idx] = min_label;
 
-            int root_max = max_label;
-            while (parent[root_max] != root_max) {
-              root_max = parent[root_max];
-            }
+            if (min_label != max_label) {
+#pragma omp critical
+              {
+                int root_min = FindRoot(parent, min_label);
+                int root_max = FindRoot(parent, max_label);
 
-            int new_root = std::min(root_min, root_max);
-            int old_root = std::max(root_min, root_max);
-
-            if (new_root != old_root) {
-              parent[old_root] = new_root;
-              parent[max_label] = new_root;
-              parent[min_label] = new_root;
+                if (root_min != root_max) {
+                  int new_root = std::min(root_min, root_max);
+                  int old_root = std::max(root_min, root_max);
+                  parent[old_root] = new_root;
+                }
+              }
             }
           }
         }
@@ -131,16 +135,17 @@ bool ConnectedComponentsOmp::RunImpl() {
   }
 
 #pragma omp parallel for schedule(static)
+  for (int i = 1; i < next_label; ++i) {
+    parent[i] = FindRoot(parent, i);
+  }
+
+#pragma omp parallel for schedule(static)
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
       const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
-
+      
       if (labels[idx] > 0) {
-        int label = labels[idx];
-        while (parent[label] != label) {
-          label = parent[label];
-        }
-        labels[idx] = label;
+        labels[idx] = FindRoot(parent, labels[idx]);
       }
     }
   }
@@ -148,9 +153,22 @@ bool ConnectedComponentsOmp::RunImpl() {
   std::map<int, int> label_map;
   int current_label = 1;
 
-  for (size_t i = 0; i < image_size; ++i) {
-    if (labels[i] > 0) {
-      label_map[labels[i]] = 0;
+#pragma omp parallel
+  {
+    std::map<int, int> local_map;
+
+#pragma omp for schedule(static) nowait
+    for (int i = 0; i < static_cast<int>(image_size); ++i) {
+      if (labels[i] > 0) {
+        local_map[labels[i]] = 1;
+      }
+    }
+
+#pragma omp critical
+    {
+      for (const auto& pair : local_map) {
+        label_map[pair.first] = 1;
+      }
     }
   }
 
@@ -160,7 +178,7 @@ bool ConnectedComponentsOmp::RunImpl() {
 
   components_count_ = current_label - 1;
 
-#pragma omp parallel for schedule(static)
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < static_cast<int>(image_size); ++i) {
     if (labels[i] > 0) {
       output_labels_[i] = label_map[labels[i]];
@@ -183,6 +201,7 @@ bool ConnectedComponentsOmp::PostProcessingImpl() {
   }
 
   const size_t copy_size = std::min(static_cast<size_t>(output_capacity), data_size);
+  #pragma omp parallel for schedule(static)
   for (size_t i = 0; i < copy_size; ++i) {
     output_data[i] = output_labels_[i];
   }
