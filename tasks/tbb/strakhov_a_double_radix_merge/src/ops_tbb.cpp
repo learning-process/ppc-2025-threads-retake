@@ -113,14 +113,14 @@ inline void strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::RadixGrandSo
               }
             }
 
-            if (cnt_false > 0) {
-              std::memcpy(input.data() + start, false_vector.data(), static_cast<size_t>(cnt_false) * sizeof(uint64_t));
-            }
+            //  if (cnt_false > 0) {
+            std::memcpy(input.data() + start, false_vector.data(), static_cast<size_t>(cnt_false) * sizeof(uint64_t));
+            // }
 
-            if (cnt_true > 0) {
-              std::memcpy(input.data() + start + cnt_false, true_vector.data(),
-                          static_cast<size_t>(cnt_true) * sizeof(uint64_t));
-            }
+            //  if (cnt_true > 0) {
+            std::memcpy(input.data() + start + cnt_false, true_vector.data(),
+                        static_cast<size_t>(cnt_true) * sizeof(uint64_t));
+            // }
           }
         }
       });
