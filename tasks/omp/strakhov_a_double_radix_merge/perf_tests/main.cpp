@@ -12,7 +12,7 @@
 #include "omp/strakhov_a_double_radix_merge/include/ops_omp.hpp"
 
 TEST(strakhov_a_double_radix_merge_omp, test_pipeline_run) {
-  constexpr int kCount = 1000000;
+  constexpr int kCount = 2000000;
 
   // Create data
   std::random_device randomizer;
@@ -55,7 +55,7 @@ TEST(strakhov_a_double_radix_merge_omp, test_pipeline_run) {
 }
 
 TEST(strakhov_a_double_radix_merge_omp, test_task_run) {
-  constexpr int kCount = 1000000;
+  constexpr int kCount = 2000000;
 
   // Create data
   std::random_device randomizer;
