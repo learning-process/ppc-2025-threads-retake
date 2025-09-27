@@ -40,7 +40,7 @@ bool veliev_e_monte_carlo_omp::VelievEMonteCarloOmp::RunImpl() {
     std::cout << e.what() << std::endl;
     return false;
   }
-  
+
   return true;
 }
 
