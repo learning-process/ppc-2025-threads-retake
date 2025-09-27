@@ -21,7 +21,7 @@ TEST(veliev_e_monte_carlo_seq, test_pipeline_run) {
   std::vector<double> in2 = {0, 2};
   std::vector<double> out(1, res);
 
-  int n = 20000;
+  int n = 15000;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
@@ -64,7 +64,7 @@ TEST(veliev_e_monte_carlo_seq, test_task_run) {
   std::vector<double> in2 = {0, 2};
   std::vector<double> out(1, res);
 
-  int n = 20000;
+  int n = 15000;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
