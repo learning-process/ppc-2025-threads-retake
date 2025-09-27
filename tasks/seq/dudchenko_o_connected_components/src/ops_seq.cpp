@@ -101,16 +101,15 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector
 }
 
 void dudchenko_o_connected_components::TestTaskSequential::SecondPass(std::vector<int>& labels,
-                                                                      std::vector<int>& parent) {
+                                                                      const std::vector<int>& parent) {
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
-      labels[i] = FindRoot(parent, labels[i]);
+      labels[i] = FindRoot(const_cast<std::vector<int>&>(parent), labels[i]);
     }
   }
 }
 
 int dudchenko_o_connected_components::TestTaskSequential::FindRoot(std::vector<int>& parent, int x) {
-  if (x <= 0 || x >= parent.size()) return x;
   if (parent[x] != x) {
     parent[x] = FindRoot(parent, parent[x]);
   }
