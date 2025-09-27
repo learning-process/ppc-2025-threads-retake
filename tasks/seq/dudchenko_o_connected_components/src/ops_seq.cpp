@@ -104,7 +104,7 @@ void dudchenko_o_connected_components::TestTaskSequential::SecondPass(std::vecto
                                                                       std::vector<int>& parent) {
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
-      labels[i] = FindRoot(const_cast<std::vector<int>&>(parent), labels[i]);
+      labels[i] = FindRoot(parent, labels[i]);
     }
   }
 }
