@@ -116,7 +116,7 @@ double SimpsonIntegralStl::ParallelSimpsonAsync() {
   for (int chunk_start = 0; chunk_start <= n; chunk_start += chunk_size) {
     int chunk_end = std::min(chunk_start + chunk_size, n + 1);
 
-    futures.push_back(std::async(std::launch::async, [=]() {
+    futures.push_back(std::async(std::launch::async, [=, this]() {
       double local_sum = 0.0;
       for (int i = chunk_start; i < chunk_end; i++) {
         double x = a + i * h;
@@ -165,7 +165,7 @@ double SimpsonIntegralStl::ParallelSimpsonThreads() {
     int chunk_start = t * chunk_size;
     int chunk_end = (t == num_threads - 1) ? n + 1 : chunk_start + chunk_size;
 
-    threads.emplace_back([=, &partial_sums]() {
+    threads.emplace_back([=, this, &partial_sums]() {
       double local_sum = 0.0;
       for (int i = chunk_start; i < chunk_end && i <= n; i++) {
         double x = a + i * h;
