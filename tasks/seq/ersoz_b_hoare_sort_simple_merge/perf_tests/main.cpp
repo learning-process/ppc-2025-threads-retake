@@ -15,7 +15,7 @@
 using ersoz_b_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential;
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, test_pipeline_run) {
-  const size_t n = 200000;
+  const size_t n = 5000000;
   std::vector<int> in(n);
   std::mt19937 gen(42);
   std::uniform_int_distribution<int> dist(-1000000, 1000000);
@@ -63,7 +63,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_seq, test_pipeline_run) {
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_seq, test_task_run) {
-  const size_t n = 200000;
+  const size_t n = 5000000;
   std::vector<int> in(n);
   std::mt19937 gen(4242);
   std::uniform_int_distribution<int> dist(-1000000, 1000000);
