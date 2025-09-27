@@ -63,7 +63,7 @@ TEST(makhov_m_jarvis_algorithm_omp, test_three_points) {
   // Restore result from task_data
   std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
       makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
-                                                                              task_data_seq->outputs_count[0]);
+                                                                       task_data_seq->outputs_count[0]);
   ASSERT_EQ(reference.size(), restored_points.size());
 
   // Cleanup
@@ -107,7 +107,7 @@ TEST(makhov_m_jarvis_algorithm_omp, test_five_points) {
   // Restore result from task_data
   std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
       makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
-                                                                              task_data_seq->outputs_count[0]);
+                                                                       task_data_seq->outputs_count[0]);
 
   ASSERT_EQ(reference.size(), restored_points.size());
 
@@ -150,7 +150,7 @@ TEST(makhov_m_jarvis_algorithm_omp, test_ten_points) {
   // Restore result from task_data
   std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
       makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
-                                                                              task_data_seq->outputs_count[0]);
+                                                                       task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;
@@ -190,7 +190,7 @@ TEST(makhov_m_jarvis_algorithm_omp, test_five_points_negative_coords) {
   // Restore result from task_data
   std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
       makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
-                                                                              task_data_seq->outputs_count[0]);
+                                                                       task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;
@@ -232,7 +232,7 @@ TEST(makhov_m_jarvis_algorithm_omp, test_hundred_rand_points) {
   // Restore result from task_data
   std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
       makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
-                                                                              task_data_seq->outputs_count[0]);
+                                                                       task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;
@@ -274,7 +274,7 @@ TEST(makhov_m_jarvis_algorithm_omp, test_thousand_rand_points) {
   // Restore result from task_data
   std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
       makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
-                                                                              task_data_seq->outputs_count[0]);
+                                                                       task_data_seq->outputs_count[0]);
 
   // Should have a convex hull with at least 3 points
   size_t expected_size = 3;

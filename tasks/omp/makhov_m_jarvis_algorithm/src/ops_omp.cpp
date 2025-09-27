@@ -115,7 +115,9 @@ size_t makhov_m_jarvis_algorithm_omp::TaskOmp::FindLeftmostPoint(const std::vect
   size_t leftmost = 0;
   size_t n = points.size();
 
-  if (n < 2) return leftmost;
+  if (n < 2) {
+    return leftmost;
+  }
 
 // Распараллеливаем поиск самой левой точки
 #pragma omp parallel
@@ -148,7 +150,9 @@ size_t makhov_m_jarvis_algorithm_omp::TaskOmp::FindNextPoint(size_t current, con
   size_t next = current;
   size_t n = points.size();
 
-  if (n < 2) return next;
+  if (n < 2) {
+    return next;
+  }
 
 // Распараллеливаем поиск следующей точки
 #pragma omp parallel
@@ -158,7 +162,9 @@ size_t makhov_m_jarvis_algorithm_omp::TaskOmp::FindNextPoint(size_t current, con
 // Каждый поток находит своего кандидата на следующую точку
 #pragma omp for nowait
     for (int i = 0; i < (int)n; ++i) {
-      if (i == current) continue;
+      if (i == (int)current) {
+        continue;
+      }
 
       double cross_product = Cross(points[current], points[local_next], points[i]);
 
