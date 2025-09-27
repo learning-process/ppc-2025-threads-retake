@@ -1,5 +1,6 @@
 #include "tbb/makhov_m_jarvis_algorithm/include/ops_tbb.hpp"
 
+#include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_reduce.h>
 
@@ -10,7 +11,71 @@
 #include <random>
 #include <vector>
 
-#include "tbb/tbb.h"
+namespace {
+
+// Вспомогательная функция для сравнения точек при поиске следующей точки
+bool IsBetterCandidate(const makhov_m_jarvis_algorithm_tbb::Point& current_point,
+                       const makhov_m_jarvis_algorithm_tbb::Point& candidate,
+                       const makhov_m_jarvis_algorithm_tbb::Point& new_candidate) {
+  double cross_product = makhov_m_jarvis_algorithm_tbb::TaskTBB::Cross(current_point, candidate, new_candidate);
+
+  if (cross_product > 0) {
+    return true;
+  } else if (cross_product == 0) {
+    double dist_current = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(current_point, new_candidate);
+    double dist_candidate = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(current_point, candidate);
+    return dist_current > dist_candidate;
+  }
+  return false;
+}
+
+// Вспомогательная функция для обработки одного диапазона в parallel_reduce
+size_t ProcessRangeForNextPoint(size_t current, size_t local_next, const tbb::blocked_range<size_t>& range,
+                                const std::vector<makhov_m_jarvis_algorithm_tbb::Point>& points) {
+  for (size_t i = range.begin(); i != range.end(); ++i) {
+    if (i == current) continue;
+
+    if (local_next == current) {
+      local_next = i;
+    } else {
+      double cross_product =
+          makhov_m_jarvis_algorithm_tbb::TaskTBB::Cross(points[current], points[local_next], points[i]);
+
+      if (cross_product > 0) {
+        local_next = i;
+      } else if (cross_product == 0) {
+        double dist_i = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(points[current], points[i]);
+        double dist_next = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(points[current], points[local_next]);
+        if (dist_i > dist_next) {
+          local_next = i;
+        }
+      }
+    }
+  }
+  return local_next;
+}
+
+// Функция объединения результатов для parallel_reduce
+size_t CombineNextPointResults(size_t current, size_t next1, size_t next2,
+                               const std::vector<makhov_m_jarvis_algorithm_tbb::Point>& points) {
+  if (next1 == current) return next2;
+  if (next2 == current) return next1;
+
+  double cross_product = makhov_m_jarvis_algorithm_tbb::TaskTBB::Cross(points[current], points[next1], points[next2]);
+
+  if (cross_product > 0) {
+    return next2;
+  } else if (cross_product == 0) {
+    double dist2 = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(points[current], points[next2]);
+    double dist1 = makhov_m_jarvis_algorithm_tbb::TaskTBB::Dist(points[current], points[next1]);
+    if (dist2 > dist1) {
+      return next2;
+    }
+  }
+  return next1;
+}
+
+}  // namespace
 
 bool makhov_m_jarvis_algorithm_tbb::TaskTBB::ValidationImpl() {
   return task_data->inputs_count[0] / (2 * sizeof(double)) >= 3;
@@ -55,7 +120,6 @@ bool makhov_m_jarvis_algorithm_tbb::TaskTBB::PostProcessingImpl() {
     task_data->outputs.push_back(output_buffer);
     task_data->outputs_count.push_back(output_size);
   } else {
-    // Освобождаем старую память, если нужно
     if (task_data->outputs[0] != nullptr) {
       delete[] task_data->outputs[0];
     }
@@ -152,43 +216,9 @@ size_t makhov_m_jarvis_algorithm_tbb::TaskTBB::FindNextPoint(size_t current, con
   size_t next = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, points.size()), current,
       [&](const tbb::blocked_range<size_t>& range, size_t local_next) {
-        for (size_t i = range.begin(); i != range.end(); ++i) {
-          if (i == current) {
-            continue;
-          }
-
-          double cross_product = Cross(points[current], points[local_next], points[i]);
-
-          if (local_next == current || cross_product > 0) {
-            local_next = i;
-          } else if (cross_product == 0) {
-            if (Dist(points[current], points[i]) > Dist(points[current], points[local_next])) {
-              local_next = i;
-            }
-          }
-        }
-        return local_next;
+        return ProcessRangeForNextPoint(current, local_next, range, points);
       },
-      [&](size_t next1, size_t next2) {
-        if (next1 == current) {
-          return next2;
-        }
-        if (next2 == current) {
-          return next1;
-        }
-
-        double cross_product = Cross(points[current], points[next1], points[next2]);
-
-        if (cross_product > 0) {
-          return next2;
-        }
-        if (cross_product == 0) {
-          if (Dist(points[current], points[next2]) > Dist(points[current], points[next1])) {
-            return next2;
-          }
-        }
-        return next1;
-      });
+      [&](size_t next1, size_t next2) { return CombineNextPointResults(current, next1, next2, points); });
 
   return next;
 }
