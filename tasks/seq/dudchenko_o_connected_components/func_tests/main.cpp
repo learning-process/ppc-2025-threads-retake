@@ -18,12 +18,12 @@ TEST(dudchenko_o_connected_components, test_small_image) {
   int width = 3;
   int height = 3;
   std::vector<int> image_data = {1, 0, 1, 0, 1, 0, 1, 0, 1};
-    
+
   std::vector<int> input_data;
   input_data.push_back(width);
   input_data.push_back(height);
   input_data.insert(input_data.end(), image_data.begin(), image_data.end());
-  
+
   std::vector<int> output_data(width * height);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
