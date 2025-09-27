@@ -128,7 +128,7 @@ void shishkarev_a_radix_sort_omp::TestTaskOpenMP::BatcherOddEvenMerge(std::vecto
   for (int gap = n / 2; gap > 0; gap /= 2) {
     int iterations = right - left - gap + 1;
     if (iterations <= 0) continue;
-    
+
 #pragma omp parallel for
     for (int j = 0; j < iterations; j++) {
       int i = left + j;
