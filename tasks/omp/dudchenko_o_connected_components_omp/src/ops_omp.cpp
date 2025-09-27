@@ -70,7 +70,7 @@ bool ConnectedComponentsOmp::PreProcessingImpl() {
 bool ConnectedComponentsOmp::RunImpl() {
   const size_t image_size = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   std::vector<int> labels(image_size, 0);
-  
+
   int next_label = 1;
   std::vector<int> parent(1000, 0);
 
@@ -130,7 +130,7 @@ bool ConnectedComponentsOmp::RunImpl() {
       }
     }
   }
-  
+
 #pragma omp parallel for schedule(static)
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
@@ -145,7 +145,7 @@ bool ConnectedComponentsOmp::RunImpl() {
       }
     }
   }
-  
+
   std::map<int, int> label_map;
   int current_label = 1;
 
@@ -154,7 +154,7 @@ bool ConnectedComponentsOmp::RunImpl() {
       label_map[labels[i]] = 0;
     }
   }
-  
+
   for (auto& pair : label_map) {
     pair.second = current_label++;
   }
@@ -189,6 +189,6 @@ bool ConnectedComponentsOmp::PostProcessingImpl() {
   }
 
   task_data->outputs_count[0] = static_cast<unsigned int>(copy_size);
-  
+
   return true;
 }
