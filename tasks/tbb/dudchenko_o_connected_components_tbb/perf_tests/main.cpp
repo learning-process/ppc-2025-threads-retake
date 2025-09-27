@@ -20,9 +20,9 @@ constexpr int kLargeSize = 1024;
 std::vector<uint8_t> CreateTestImage(int size) {
   std::vector<uint8_t> img(size * size, 0);
 
-  for (int y = 0; y < size; y += size/8) {
-    for (int x = 0; x < size; x += size/8) {
-      int block_size = size/16;
+  for (int y = 0; y < size; y += size / 8) {
+    for (int x = 0; x < size; x += size / 8) {
+      int block_size = size / 16;
       for (int dy = 0; dy < block_size; ++dy) {
         for (int dx = 0; dx < block_size; ++dx) {
           if (y + dy < size && x + dx < size) {
@@ -46,7 +46,8 @@ std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
   return a;
 }
 
-std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<uint8_t>& img, int w, int h, std::vector<int>& out) {
+std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<uint8_t>& img, int w, int h,
+                                                    std::vector<int>& out) {
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<uint8_t*>(img.data())));
   td->inputs_count.emplace_back(static_cast<unsigned int>(img.size()));
