@@ -45,7 +45,7 @@ TEST(shishkarev_a_radix_sort_seq, test_pipeline_run) {
 }
 
 TEST(shishkarev_a_radix_sort_seq, test_task_run) {
-  constexpr int kCount = 10000;
+  constexpr int kCount = 100000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
