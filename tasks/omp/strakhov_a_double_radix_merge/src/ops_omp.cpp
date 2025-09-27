@@ -50,7 +50,9 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::MergeSorted(
 }
 
 inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::FloatToNormalized(std::vector<uint64_t> &input,
-                                                                                      unsigned size) {
+
+                                                                                      unsigned unsize) {
+  auto size = static_cast<signed int>(unsize);
 #pragma omp parallel for schedule(static)
   for (signed int i = 0; i < size; ++i) {
     uint64_t bits = 0;
@@ -63,7 +65,8 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::FloatToNorma
   }
 }
 inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::NormalizedToFloat(std::vector<uint64_t> &input,
-                                                                                      unsigned size) {
+                                                                                      unsigned unsize) {
+  auto size = static_cast<signed int>(unsize);
   // uint64 to float
 #pragma omp parallel for schedule(static)
   for (signed int i = 0; i < size; ++i) {
@@ -167,8 +170,9 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
 }
 
 bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PostProcessingImpl() {
+  signed int size = output_.size();
 #pragma omp parallel for schedule(static)
-  for (signed int i = 0; i < output_.size(); i++) {
+  for (signed int i = 0; i < size; i++) {
     reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
