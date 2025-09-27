@@ -170,7 +170,7 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
 }
 
 bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::PostProcessingImpl() {
-  auto size = reinterpret_cast<signed int>(output_.size());
+  auto size = static_cast<signed int>(output_.size());
 #pragma omp parallel for schedule(static)
   for (signed int i = 0; i < size; i++) {
     reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
