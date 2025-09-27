@@ -160,6 +160,6 @@ TEST(vragov_i_gaussian_filter_vertical_seq, random_image_blur_average) {
   avg_in /= in.size();
   avg_out /= out.size();
 
-  // Output average should be about 0.64 of input average (±0.05 margin)
+  // Output average should be about 0.64 of input average (+-0.05 margin)
   EXPECT_NEAR(avg_out, avg_in * 0.64, avg_in * 0.05);
 }
