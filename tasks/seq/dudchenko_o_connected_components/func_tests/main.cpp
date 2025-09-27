@@ -123,8 +123,7 @@ TEST(dudchenko_o_connected_components, test_no_components) {
 TEST(dudchenko_o_connected_components, test_two_separate_components) {
   int width = 5;
   int height = 5;
-  std::vector<int> image_data = {1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 1, 1, 0, 0, 0, 1, 1};
+  std::vector<int> image_data = {1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1};
 
   std::vector<int> input_data;
   input_data.push_back(width);
@@ -145,17 +144,20 @@ TEST(dudchenko_o_connected_components, test_two_separate_components) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  int comp1 = output_data[0];
-  int comp2 = output_data[18];
+  EXPECT_NE(output_data[0], 0);
+  EXPECT_EQ(output_data[0], output_data[1]);
+  EXPECT_EQ(output_data[0], output_data[5]);
+  EXPECT_EQ(output_data[0], output_data[6]);
 
-  EXPECT_NE(comp1, 0);
-  EXPECT_NE(comp2, 0);
-  EXPECT_NE(comp1, comp2);
-
-  EXPECT_EQ(output_data[1], comp1);
-  EXPECT_EQ(output_data[5], comp1);
-  EXPECT_EQ(output_data[6], comp1);
-  EXPECT_EQ(output_data[19], comp2);
-  EXPECT_EQ(output_data[23], comp2);
-  EXPECT_EQ(output_data[24], comp2);
+  EXPECT_NE(output_data[18], 0);
+  EXPECT_EQ(output_data[18], output_data[19]);
+  EXPECT_EQ(output_data[18], output_data[23]);
+  EXPECT_EQ(output_data[18], output_data[24]);
+  
+  EXPECT_NE(output_data[0], output_data[18]);
+  
+  EXPECT_EQ(output_data[2], 0);
+  EXPECT_EQ(output_data[7], 0);
+  EXPECT_EQ(output_data[12], 0);
+  EXPECT_EQ(output_data[17], 0);
 }
