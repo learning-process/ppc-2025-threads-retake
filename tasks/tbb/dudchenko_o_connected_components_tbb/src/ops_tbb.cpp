@@ -160,7 +160,7 @@ bool ConnectedComponentsTbb::RunImpl() {
 
         int left = (x > 0) ? output_labels_[idx - 1] : 0;
         int top = (y > 0) ? output_labels_[idx - static_cast<size_t>(width_)] : 0;
-        
+
         if (left == 0 && top == 0) {
           std::lock_guard<std::mutex> lock(label_mutex);
           output_labels_[idx] = next_label++;
@@ -181,14 +181,13 @@ bool ConnectedComponentsTbb::RunImpl() {
 
     if (!local_equivalences.empty()) {
       std::lock_guard<std::mutex> lock(eq_mutex);
-      all_equivalences.insert(all_equivalences.end(), 
-                              local_equivalences.begin(), local_equivalences.end());
+      all_equivalences.insert(all_equivalences.end(), local_equivalences.begin(), local_equivalences.end());
     }
   });
 
   ResolveEquivalences(output_labels_, all_equivalences);
   RelabelComponents(output_labels_, components_count_);
-  
+
   return true;
 }
 
