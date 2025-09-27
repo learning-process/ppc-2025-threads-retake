@@ -17,7 +17,7 @@ TEST(shishkarev_a_radix_sort_seq, test_pipeline_run) {
   std::vector<int> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = rand() % 1000000;
+    in[i] = rand() % 10000000;
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -51,7 +51,7 @@ TEST(shishkarev_a_radix_sort_seq, test_task_run) {
   std::vector<int> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = rand() % 1000000;
+    in[i] = rand() % 10000000;
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
