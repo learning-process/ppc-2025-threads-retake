@@ -1,8 +1,8 @@
+#include "omp/veliev_e_montecarlo/include/ops_omp.hpp"
+
 #include <cmath>
 #include <iostream>
 #include <vector>
-
-#include "omp/veliev_e_montecarlo/include/ops_omp.hpp"
 
 using namespace std::chrono_literals;
 
@@ -22,7 +22,7 @@ bool veliev_e_monte_carlo_omp::VelievEMonteCarloOmp::ValidationImpl() {
   return task_data->inputs_count[0] == 2 && task_data->inputs_count[1] == 2 && task_data->outputs_count[0] == 1;
 }
 
-bool veliev_e_monte_carlo_omp::VelievEMonteCarloOmp::RunImpl() {  
+bool veliev_e_monte_carlo_omp::VelievEMonteCarloOmp::RunImpl() {
   try {
     double h1 = (Int1_[1] - Int1_[0]) / N_;
     double h2 = (Int2_[1] - Int2_[0]) / N_;
