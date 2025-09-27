@@ -80,8 +80,9 @@ inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::NormalizedTo
   }
 }
 
-static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RadixGrandSort(std::vector<uint64_t> &input,
-                                                                                          size_t n, size_t chunk_size,
+static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RadixGrandSort(size_t n,
+                                                                                          std::vector<uint64_t> &input,
+                                                                                          size_t chunk_size,
                                                                                           int type_length) {
   const size_t num_chunks = (n + chunk_size - 1) / chunk_size;
 
@@ -137,7 +138,7 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
   // radix sort
   auto n = static_cast<size_t>(size);
   const size_t chunk_size = 1U << 14;
-  RadixGrandSort(temp_vector, n, chunk_size, type_length);
+  RadixGrandSort(n, temp_vector, chunk_size, type_length);
   // simple merge
   std::vector<uint64_t> shadow_vector(size);
   uint64_t *temp_ptr = temp_vector.data();
