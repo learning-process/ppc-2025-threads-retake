@@ -1,13 +1,14 @@
+#include "tbb/strakhov_a_double_radix_merge/include/ops_tbb.hpp"
+
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <vector>
-
-#include "tbb/strakhov_a_double_radix_merge/include/ops_tbb.hpp"
 
 bool strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
