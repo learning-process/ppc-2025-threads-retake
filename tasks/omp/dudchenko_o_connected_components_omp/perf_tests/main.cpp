@@ -8,7 +8,6 @@
 #include <random>
 #include <vector>
 
-
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"

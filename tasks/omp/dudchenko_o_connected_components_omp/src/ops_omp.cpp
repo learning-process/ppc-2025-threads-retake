@@ -9,7 +9,6 @@
 #include <utility>
 #include <vector>
 
-
 using namespace dudchenko_o_connected_components_omp;
 
 namespace {
@@ -21,33 +20,33 @@ struct UnionFind {
   std::vector<int> rank;
 
   UnionFind(int size) : parent(size), rank(size, 0) {
-      for (int i = 0; i < size; ++i) {
-          parent[i] = i;
-      }
+    for (int i = 0; i < size; ++i) {
+      parent[i] = i;
+    }
   }
 
   int find(int x) {
-      if (parent[x] != x) {
-          parent[x] = find(parent[x]);
-      }
-      return parent[x];
+    if (parent[x] != x) {
+      parent[x] = find(parent[x]);
+    }
+    return parent[x];
   }
 
   void unite(int x, int y) {
-      int rootX = find(x);
-      int rootY = find(y);
+    int rootX = find(x);
+    int rootY = find(y);
 
-      if (rootX != rootY) {
-          if (rank[rootX] < rank[rootY]) {
-              parent[rootX] = rootY;
-          } else if (rank[rootX] > rank[rootY]) {
-              parent[rootY] = rootX;
-          } else {
-              parent[rootY] = rootX;
-              rank[rootX]++;
-          }
+    if (rootX != rootY) {
+      if (rank[rootX] < rank[rootY]) {
+        parent[rootX] = rootY;
+      } else if (rank[rootX] > rank[rootY]) {
+        parent[rootY] = rootX;
+      } else {
+        parent[rootY] = rootX;
+        rank[rootX]++;
       }
-  }
+    }
+}
 };
 
 }  // namespace

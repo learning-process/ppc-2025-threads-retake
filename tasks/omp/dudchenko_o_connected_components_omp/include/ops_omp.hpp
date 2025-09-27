@@ -4,7 +4,6 @@
 #include <utility>
 #include <vector>
 
-
 #include "core/task/include/task.hpp"
 
 namespace dudchenko_o_connected_components_omp {
