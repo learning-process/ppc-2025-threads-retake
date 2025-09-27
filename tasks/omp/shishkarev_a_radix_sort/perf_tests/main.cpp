@@ -63,7 +63,7 @@ TEST(shishkarev_a_radix_sort_omp, test_task_run) {
   auto test_task_openmp = std::make_shared<shishkarev_a_radix_sort_omp::TestTaskOpenMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 1000;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
