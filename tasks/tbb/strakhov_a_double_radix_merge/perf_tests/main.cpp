@@ -74,7 +74,7 @@ TEST(strakhov_a_double_radix_merge_tbb, test_task_run) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
 
-  // Create Task
+  // Create Task ooooooo times I rerun: 1
   auto test_task_tbbuential = std::make_shared<strakhov_a_double_radix_merge_tbb::DoubleRadixMergeTbb>(task_data_tbb);
 
   // Create Perf attributes
