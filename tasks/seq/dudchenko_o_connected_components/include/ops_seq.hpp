@@ -23,7 +23,7 @@ class TestTaskSequential : public ppc::core::Task {
 
   void LabelComponents();
   void FirstPass(std::vector<int>& labels, std::vector<int>& parent);
-  void SecondPass(std::vector<int>& labels, const std::vector<int>& parent);
+  void SecondPass(std::vector<int>& labels, std::vector<int>& parent);
   int FindRoot(std::vector<int>& parent, int x);
   void UnionSets(std::vector<int>& parent, int x, int y);
 };

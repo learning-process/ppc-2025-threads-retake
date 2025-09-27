@@ -83,10 +83,10 @@ TEST(dudchenko_o_connected_components_seq, test_task_run) {
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 50000;
   const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
+  perf_attr->current_timer = [=] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0);
+    return static_cast<double>(duration.count()) * 1e-9;
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
