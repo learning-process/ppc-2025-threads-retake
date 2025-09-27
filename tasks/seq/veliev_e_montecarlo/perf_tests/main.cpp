@@ -17,14 +17,12 @@ TEST(veliev_e_monte_carlo_seq, test_pipeline_run) {
 
   veliev_e_monte_carlo_seq::Func f = veliev_e_monte_carlo_seq::Flin;
 
-  // Create data
   std::vector<double> in1 = {0, 2};
   std::vector<double> in2 = {0, 2};
   std::vector<double> out(1, res);
 
-  int n = 10000;
+  int n = 20000;
 
-  // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
   task_data_seq->inputs_count.emplace_back(in1.size());
@@ -38,10 +36,8 @@ TEST(veliev_e_monte_carlo_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
   auto task_seq = std::make_shared<veliev_e_monte_carlo_seq::VelievEMonteCarloSeq>(task_data_seq);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -51,10 +47,8 @@ TEST(veliev_e_monte_carlo_seq, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_seq);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -66,14 +60,12 @@ TEST(veliev_e_monte_carlo_seq, test_task_run) {
 
   veliev_e_monte_carlo_seq::Func f = veliev_e_monte_carlo_seq::Flin;
 
-  // Create data
   std::vector<double> in1 = {0, 2};
   std::vector<double> in2 = {0, 2};
   std::vector<double> out(1, res);
 
-  int n = 10000;
+  int n = 20000;
 
-  // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in1.data()));
   task_data_seq->inputs_count.emplace_back(in1.size());
@@ -87,10 +79,8 @@ TEST(veliev_e_monte_carlo_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
   auto task_seq = std::make_shared<veliev_e_monte_carlo_seq::VelievEMonteCarloSeq>(task_data_seq);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -100,10 +90,8 @@ TEST(veliev_e_monte_carlo_seq, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_seq);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
