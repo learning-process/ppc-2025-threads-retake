@@ -50,7 +50,7 @@ int CountUniqueComponents(const std::vector<int>& labels) {
 TEST(dudchenko_o_connected_components_tbb, single_component) {
   const int w = 5, h = 5;
   std::vector<uint8_t> img(w * h, 0);
-  
+
   for (int y = 1; y <= 3; ++y) {
     for (int x = 1; x <= 3; ++x) {
       img[y * w + x] = 1;
@@ -64,12 +64,16 @@ TEST(dudchenko_o_connected_components_tbb, single_component) {
 TEST(dudchenko_o_connected_components_tbb, two_separate_components) {
   const int w = 6, h = 6;
   std::vector<uint8_t> img(w * h, 0);
-  
-  img[1 * w + 1] = 1; img[1 * w + 2] = 1;
-  img[2 * w + 1] = 1; img[2 * w + 2] = 1;
-  
-  img[4 * w + 4] = 1; img[4 * w + 5] = 1;
-  img[5 * w + 4] = 1; img[5 * w + 5] = 1;
+
+  img[1 * w + 1] = 1;
+  img[1 * w + 2] = 1;
+  img[2 * w + 1] = 1;
+  img[2 * w + 2] = 1;
+
+  img[4 * w + 4] = 1;
+  img[4 * w + 5] = 1;
+  img[5 * w + 4] = 1;
+  img[5 * w + 5] = 1;
 
   auto labels = RunConnectedComponents(img, w, h);
   EXPECT_EQ(CountUniqueComponents(labels), 2);

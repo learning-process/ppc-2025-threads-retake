@@ -18,7 +18,7 @@ constexpr int kH = 512;
 
 std::vector<uint8_t> CreateTestImage() {
   std::vector<uint8_t> img(kW * kH, 0);
-  
+
   for (int y = 0; y < kH; y += 50) {
     for (int x = 0; x < kW; x += 50) {
       for (int dy = 0; dy < 10; ++dy) {

@@ -5,8 +5,8 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <vector>
 #include <mutex>
+#include <vector>
 
 using namespace dudchenko_o_connected_components_tbb;
 
@@ -47,19 +47,19 @@ class DisjointSetUnion {
 
 static void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, int>>& equivalences) {
   if (equivalences.empty()) return;
-  
+
   int max_label = 0;
   for (int label : labels) {
     if (label > max_label) max_label = label;
   }
   if (max_label == 0) return;
-  
+
   DisjointSetUnion dsu(max_label + 1);
-  
+
   for (auto& eq : equivalences) {
     dsu.unite(eq.first, eq.second);
   }
-  
+
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
       labels[i] = dsu.find(labels[i]);
@@ -72,27 +72,27 @@ static void RelabelComponents(std::vector<int>& labels, int& component_count) {
   for (int label : labels) {
     if (label > max_label) max_label = label;
   }
-  
+
   if (max_label == 0) {
     component_count = 0;
     return;
   }
-  
+
   std::vector<int> new_labels(static_cast<size_t>(max_label) + 1, 0);
   int current_label = 1;
-  
+
   for (int label : labels) {
     if (label != 0 && new_labels[static_cast<size_t>(label)] == 0) {
       new_labels[static_cast<size_t>(label)] = current_label++;
     }
   }
-  
+
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
       labels[i] = new_labels[static_cast<size_t>(labels[i])];
     }
   }
-  
+
   component_count = current_label - 1;
 }
 
@@ -112,7 +112,7 @@ bool ConnectedComponentsTbb::ValidationImpl() {
   const int h = *reinterpret_cast<const int*>(task_data->inputs[2]);
   if (w <= 0 || h <= 0) return false;
   if (static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h) != n) return false;
-  
+
   if (task_data->outputs.empty() || task_data->outputs_count.empty()) return false;
   const unsigned int cap = task_data->outputs_count[0];
   return (cap == 0) || (task_data->outputs[0] != nullptr);
@@ -132,26 +132,26 @@ bool ConnectedComponentsTbb::PreProcessingImpl() {
 bool ConnectedComponentsTbb::RunImpl() {
   const size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   output_labels_.resize(total_pixels, 0);
-  
+
   std::vector<std::pair<int, int>> all_equivalences;
   std::mutex eq_mutex;
-  
+
   tbb::parallel_for(tbb::blocked_range<int>(0, height_),
     [&](const tbb::blocked_range<int>& range) {
       std::vector<std::pair<int, int>> local_equivalences;
-      
+
       for (int y = range.begin(); y < range.end(); ++y) {
         for (int x = 0; x < width_; ++x) {
           size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
-          
+
           if (input_image_[idx] == 0) {
             output_labels_[idx] = 0;
             continue;
           }
-          
+
           int left = (x > 0) ? output_labels_[idx - 1] : 0;
           int top = (y > 0) ? output_labels_[idx - static_cast<size_t>(width_)] : 0;
-          
+
           if (left == 0 && top == 0) {
             output_labels_[idx] = (y * width_ + x) + 1;
           } else if (left != 0 && top == 0) {
@@ -168,15 +168,15 @@ bool ConnectedComponentsTbb::RunImpl() {
           }
         }
       }
-      
+
       std::lock_guard<std::mutex> lock(eq_mutex);
       all_equivalences.insert(all_equivalences.end(), 
                              local_equivalences.begin(), local_equivalences.end());
     });
-  
+
   ResolveEquivalences(output_labels_, all_equivalences);
   RelabelComponents(output_labels_, components_count_);
-  
+
   return true;
 }
 
