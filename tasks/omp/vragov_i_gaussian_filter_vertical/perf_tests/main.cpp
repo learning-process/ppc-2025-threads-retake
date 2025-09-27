@@ -24,7 +24,7 @@ TEST(vragov_i_gaussian_filter_vertical_omp, perf_pipeline_run) {
   auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1000;
+  perf_attr->num_running = 2000;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -55,7 +55,7 @@ TEST(vragov_i_gaussian_filter_vertical_omp, perf_task_run) {
   auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1000;
+  perf_attr->num_running = 2000;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
