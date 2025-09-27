@@ -1,10 +1,12 @@
-#include "seq/vragov_i_gaussian_filter_vertical/include/filter.hpp"
+#include "tbb/vragov_i_gaussian_filter_vertical/include/filter.hpp"
+
+#include <tbb/parallel_for.h>
 
 #include <cmath>
 #include <cstddef>
 #include <vector>
 
-bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::PreProcessingImpl() {
+bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::PreProcessingImpl() {
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
   x_ = task_data->inputs_count[1];
@@ -18,12 +20,12 @@ bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::PrePro
   return true;
 }
 
-bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::ValidationImpl() {
+bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::ValidationImpl() {
   // Verify image dimensions
   return (task_data->inputs_count[1] * task_data->inputs_count[2] == task_data->inputs_count[0]);
 }
 
-bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::RunImpl() {
+bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::RunImpl() {
   // Gaussian filter vertical 1x3
   const std::vector<double> kernel = {0.015, 0.8, 0.015};
   const double pi = std::acos(-1.0);
@@ -31,7 +33,7 @@ bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::RunImp
   if (input_.empty()) {
     return true;
   }
-  for (int i = 0; i < x_; i++) {
+  tbb::parallel_for(0, x_, [this, &kernel, pi](int i) {
     for (int j = 0; j < y_; j++) {
       double sum = 0.0;
       for (int k = -1; k <= 1; k++) {
@@ -46,11 +48,11 @@ bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::RunImp
       sum /= (sqrt(2.0 * pi) * 0.5);
       output_[i * y_ + j] = static_cast<int>(std::round(sum));
     }
-  }
+  });
   return true;
 }
 
-bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::PostProcessingImpl() {
+bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
   }

@@ -6,9 +6,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/vragov_i_gaussian_filter_vertical/include/filter.hpp"
+#include "tbb/vragov_i_gaussian_filter_vertical/include/filter.hpp"
 
-TEST(vragov_i_gaussian_filter_vertical_seq, perf_pipeline_run) {
+TEST(vragov_i_gaussian_filter_vertical_tbb, perf_pipeline_run) {
   constexpr int x = 500, y = 500;
   std::vector<int> in(x * y, 1);
   std::vector<int> out(x * y, 0);
@@ -21,7 +21,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, perf_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential>(task_data);
+  auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 1000;
@@ -39,7 +39,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, perf_pipeline_run) {
   // No correctness check, just performance
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, perf_task_run) {
+TEST(vragov_i_gaussian_filter_vertical_tbb, perf_task_run) {
   constexpr int x = 500, y = 500;
   std::vector<int> in(x * y, 1);
   std::vector<int> out(x * y, 0);
@@ -52,7 +52,7 @@ TEST(vragov_i_gaussian_filter_vertical_seq, perf_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential>(task_data);
+  auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 1000;
