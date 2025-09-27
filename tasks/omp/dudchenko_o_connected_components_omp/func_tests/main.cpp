@@ -61,7 +61,7 @@ int CountUniqueComponents(const std::vector<int>& labels) {
 TEST(dudchenko_o_connected_components_omp, single_pixel) {
   const int w = 3;
   const int h = 3;
-  std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 255); // Белый фон
+  std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 255);  // Белый фон
   img[4] = 0;
 
   auto labels = RunComponents(img, w, h);
@@ -92,9 +92,11 @@ TEST(dudchenko_o_connected_components_omp, connected_component) {
   const int w = 4;
   const int h = 4;
   std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 255);
-  
-  img[5] = 0; img[6] = 0;
-  img[9] = 0; img[10] = 0;
+
+  img[5] = 0;
+  img[6] = 0;
+  img[9] = 0;
+  img[10] = 0;
 
   auto labels = RunComponents(img, w, h);
 

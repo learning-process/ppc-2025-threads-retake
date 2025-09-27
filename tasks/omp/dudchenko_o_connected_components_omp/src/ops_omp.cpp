@@ -1,12 +1,14 @@
 #include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
 #include <omp.h>
+
 #include <algorithm>
 #include <cstddef>
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
-#include <set>
-#include <map>
+
 
 using namespace dudchenko_o_connected_components_omp;
 
@@ -15,37 +17,37 @@ namespace {
 constexpr uint8_t FOREGROUND = 0;
 
 struct UnionFind {
-    std::vector<int> parent;
-    std::vector<int> rank;
+  std::vector<int> parent;
+  std::vector<int> rank;
 
-    UnionFind(int size) : parent(size), rank(size, 0) {
-        for (int i = 0; i < size; ++i) {
-            parent[i] = i;
-        }
-    }
+  UnionFind(int size) : parent(size), rank(size, 0) {
+      for (int i = 0; i < size; ++i) {
+          parent[i] = i;
+      }
+  }
 
-    int find(int x) {
-        if (parent[x] != x) {
-            parent[x] = find(parent[x]);
-        }
-        return parent[x];
-    }
+  int find(int x) {
+      if (parent[x] != x) {
+          parent[x] = find(parent[x]);
+      }
+      return parent[x];
+  }
 
-    void unite(int x, int y) {
-        int rootX = find(x);
-        int rootY = find(y);
+  void unite(int x, int y) {
+      int rootX = find(x);
+      int rootY = find(y);
 
-        if (rootX != rootY) {
-            if (rank[rootX] < rank[rootY]) {
-                parent[rootX] = rootY;
-            } else if (rank[rootX] > rank[rootY]) {
-                parent[rootY] = rootX;
-            } else {
-                parent[rootY] = rootX;
-                rank[rootX]++;
-            }
-        }
-    }
+      if (rootX != rootY) {
+          if (rank[rootX] < rank[rootY]) {
+              parent[rootX] = rootY;
+          } else if (rank[rootX] > rank[rootY]) {
+              parent[rootY] = rootX;
+          } else {
+              parent[rootY] = rootX;
+              rank[rootX]++;
+          }
+      }
+  }
 };
 
 }  // namespace
@@ -140,7 +142,7 @@ bool ConnectedComponentsOmp::RunImpl() {
     }
   }
 
-  #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
       const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
@@ -163,10 +165,10 @@ bool ConnectedComponentsOmp::RunImpl() {
   for (auto& pair : label_map) {
     pair.second = current_label++;
   }
-  
+
   components_count_ = current_label - 1;
 
-  #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
   for (size_t i = 0; i < image_size; ++i) {
     if (labels[i] > 0) {
       output_labels_[i] = label_map[labels[i]];

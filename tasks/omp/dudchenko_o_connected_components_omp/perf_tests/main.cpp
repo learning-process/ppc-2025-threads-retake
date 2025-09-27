@@ -5,8 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <random>
+#include <vector>
+
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -62,9 +63,8 @@ std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
   return attr;
 }
 
-std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& img, 
-                                                 const ImageSpec& spec,
-                                                 std::vector<int>& labels) {
+std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& img, const ImageSpec& spec,
+                                                  std::vector<int>& labels) {
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(const_cast<uint8_t*>(img.data()));
   td->inputs_count.emplace_back(static_cast<unsigned int>(img.size()));
@@ -75,7 +75,7 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& im
 
   td->outputs.emplace_back(reinterpret_cast<uint8_t*>(labels.data()));
   td->outputs_count.emplace_back(static_cast<unsigned int>(labels.size()));
-  
+
   return td;
 }
 }  // namespace
