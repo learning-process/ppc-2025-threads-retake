@@ -20,9 +20,9 @@ constexpr int kLargeSize = 1024;
 std::vector<uint8_t> CreateTestImage(int size) {
   std::vector<uint8_t> img(size * size, 0);
 
-  for (int y = 0; y < size; y += size / 8) {
-    for (int x = 0; x < size; x += size / 8) {
-      int block_size = size / 16;
+  for (int y = 0; y < size; y += size/8) {
+    for (int x = 0; x < size; x += size/8) {
+      int block_size = size/16;
       for (int dy = 0; dy < block_size; ++dy) {
         for (int dx = 0; dx < block_size; ++dx) {
           if (y + dy < size && x + dx < size) {
@@ -45,20 +45,6 @@ std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
   };
   return a;
 }
-
-std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<uint8_t>& img, int w, int h,
-                                                    std::vector<int>& out) {
-  auto td = std::make_shared<ppc::core::TaskData>();
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<uint8_t*>(img.data())));
-  td->inputs_count.emplace_back(static_cast<unsigned int>(img.size()));
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
-  td->inputs_count.emplace_back(1);
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
-  td->inputs_count.emplace_back(1);
-  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  td->outputs_count.emplace_back(static_cast<unsigned int>(out.size()));
-  return td;
-}
 }  // namespace
 
 TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
@@ -66,7 +52,16 @@ TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
   std::vector<int> out(img.size());
   int w = kSmallSize, h = kSmallSize;
 
-  auto td = CreateTaskData(img, w, h, out);
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
+  td->inputs_count.emplace_back(img.size());
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
+  td->inputs_count.emplace_back(1);
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
+  td->inputs_count.emplace_back(1);
+  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  td->outputs_count.emplace_back(out.size());
+
   auto task = std::make_shared<ConnectedComponentsTbb>(td);
   auto perf_attr = MakePerfAttr(5);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
@@ -81,7 +76,16 @@ TEST(dudchenko_o_connected_components_tbb, perf_task_run_small) {
   std::vector<int> out(img.size());
   int w = kSmallSize, h = kSmallSize;
 
-  auto td = CreateTaskData(img, w, h, out);
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
+  td->inputs_count.emplace_back(img.size());
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
+  td->inputs_count.emplace_back(1);
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
+  td->inputs_count.emplace_back(1);
+  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  td->outputs_count.emplace_back(out.size());
+
   auto task = std::make_shared<ConnectedComponentsTbb>(td);
   auto perf_attr = MakePerfAttr(5);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
@@ -98,7 +102,16 @@ TEST(dudchenko_o_connected_components_tbb, perf_pipeline_medium) {
   std::vector<int> out(img.size());
   int w = kMediumSize, h = kMediumSize;
 
-  auto td = CreateTaskData(img, w, h, out);
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
+  td->inputs_count.emplace_back(img.size());
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
+  td->inputs_count.emplace_back(1);
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
+  td->inputs_count.emplace_back(1);
+  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  td->outputs_count.emplace_back(out.size());
+
   auto task = std::make_shared<ConnectedComponentsTbb>(td);
   auto perf_attr = MakePerfAttr(3);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
@@ -113,41 +126,18 @@ TEST(dudchenko_o_connected_components_tbb, perf_task_run_medium) {
   std::vector<int> out(img.size());
   int w = kMediumSize, h = kMediumSize;
 
-  auto td = CreateTaskData(img, w, h, out);
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
+  td->inputs_count.emplace_back(img.size());
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
+  td->inputs_count.emplace_back(1);
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
+  td->inputs_count.emplace_back(1);
+  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  td->outputs_count.emplace_back(out.size());
+
   auto task = std::make_shared<ConnectedComponentsTbb>(td);
   auto perf_attr = MakePerfAttr(3);
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf = std::make_shared<ppc::core::Perf>(task);
-
-  task->ValidationImpl();
-  task->PreProcessingImpl();
-  perf->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-}
-
-TEST(dudchenko_o_connected_components_tbb, perf_pipeline_large) {
-  auto img = CreateTestImage(kLargeSize);
-  std::vector<int> out(img.size());
-  int w = kLargeSize, h = kLargeSize;
-
-  auto td = CreateTaskData(img, w, h, out);
-  auto task = std::make_shared<ConnectedComponentsTbb>(td);
-  auto perf_attr = MakePerfAttr(2);
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf = std::make_shared<ppc::core::Perf>(task);
-
-  perf->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-}
-
-TEST(dudchenko_o_connected_components_tbb, perf_task_run_large) {
-  auto img = CreateTestImage(kLargeSize);
-  std::vector<int> out(img.size());
-  int w = kLargeSize, h = kLargeSize;
-
-  auto td = CreateTaskData(img, w, h, out);
-  auto task = std::make_shared<ConnectedComponentsTbb>(td);
-  auto perf_attr = MakePerfAttr(2);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
 
