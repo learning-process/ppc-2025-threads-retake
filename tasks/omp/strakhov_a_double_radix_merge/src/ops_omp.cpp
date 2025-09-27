@@ -27,7 +27,7 @@ static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::Merge
   size_t right_start = right.start;
   size_t right_end = right.end;
   size_t i = left.start;
-  size_t j = left.start;
+  size_t j = right.start;
   size_t k = output_start;
   while ((i < left_end) && (j < right_end)) {
     if (input[i] <= input[j]) {
@@ -52,8 +52,8 @@ static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::Merge
   }
 }
 
-static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::FloatToNormalized(
-    std::vector<uint64_t> &input, unsigned size) {
+inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::FloatToNormalized(std::vector<uint64_t> &input,
+                                                                                      unsigned size) {
 #pragma omp parallel for schedule(static)
   for (unsigned int i = 0; i < size; ++i) {
     uint64_t bits = 0;
@@ -65,9 +65,8 @@ static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::Float
     }
   }
 }
-
-static inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::NormalizedToFloat(
-    std::vector<uint64_t> &input, unsigned size) {
+inline void strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::NormalizedToFloat(std::vector<uint64_t> &input,
+                                                                                      unsigned size) {
   // uint64 to float
 #pragma omp parallel for schedule(static)
   for (unsigned int i = 0; i < size; ++i) {
@@ -136,7 +135,7 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
   std::vector<uint64_t> temp_vector(size);
   FloatToNormalized(temp_vector, size);
   // radix sort
-  auto size_t n = static_cast<size_t>(size);
+  auto n = static_cast<size_t>(size);
   const size_t chunk_size = 1U << 14;
   RadixGrandSort(temp_vector, n, chunk_size, type_length);
   // simple merge
@@ -152,7 +151,7 @@ bool strakhov_a_double_radix_merge_omp::DoubleRadixMergeOmp::RunImpl() {
       size_t right_start = left_end;
       size_t right_end = std::min(left_end + run, n);
       if (right_start < right_end) {
-        MergeSorted(Range(left_start, left_end), Range(right_start, right_end), temp_ptr, shadow_ptr, left_start);
+        MergeSorted(temp_ptr, Range{left_start, left_end}, Range{right_start, right_end}, shadow_ptr, left_start);
       } else {
         for (size_t i = left_start; i < left_end; i++) {
           shadow_ptr[i] = temp_ptr[i];
