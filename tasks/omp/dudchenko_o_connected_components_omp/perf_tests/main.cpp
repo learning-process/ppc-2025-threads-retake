@@ -79,7 +79,7 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& im
 }
 }  // namespace
 
-TEST(dudchenko_o_connected_components_omp, perf_pipeline_random_image) {
+TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
   const auto img = GenerateTestImage(kLargeWidth, kLargeHeight, 0.3);
   std::vector<int> labels(img.size());
   ImageSpec spec{.width = kLargeWidth, .height = kLargeHeight};
@@ -87,7 +87,7 @@ TEST(dudchenko_o_connected_components_omp, perf_pipeline_random_image) {
   auto td = MakeTaskData(img, spec, labels);
   auto task = std::make_shared<ConnectedComponentsOmp>(td);
 
-  auto perf_attr = MakePerfAttr(5);
+  auto perf_attr = MakePerfAttr(100);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
 
@@ -104,7 +104,7 @@ TEST(dudchenko_o_connected_components_omp, perf_pipeline_random_image) {
   EXPECT_GT(max_label, 0);
 }
 
-TEST(dudchenko_o_connected_components_omp, perf_taskrun_grid_image) {
+TEST(dudchenko_o_connected_components_omp, test_task_run) {
   const auto img = GenerateGridImage(kLargeWidth, kLargeHeight, 8);
   std::vector<int> labels(img.size());
   ImageSpec spec{.width = kLargeWidth, .height = kLargeHeight};
@@ -112,7 +112,7 @@ TEST(dudchenko_o_connected_components_omp, perf_taskrun_grid_image) {
   auto td = MakeTaskData(img, spec, labels);
   auto task = std::make_shared<ConnectedComponentsOmp>(td);
 
-  auto perf_attr = MakePerfAttr(5);
+  auto perf_attr = MakePerfAttr(100);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
 
