@@ -1,11 +1,11 @@
+#include "stl/sdobnov_v_simpson/include/ops_stl.hpp"
+
 #include <algorithm>
 #include <future>
 #include <iostream>
 #include <numeric>
 #include <thread>
 #include <vector>
-
-#include "stl/sdobnov_v_simpson/include/ops_stl.hpp"
 
 namespace sdobnov_v_simpson_stl {
 double Polynomial3d(std::vector<double> point) {
