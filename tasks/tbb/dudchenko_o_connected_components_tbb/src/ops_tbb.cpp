@@ -5,9 +5,9 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <vector>
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 using namespace dudchenko_o_connected_components_tbb;
 
@@ -179,12 +179,12 @@ bool ConnectedComponentsTbb::RunImpl() {
       }
     }
 
-  if (!local_equivalences.empty()) {
-    std::lock_guard<std::mutex> lock(eq_mutex);
-    all_equivalences.insert(all_equivalences.end(), 
-                            local_equivalences.begin(), local_equivalences.end());
-  }
-});
+    if (!local_equivalences.empty()) {
+      std::lock_guard<std::mutex> lock(eq_mutex);
+      all_equivalences.insert(all_equivalences.end(), 
+                              local_equivalences.begin(), local_equivalences.end());
+    }
+  });
 
   ResolveEquivalences(output_labels_, all_equivalences);
   RelabelComponents(output_labels_, components_count_);
