@@ -5,8 +5,9 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <mutex>
 #include <vector>
+#include <mutex>
+#include <unordered_map>
 
 using namespace dudchenko_o_connected_components_tbb;
 
@@ -57,7 +58,9 @@ static void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<
   DisjointSetUnion dsu(max_label + 1);
 
   for (auto& eq : equivalences) {
-    dsu.unite(eq.first, eq.second);
+    if (eq.first <= max_label && eq.second <= max_label) {
+      dsu.unite(eq.first, eq.second);
+    }
   }
 
   for (size_t i = 0; i < labels.size(); ++i) {
@@ -78,18 +81,18 @@ static void RelabelComponents(std::vector<int>& labels, int& component_count) {
     return;
   }
 
-  std::vector<int> new_labels(static_cast<size_t>(max_label) + 1, 0);
+  std::vector<int> new_labels(max_label + 1, 0);
   int current_label = 1;
 
   for (int label : labels) {
-    if (label != 0 && new_labels[static_cast<size_t>(label)] == 0) {
-      new_labels[static_cast<size_t>(label)] = current_label++;
+    if (label != 0 && new_labels[label] == 0) {
+      new_labels[label] = current_label++;
     }
   }
 
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
-      labels[i] = new_labels[static_cast<size_t>(labels[i])];
+      labels[i] = new_labels[labels[i]];
     }
   }
 
@@ -133,48 +136,60 @@ bool ConnectedComponentsTbb::RunImpl() {
   const size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   output_labels_.resize(total_pixels, 0);
 
+  if (input_image_.empty()) {
+    components_count_ = 0;
+    return true;
+  }
+
   std::vector<std::pair<int, int>> all_equivalences;
   std::mutex eq_mutex;
+  int next_label = 1;
+  std::mutex label_mutex;
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, height_), [&](const tbb::blocked_range<int>& range) {
-    std::vector<std::pair<int, int>> local_equivalences;
+  tbb::parallel_for(tbb::blocked_range<int>(0, height_),
+    [&](const tbb::blocked_range<int>& range) {
+      std::vector<std::pair<int, int>> local_equivalences;
 
-    for (int y = range.begin(); y < range.end(); ++y) {
-      for (int x = 0; x < width_; ++x) {
-        size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
+      for (int y = range.begin(); y < range.end(); ++y) {
+        for (int x = 0; x < width_; ++x) {
+          size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
 
-        if (input_image_[idx] == 0) {
-          output_labels_[idx] = 0;
-          continue;
-        }
+          if (input_image_[idx] == 0) {
+            output_labels_[idx] = 0;
+            continue;
+          }
 
-        int left = (x > 0) ? output_labels_[idx - 1] : 0;
-        int top = (y > 0) ? output_labels_[idx - static_cast<size_t>(width_)] : 0;
-
-        if (left == 0 && top == 0) {
-          output_labels_[idx] = (y * width_ + x) + 1;
-        } else if (left != 0 && top == 0) {
-          output_labels_[idx] = left;
-        } else if (left == 0 && top != 0) {
-          output_labels_[idx] = top;
-        } else {
-          int min_label = std::min(left, top);
-          int max_label = std::max(left, top);
-          output_labels_[idx] = min_label;
-          if (min_label != max_label) {
-            local_equivalences.push_back({max_label, min_label});
+          int left = (x > 0) ? output_labels_[idx - 1] : 0;
+          int top = (y > 0) ? output_labels_[idx - static_cast<size_t>(width_)] : 0;
+          
+          if (left == 0 && top == 0) {
+            std::lock_guard<std::mutex> lock(label_mutex);
+            output_labels_[idx] = next_label++;
+          } else if (left != 0 && top == 0) {
+            output_labels_[idx] = left;
+          } else if (left == 0 && top != 0) {
+            output_labels_[idx] = top;
+          } else {
+            int min_label = std::min(left, top);
+            int max_label = std::max(left, top);
+            output_labels_[idx] = min_label;
+            if (min_label != max_label) {
+              local_equivalences.push_back({max_label, min_label});
+            }
           }
         }
       }
-    }
 
-    std::lock_guard<std::mutex> lock(eq_mutex);
-    all_equivalences.insert(all_equivalences.end(), local_equivalences.begin(), local_equivalences.end());
-  });
+      if (!local_equivalences.empty()) {
+        std::lock_guard<std::mutex> lock(eq_mutex);
+        all_equivalences.insert(all_equivalences.end(), 
+                               local_equivalences.begin(), local_equivalences.end());
+      }
+    });
 
   ResolveEquivalences(output_labels_, all_equivalences);
   RelabelComponents(output_labels_, components_count_);
-
+  
   return true;
 }
 
