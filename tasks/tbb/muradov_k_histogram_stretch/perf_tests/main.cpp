@@ -23,7 +23,7 @@ void ExtraCheck(const std::vector<int>& out) {
 }
 }  // namespace
 
-TEST(muradov_k_histogram_stretch, test_pipeline_run) {
+TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
   const int k_size = 600000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);
@@ -61,7 +61,7 @@ TEST(muradov_k_histogram_stretch, test_pipeline_run) {
   ExtraCheck(out);
 }
 
-TEST(muradov_k_histogram_stretch, test_task_run) {
+TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
   const int k_size = 600000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);

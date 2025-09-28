@@ -19,7 +19,7 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(std::vector<int>& in, std::vec
 }
 }  // namespace
 
-TEST(muradov_k_histogram_stretch, stretch_small_vector) {
+TEST(muradov_k_histogram_stretch_tbb, stretch_small_vector) {
   std::vector<int> in{10, 20, 30, 40, 50};
   std::vector<int> out(in.size(), -1);
   auto td = MakeTaskData(in, out);
@@ -32,7 +32,7 @@ TEST(muradov_k_histogram_stretch, stretch_small_vector) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(muradov_k_histogram_stretch, stretch_constant) {
+TEST(muradov_k_histogram_stretch_tbb, stretch_constant) {
   std::vector<int> in(100, 77);
   std::vector<int> out(in.size(), -1);
   auto td = MakeTaskData(in, out);
@@ -44,7 +44,7 @@ TEST(muradov_k_histogram_stretch, stretch_constant) {
   EXPECT_TRUE(std::ranges::all_of(out, [](int v) { return v == 0; }));
 }
 
-TEST(muradov_k_histogram_stretch, validation_invalid_range) {
+TEST(muradov_k_histogram_stretch_tbb, validation_invalid_range) {
   std::vector<int> in{0, 10, 260};
   std::vector<int> out(in.size(), 0);
   auto td = MakeTaskData(in, out);
@@ -52,7 +52,7 @@ TEST(muradov_k_histogram_stretch, validation_invalid_range) {
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(muradov_k_histogram_stretch, stretch_full_range_preserve) {
+TEST(muradov_k_histogram_stretch_tbb, stretch_full_range_preserve) {
   std::vector<int> in(256, 0);
   for (int i = 0; i < 256; ++i) {
     in[i] = i;
@@ -67,7 +67,7 @@ TEST(muradov_k_histogram_stretch, stretch_full_range_preserve) {
   EXPECT_EQ(out, in);
 }
 
-TEST(muradov_k_histogram_stretch, output_min_zero_max_255) {
+TEST(muradov_k_histogram_stretch_tbb, output_min_zero_max_255) {
   std::vector<int> in{50, 60, 200, 180, 55, 190};
   std::vector<int> out(in.size(), 0);
   auto td = MakeTaskData(in, out);
