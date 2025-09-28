@@ -94,8 +94,8 @@ void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_
   HandleBothNeighbors(pixel_labels, union_find, idx, left_label_value, top_label_value);
 }
 
-void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent, 
-                                               int& next_label, size_t idx) {
+void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent,
+                                                int& next_label, size_t idx) {
 #pragma omp critical
   {
     pixel_labels[idx] = next_label;
@@ -107,8 +107,8 @@ void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, 
   }
 }
 
-void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent, size_t idx, 
-                                                int left_neighbor_label, int top_neighbor_label) {
+void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent,
+                                                 size_t idx, int left_neighbor_label, int top_neighbor_label) {
   const int min_label = std::min(left_neighbor_label, top_neighbor_label);
   const int max_label = std::max(left_neighbor_label, top_neighbor_label);
 
@@ -128,27 +128,24 @@ void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels,
   UnionComponents(union_find_parent, min_label, max_label, root_min, root_max);
 }
 
-void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find_parent, int min_label_val, int max_label_val, 
-                                            int root_min_val, int root_max_val) {
+void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find_parent, int min_label_val, int max_label_val,
+                                             int root_min_val, int root_max_val) {
   const int new_root = std::min(root_min_val, root_max_val);
   const int old_root = std::max(root_min_val, root_max_val);
 
 #pragma omp critical(union_update)
   {
-    union_find_parent[old_root] = new_root;
-  }
+  { union_find_parent[old_root] = new_root; }
 
   if (min_label_val != root_min_val) {
 #pragma omp critical(union_update)
     {
-      union_find_parent[min_label_val] = new_root;
-    }
+      union_find_parent[min_label_val] = new_root;}
   }
   if (max_label_val != root_max_val) {
 #pragma omp critical(union_update)
     {
-      union_find_parent[max_label_val] = new_root;
-    }
+    { union_find_parent[min_label_val] = new_root; }
   }
 }
 
