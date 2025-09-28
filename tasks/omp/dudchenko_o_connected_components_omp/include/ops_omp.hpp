@@ -24,12 +24,12 @@ class ConnectedComponentsOmp : public ppc::core::Task {
   int height_ = 0;
   int components_count_ = 0;
 
-  void ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label);
-  static void CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label,
-                                 size_t idx);
-  static void HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find, size_t idx,
-                                  int left_label, int top_label);
-  static void UnionComponents(std::vector<int>& union_find, int min_label, int max_label, int root_min, int root_max);
+  void ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find_parent, int& next_label);
+  static void CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent, int& next_label, size_t idx);
+  static void HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent, size_t idx, 
+                                  int left_neighbor_label, int top_neighbor_label);
+  static void UnionComponents(std::vector<int>& union_find_parent, int min_label_val, int max_label_val, int root_min_val, 
+                              int root_max_val);
   void ResolveLabels(std::vector<int>& labels, const std::vector<int>& parent);
   void CompactLabels(const std::vector<int>& labels);
   [[nodiscard]] static int FindRoot(const std::vector<int>& parent, int x);

@@ -94,22 +94,23 @@ void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_
   HandleBothNeighbors(pixel_labels, union_find, idx, left_label_value, top_label_value);
 }
 
-void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find,
-                                                int& next_label, size_t idx) {
+void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent, 
+                                               int& next_label, size_t idx) {
 #pragma omp critical
   {
     pixel_labels[idx] = next_label;
-    if (static_cast<size_t>(next_label) >= union_find.size()) {
-      union_find.resize(next_label * 2, 0);
+    if (static_cast<size_t>(next_label) >= union_find_parent.size()) {
+      union_find_parent.resize(next_label * 2, 0);
     }
-    union_find[next_label] = next_label;
+    union_find_parent[next_label] = next_label;
     next_label++;
   }
 }
-void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find,
-                                                 size_t idx, int left_label, int top_label) {
-  const int min_label = std::min(left_label, top_label);
-  const int max_label = std::max(left_label, top_label);
+
+void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find_parent, size_t idx, 
+                                                int left_neighbor_label, int top_neighbor_label) {
+  const int min_label = std::min(left_neighbor_label, top_neighbor_label);
+  const int max_label = std::max(left_neighbor_label, top_neighbor_label);
 
   pixel_labels[idx] = min_label;
 
@@ -117,31 +118,37 @@ void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels,
     return;
   }
 
-  const int root_min = FindRoot(union_find, min_label);
-  const int root_max = FindRoot(union_find, max_label);
+  const int root_min = FindRoot(union_find_parent, min_label);
+  const int root_max = FindRoot(union_find_parent, max_label);
 
   if (root_min == root_max) {
     return;
   }
 
-  UnionComponents(union_find, min_label, max_label, root_min, root_max);
+  UnionComponents(union_find_parent, min_label, max_label, root_min, root_max);
 }
 
-void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find, int min_label, int max_label, int root_min,
-                                             int root_max) {
-  const int new_root = std::min(root_min, root_max);
-  const int old_root = std::max(root_min, root_max);
+void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find_parent, int min_label_val, int max_label_val, 
+                                            int root_min_val, int root_max_val) {
+  const int new_root = std::min(root_min_val, root_max_val);
+  const int old_root = std::max(root_min_val, root_max_val);
 
 #pragma omp critical(union_update)
-  union_find[old_root] = new_root;
-
-  if (min_label != root_min) {
-#pragma omp critical(union_update)
-    union_find[min_label] = new_root;
+  {
+    union_find_parent[old_root] = new_root;
   }
-  if (max_label != root_max) {
+
+  if (min_label_val != root_min_val) {
 #pragma omp critical(union_update)
-    union_find[max_label] = new_root;
+    {
+      union_find_parent[min_label_val] = new_root;
+    }
+  }
+  if (max_label_val != root_max_val) {
+#pragma omp critical(union_update)
+    {
+      union_find_parent[max_label_val] = new_root;
+    }
   }
 }
 
