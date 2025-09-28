@@ -1,4 +1,4 @@
-#include "seq/makadrai_g_histogram_linear_stretching/include/ops_seq.hpp"
+#include "seq/makadrai_g_histogram_linear_stretching_seq/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-bool makadrai_g_histogram_linear_stretching::TestTaskSequential::PreProcessingImpl() {
+bool makadrai_g_histogram_linear_stretching_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<uint8_t *>(task_data->inputs[0]);
@@ -15,12 +15,12 @@ bool makadrai_g_histogram_linear_stretching::TestTaskSequential::PreProcessingIm
   return true;
 }
 
-bool makadrai_g_histogram_linear_stretching::TestTaskSequential::ValidationImpl() {
+bool makadrai_g_histogram_linear_stretching_seq::TestTaskSequential::ValidationImpl() {
   // Check equality of counts elements
   return task_data->inputs_count[0] != 0 && task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool makadrai_g_histogram_linear_stretching::TestTaskSequential::RunImpl() {
+bool makadrai_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {
   uint8_t min = *std::ranges::min_element(img_);
   uint8_t max = *std::ranges::max_element(img_);
 
@@ -34,7 +34,7 @@ bool makadrai_g_histogram_linear_stretching::TestTaskSequential::RunImpl() {
   return true;
 }
 
-bool makadrai_g_histogram_linear_stretching::TestTaskSequential::PostProcessingImpl() {
+bool makadrai_g_histogram_linear_stretching_seq::TestTaskSequential::PostProcessingImpl() {
   for (size_t i = 0; i < res_.size(); i++) {
     reinterpret_cast<uint8_t *>(task_data->outputs[0])[i] = res_[i];
   }

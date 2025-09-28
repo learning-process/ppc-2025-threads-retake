@@ -13,7 +13,7 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "seq/makadrai_g_histogram_linear_stretching/include/ops_seq.hpp"
+#include "seq/makadrai_g_histogram_linear_stretching_seq/include/ops_seq.hpp"
 
 namespace {
 std::vector<uint8_t> GetRandomImage(int sz) {
@@ -30,17 +30,17 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }
 }  // namespace
 #ifndef _WIN32
-TEST(makadrai_g_histogram_linear_stretching, test_opencv_image_validation) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_opencv_image_validation) {
   // loading template orginal img
   cv::Mat input_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_orig.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_orig.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   ASSERT_FALSE(input_image.empty());
 
   // loading template modified img
   cv::Mat reference_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_mod.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_mod.jpg"),
                  cv::IMREAD_GRAYSCALE);
   ASSERT_FALSE(reference_image.empty());
 
@@ -49,15 +49,15 @@ TEST(makadrai_g_histogram_linear_stretching, test_opencv_image_validation) {
   ASSERT_EQ(input_image.type(), reference_image.type());
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_opencv_manual_64x64) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_opencv_manual_64x64) {
   // loading template orginal img
   cv::Mat input_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_orig.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_orig.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   // loading template modified img
   cv::Mat reference_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_mod.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_mod.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   std::vector<uint8_t> input_vector(input_image.total());
@@ -75,7 +75,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_opencv_manual_64x64) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_vector.data()));
   task_data_seq->outputs_count.emplace_back(output_vector.size());
 
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   EXPECT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
@@ -88,7 +88,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_opencv_manual_64x64) {
   EXPECT_GT(psnr, 60.0);
 }
 #endif
-TEST(makadrai_g_histogram_linear_stretching, test_manual_9) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_manual_9) {
   // Create data
   std::vector<uint8_t> in = {100, 50, 200, 75, 150, 25, 175, 125, 225};
   std::vector<uint8_t> out(in.size());
@@ -100,7 +100,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_manual_9) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -108,7 +108,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_manual_9) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_manual_10) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_manual_10) {
   // Create data
   std::vector<uint8_t> in = {30, 40, 50, 60, 70, 80, 90, 100, 110, 120};
   std::vector<uint8_t> out(in.size());
@@ -122,7 +122,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_manual_10) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -130,7 +130,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_manual_10) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_manual_25) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_manual_25) {
   // Create data
   std::vector<uint8_t> in = {12,  25,  88, 14,  65,  79, 64, 128, 122, 220, 138, 147, 215,
                              211, 189, 89, 167, 181, 2,  12, 34,  25,  85,  75,  77};
@@ -146,7 +146,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_manual_25) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -154,7 +154,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_manual_25) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_stretched) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_stretched) {
   // Create data (already has 0 and 255 in it)
   std::vector<uint8_t> in = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 255, 19, 20, 21, 22, 23};
   std::vector<uint8_t> out(in.size());
@@ -168,7 +168,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_stretched) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -176,7 +176,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_stretched) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_boundary_values) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_boundary_values) {
   // Create data
   std::vector<uint8_t> in = {0, 1, 254, 255};
   std::vector<uint8_t> out(in.size());
@@ -188,7 +188,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_boundary_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -196,7 +196,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_boundary_values) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_flat) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_flat) {
   // Create data
   std::vector<uint8_t> in = {128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
                              128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128};
@@ -211,7 +211,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_flat) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -219,7 +219,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_flat) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_single_non_flat_pixel) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_single_non_flat_pixel) {
   // Create data
   std::vector<uint8_t> in = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0};
@@ -234,7 +234,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_single_non_flat_pixel) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -242,7 +242,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_single_non_flat_pixel) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_single_non_flat_pixel_2) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_single_non_flat_pixel_2) {
   // Create data
   std::vector<uint8_t> in = {36, 36, 36, 36, 36,  36, 36, 36, 36, 36, 36, 36, 36, 36,
                              36, 36, 36, 36, 128, 36, 36, 36, 36, 36, 36, 36, 36, 36};
@@ -257,7 +257,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_single_non_flat_pixel_2) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -265,7 +265,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_single_non_flat_pixel_2) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_10k_generated) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_10k_generated) {
   // Create data
   const int sz = 10000;
   std::vector<uint8_t> in = GetRandomImage(sz);
@@ -288,7 +288,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_10k_generated) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -297,7 +297,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_10k_generated) {
   EXPECT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_empty) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_empty) {
   // Create data
   std::vector<uint8_t> in;
   std::vector<uint8_t> out;
@@ -309,11 +309,11 @@ TEST(makadrai_g_histogram_linear_stretching, test_empty) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_in_out_NE) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_in_out_NE) {
   // Create data
   std::vector<uint8_t> in(12, 0);
   std::vector<uint8_t> out(11, 0);
@@ -325,6 +325,6 @@ TEST(makadrai_g_histogram_linear_stretching, test_in_out_NE) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  makadrai_g_histogram_linear_stretching::TestTaskSequential test_task_sequential(task_data_seq);
+  makadrai_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }

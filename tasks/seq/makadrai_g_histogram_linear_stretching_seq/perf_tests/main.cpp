@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/makadrai_g_histogram_linear_stretching/include/ops_seq.hpp"
+#include "seq/makadrai_g_histogram_linear_stretching_seq/include/ops_seq.hpp"
 
 namespace {
 std::vector<uint8_t> GetRandomImage(int sz) {
@@ -28,7 +28,7 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }
 }  // namespace
 
-TEST(makadrai_g_histogram_linear_stretching, test_pipeline_run) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_pipeline_run) {
   constexpr int kCount = 10000000;
 
   // Create data
@@ -53,7 +53,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_pipeline_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<makadrai_g_histogram_linear_stretching::TestTaskSequential>(task_data_seq);
+      std::make_shared<makadrai_g_histogram_linear_stretching_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -75,7 +75,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_pipeline_run) {
   ASSERT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching, test_task_run) {
+TEST(makadrai_g_histogram_linear_stretching_seq, test_task_run) {
   constexpr int kCount = 10000000;
 
   // Create data
@@ -100,7 +100,7 @@ TEST(makadrai_g_histogram_linear_stretching, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<makadrai_g_histogram_linear_stretching::TestTaskSequential>(task_data_seq);
+      std::make_shared<makadrai_g_histogram_linear_stretching_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
