@@ -101,9 +101,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
 
           if (root_left != root_top) {
 #pragma omp critical
-            {
-              UnionSets(parent_structure, root_left, root_top);
-            }
+            { UnionSets(parent_structure, root_left, root_top); }
           }
         }
       }
