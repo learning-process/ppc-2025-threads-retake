@@ -19,7 +19,7 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
     return low;
   }
 
-  int pivot = arr[low + (high - low) / 2];
+  int pivot = arr[low + ((high - low) / 2)];
   int i = low - 1;
   int j = high + 1;
 
@@ -86,7 +86,7 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
     return;
   }
 
-  int i = range.start + (range.mid - range.start) / 2;
+  int i = range.start + ((range.mid - range.start) / 2);
   if (i < range.start || i > range.mid) {
     i = range.start;
   }
@@ -102,7 +102,7 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
   int j = static_cast<int>(j_iter - arr.begin());
 
   if (range.start <= i - 1 && j - 1 >= range.start && i - 1 >= range.start) {
-    MergeRange left_range{.start = range.start, .mid = i - 1, .end = j - 1};
+    MergeRange left_range{range.start, i - 1, j - 1};
     if (left_range.start <= left_range.mid && left_range.mid <= left_range.end) {
 #pragma omp task default(none) shared(arr) firstprivate(left_range)
       { ParallelMerge(arr, left_range); }
@@ -110,7 +110,7 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
   }
 
   if (i <= range.mid && range.end >= j && j <= range.end) {
-    MergeRange right_range{.start = i, .mid = range.mid, .end = range.end};
+    MergeRange right_range{i, range.mid, range.end};
     if (right_range.start <= right_range.mid && right_range.mid <= right_range.end) {
 #pragma omp task default(none) shared(arr) firstprivate(right_range)
       { ParallelMerge(arr, right_range); }
@@ -131,7 +131,7 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
     int pi = PartitionHoare(arr, low, high);
 
     if (pi < low || pi > high) {
-      pi = low + (high - low) / 2;
+      pi = low + ((high - low) / 2);
     }
 
     if (low < pi) {
@@ -147,7 +147,7 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
 #pragma omp taskwait
 
     if (low <= pi && pi < high) {
-      MergeRange merge_range{.start = low, .mid = pi, .end = high};
+      MergeRange merge_range{low, pi, high};
       if (merge_range.start <= merge_range.mid && merge_range.mid < merge_range.end) {
         ParallelMerge(arr, merge_range);
       }
