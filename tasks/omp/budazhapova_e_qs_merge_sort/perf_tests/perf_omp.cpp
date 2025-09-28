@@ -24,7 +24,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_pipeline_run) {
 
   std::vector<int> out(kCount, 0);
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -67,7 +67,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_task_run) {
 
   std::vector<int> out(kCount, 0);
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();

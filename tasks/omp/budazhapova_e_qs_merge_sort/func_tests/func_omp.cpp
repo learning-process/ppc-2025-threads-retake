@@ -72,8 +72,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_large_array) {
   std::iota(in.begin(), in.end(), 0);
   std::vector<int> expected = in;
 
-  // Reverse the array to make it unsorted
-  std::reverse(in.begin(), in.end());
+  std::ranges::reverse(in);
 
   std::vector<int> out(kCount, 0);
 
@@ -185,8 +184,6 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_single_element) {
 }
 
 TEST(budazhapova_e_qs_merge_sort_omp, test_sort_empty_array) {
-  constexpr size_t kCount = 0;
-
   std::vector<int> in = {};
   std::vector<int> expected = {};
   std::vector<int> out = {};
