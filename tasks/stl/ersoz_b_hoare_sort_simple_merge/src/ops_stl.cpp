@@ -104,8 +104,13 @@ bool HoareSortSimpleMergeSTL::ValidationImpl() {
 
 bool HoareSortSimpleMergeSTL::RunImpl() {
   std::size_t n = input_.size();
-  if (n <= 1) {
-    output_ = input_;
+  if (n == 0) {
+    output_.clear();
+    return true;
+  }
+  if (n == 1) {
+    // PreProcessingImpl already sized output_ = 1
+    output_[0] = input_[0];
     return true;
   }
   long long mid = Partition(input_, 0, static_cast<long long>(n - 1));
@@ -115,10 +120,6 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
   if (mid < static_cast<long long>(n)) {
     QuickSortHoare(input_, mid, static_cast<long long>(n - 1));
   }
-  if (output_.empty()) {
-    return true;
-  }
-
   if (mid < 0) {
     mid = 0;
   } else if (mid > static_cast<long long>(n)) {
