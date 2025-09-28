@@ -94,8 +94,8 @@ void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_
   HandleBothNeighbors(pixel_labels, union_find, idx, left_label_value, top_label_value);
 }
 
-void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find,
-                                                int& next_label, size_t index) {
+void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find, 
+                                               int& next_label, size_t idx) {
 #pragma omp critical
   {
     pixel_labels[idx] = next_label;
@@ -107,25 +107,25 @@ void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, 
   }
 }
 
-void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& labels, std::vector<int>& parent, size_t idx,
+void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find, size_t idx, 
                                                  int left_label, int top_label) {
-  const int min_label_value = std::min(left_label_value, top_label_value);
-  const int max_label_value = std::max(left_label_value, top_label_value);
+  const int min_label = std::min(left_label, top_label);
+  const int max_label = std::max(left_label, top_label);
 
-  pixel_labels[idx] = min_label_value;
+  pixel_labels[idx] = min_label;
 
-  if (min_label_value == max_label_value) {
+  if (min_label == max_label) {
     return;
   }
 
-  const int root_min = FindRoot(union_find, min_label_value);
-  const int root_max = FindRoot(union_find, max_label_value);
+  const int root_min = FindRoot(union_find, min_label);
+  const int root_max = FindRoot(union_find, max_label);
 
   if (root_min == root_max) {
     return;
   }
 
-  UnionComponents(union_find, min_label_value, max_label_value, root_min, root_max);
+  UnionComponents(union_find, min_label, max_label, root_min, root_max);
 }
 
 void ConnectedComponentsOmp::UnionComponents(std::vector<int>& parent, int min_label, int max_label, int root_min,
