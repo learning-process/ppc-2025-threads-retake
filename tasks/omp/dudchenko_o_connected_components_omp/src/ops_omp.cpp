@@ -94,8 +94,8 @@ void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_
   HandleBothNeighbors(pixel_labels, union_find, idx, left_label_value, top_label_value);
 }
 
-void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find, 
-                                               int& next_label, size_t idx) {
+void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find,
+                                                int& next_label, size_t idx) {
 #pragma omp critical
   {
     pixel_labels[idx] = next_label;
@@ -106,8 +106,8 @@ void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, 
     next_label++;
   }
 }
-void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find, size_t idx, 
-                                                 int left_label, int top_label) {
+void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find,
+                                                 size_t idx, int left_label, int top_label) {
   const int min_label = std::min(left_label, top_label);
   const int max_label = std::max(left_label, top_label);
 
