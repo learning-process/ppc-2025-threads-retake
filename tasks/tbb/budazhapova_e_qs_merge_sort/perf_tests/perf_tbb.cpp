@@ -36,7 +36,7 @@ TEST(budazhapova_e_qs_merge_sort_tbb, test_pipeline_run) {
   // Create Task
   auto sort_task_tbb = std::make_shared<budazhapova_e_qs_merge_sort_tbb::QSMergeSortTBB>(task_data_tbb);
 
-  // Create Perf attributes
+  // Create Perf attribute
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
