@@ -3,9 +3,9 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
 #include <oneapi/tbb/spin_mutex.h>
-#include <oneapi/tbb/task_arena.h>
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_invoke.h>
+#include <tbb/task_arena.h>
 
 #include <algorithm>
 #include <cmath>
