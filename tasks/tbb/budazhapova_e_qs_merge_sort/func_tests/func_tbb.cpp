@@ -15,8 +15,8 @@ TEST(budazhapova_e_qs_merge_sort_tbb, test_sort_small_array) {
   constexpr size_t kCount = 10;
 
   // Create data - small unsorted array
-  std::vector<int> in = { 5, 2, 8, 1, 9, 3, 7, 4, 6, 0 };
-  std::vector<int> expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  std::vector<int> in = {5, 2, 8, 1, 9, 3, 7, 4, 6, 0};
+  std::vector<int> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   std::vector<int> out(kCount, 0);
 
   // Create task_data
@@ -140,8 +140,8 @@ TEST(budazhapova_e_qs_merge_sort_tbb, test_sort_reverse_sorted) {
 TEST(budazhapova_e_qs_merge_sort_tbb, test_sort_with_duplicates) {
   constexpr size_t kCount = 20;
 
-  std::vector<int> in = { 3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4 };
-  std::vector<int> expected = { 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8, 8, 9, 9, 9 };
+  std::vector<int> in = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4};
+  std::vector<int> expected = {1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8, 8, 9, 9, 9};
   std::vector<int> out(kCount, 0);
 
   // Create task_data
@@ -163,8 +163,8 @@ TEST(budazhapova_e_qs_merge_sort_tbb, test_sort_with_duplicates) {
 TEST(budazhapova_e_qs_merge_sort_tbb, test_sort_single_element) {
   constexpr size_t kCount = 1;
 
-  std::vector<int> in = { 42 };
-  std::vector<int> expected = { 42 };
+  std::vector<int> in = {42};
+  std::vector<int> expected = {42};
   std::vector<int> out(kCount, 0);
 
   // Create task_data

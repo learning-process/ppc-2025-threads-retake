@@ -7,16 +7,16 @@
 
 namespace budazhapova_e_qs_merge_sort_tbb {
 
-  class QSMergeSortTBB : public ppc::core::Task {
-  public:
-    explicit QSMergeSortTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
-    bool PreProcessingImpl() override;
-    bool ValidationImpl() override;
-    bool RunImpl() override;
-    bool PostProcessingImpl() override;
+class QSMergeSortTBB : public ppc::core::Task {
+ public:
+  explicit QSMergeSortTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  bool PreProcessingImpl() override;
+  bool ValidationImpl() override;
+  bool RunImpl() override;
+  bool PostProcessingImpl() override;
 
-  private:
-    std::vector<int> input_, output_;
-  };
+ private:
+  std::vector<int> input_, output_;
+};
 
 }  // namespace budazhapova_e_qs_merge_sort_tbb
