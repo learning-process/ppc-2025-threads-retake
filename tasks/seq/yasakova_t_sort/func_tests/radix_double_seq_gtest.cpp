@@ -4,7 +4,7 @@
 #include <limits>
 #include <random>
 
-#include "radix_double_seq.hpp"
+#include "seq/yasakova_t_sort/include/radix_double_seq.hpp"
 
 using namespace yasakova_t_sort_seq;
 
