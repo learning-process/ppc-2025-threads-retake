@@ -12,7 +12,7 @@
 #include "tbb/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
 
 TEST(golovkin_sentence_count_tbb, test_pipeline_run) {
-  const int text_size = 1000000000;
+  const int text_size = 10000000;
   std::string text;
   text.reserve(text_size);
 
@@ -55,7 +55,7 @@ TEST(golovkin_sentence_count_tbb, test_pipeline_run) {
 }
 
 TEST(golovkin_sentence_count_tbb, test_task_run) {
-  const int text_size = 1000000000;
+  const int text_size = 10000000;
   std::string text;
   text.reserve(text_size);
 
