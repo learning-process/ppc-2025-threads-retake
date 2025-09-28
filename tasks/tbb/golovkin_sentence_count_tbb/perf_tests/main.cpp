@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
+#include "tbb/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
 
 TEST(golovkin_sentence_count_tbb, test_pipeline_run) {
   const int text_size = 1000000000;

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
+#include "tbb/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
 
 TEST(golovkin_sentence_count_tbb, test_empty_string) {
   std::string text;
