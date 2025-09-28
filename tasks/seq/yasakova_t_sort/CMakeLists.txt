@@ -13,5 +13,5 @@ target_sources(seq_tests PRIVATE
     perf_tests/perf_seq.cpp
 )
 
-# И даём раннеру доступ к нашей библиотеке
+# Даём раннеру доступ к нашей библиотеке
 target_link_libraries(seq_tests PRIVATE ${PROJ})
