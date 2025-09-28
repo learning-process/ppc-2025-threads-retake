@@ -1,16 +1,90 @@
 #include "tbb/yasakova_t_sort/include/radix_double_tbb.hpp"
 
-#include <tbb/parallel_for.h>
-#include <tbb/task_arena.h>
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <utility>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/task_arena.h"
+
 namespace yasakova_t_sort_tbb {
+
+namespace {
+
+void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys) {
+  tbb::parallel_for(size_t(0), nonnan.size(), [&](size_t i) { keys[i] = ToKey(nonnan[i]); });
+}
+
+void ComputeLocalCounts(const std::vector<uint64_t>& keys, std::vector<std::array<size_t, 256>>& local_counts,
+                        size_t chunks, size_t chunk_size, size_t n, int shift) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, chunks), [&](const auto& range) {
+    for (size_t chunk = range.begin(); chunk != range.end(); ++chunk) {
+      const size_t begin = chunk * chunk_size;
+      const size_t end = std::min(n, begin + chunk_size);
+      auto& local = local_counts[chunk];
+      local.fill(0);
+      for (size_t i = begin; i < end; ++i) {
+        ++local[static_cast<uint8_t>(keys[i] >> shift)];
+      }
+    }
+  });
+}
+
+std::array<size_t, 256> AggregateCounts(const std::vector<std::array<size_t, 256>>& local_counts) {
+  std::array<size_t, 256> global_counts{};
+  for (const auto& local : local_counts) {
+    for (int bucket = 0; bucket < 256; ++bucket) {
+      global_counts[bucket] += local[bucket];
+    }
+  }
+  return global_counts;
+}
+
+void PrefixSums(std::array<size_t, 256>& counts) {
+  size_t sum = 0;
+  for (int bucket = 0; bucket < 256; ++bucket) {
+    const auto current = counts[bucket];
+    counts[bucket] = sum;
+    sum += current;
+  }
+}
+
+std::vector<std::array<size_t, 256>> PreparePositions(const std::vector<std::array<size_t, 256>>& local_counts,
+                                                      const std::array<size_t, 256>& global_counts) {
+  std::vector<std::array<size_t, 256>> positions(local_counts.size());
+  for (int bucket = 0; bucket < 256; ++bucket) {
+    size_t pos = global_counts[bucket];
+    for (size_t chunk = 0; chunk < local_counts.size(); ++chunk) {
+      positions[chunk][bucket] = pos;
+      pos += local_counts[chunk][bucket];
+    }
+  }
+  return positions;
+}
+
+void ScatterIntoBuffer(const std::vector<uint64_t>& keys, std::vector<uint64_t>& buffer,
+                       const std::vector<std::array<size_t, 256>>& positions, size_t chunks, size_t chunk_size,
+                       size_t n, int shift) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, chunks), [&](const auto& range) {
+    for (size_t chunk = range.begin(); chunk != range.end(); ++chunk) {
+      const size_t begin = chunk * chunk_size;
+      const size_t end = std::min(n, begin + chunk_size);
+      auto local_pos = positions[chunk];
+      for (size_t i = begin; i < end; ++i) {
+        const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
+        buffer[local_pos[bucket]++] = keys[i];
+      }
+    }
+  });
+}
+
+void ScatterValues(std::vector<double>& nonnan, const std::vector<uint64_t>& keys) {
+  tbb::parallel_for(size_t(0), nonnan.size(), [&](size_t i) { nonnan[i] = FromKey(keys[i]); });
+}
+
+}  // namespace
 
 bool SortTaskTBB::ValidationImpl() {
   if (!task_data) {
@@ -65,68 +139,29 @@ void RadixSortDoubleTbb(std::vector<double>& data) {
   }
 
   std::vector<uint64_t> keys(n);
-  tbb::parallel_for(size_t(0), n, [&](size_t i) { keys[i] = ToKey(nonnan[i]); });
+  ComputeLocalKeys(nonnan, keys);
 
-  std::vector<uint64_t> buffer(n);
   auto chunks = std::max<size_t>(1, tbb::this_task_arena::max_concurrency());
   chunks = std::min(chunks, n);
   const size_t chunk_size = (n + chunks - 1) / chunks;
 
+  std::vector<uint64_t> buffer(n);
   for (int pass = 0; pass < 8; ++pass) {
     const int shift = pass * 8;
+
     std::vector<std::array<size_t, 256>> local_counts(chunks);
+    ComputeLocalCounts(keys, local_counts, chunks, chunk_size, n, shift);
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, chunks), [&](const auto& range) {
-      for (size_t chunk = range.begin(); chunk != range.end(); ++chunk) {
-        const size_t begin = chunk * chunk_size;
-        const size_t end = std::min(n, begin + chunk_size);
-        auto& local = local_counts[chunk];
-        local.fill(0);
-        for (size_t i = begin; i < end; ++i) {
-          ++local[static_cast<uint8_t>(keys[i] >> shift)];
-        }
-      }
-    });
+    auto global_counts = AggregateCounts(local_counts);
+    PrefixSums(global_counts);
 
-    std::array<size_t, 256> global_counts{};
-    for (size_t chunk = 0; chunk < chunks; ++chunk) {
-      for (int bucket = 0; bucket < 256; ++bucket) {
-        global_counts[bucket] += local_counts[chunk][bucket];
-      }
-    }
-
-    size_t sum = 0;
-    for (int bucket = 0; bucket < 256; ++bucket) {
-      const auto current = global_counts[bucket];
-      global_counts[bucket] = sum;
-      sum += current;
-    }
-
-    std::vector<std::array<size_t, 256>> positions(chunks);
-    for (int bucket = 0; bucket < 256; ++bucket) {
-      size_t pos = global_counts[bucket];
-      for (size_t chunk = 0; chunk < chunks; ++chunk) {
-        positions[chunk][bucket] = pos;
-        pos += local_counts[chunk][bucket];
-      }
-    }
-
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, chunks), [&](const auto& range) {
-      for (size_t chunk = range.begin(); chunk != range.end(); ++chunk) {
-        const size_t begin = chunk * chunk_size;
-        const size_t end = std::min(n, begin + chunk_size);
-        auto local_pos = positions[chunk];
-        for (size_t i = begin; i < end; ++i) {
-          const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
-          buffer[local_pos[bucket]++] = keys[i];
-        }
-      }
-    });
+    const auto positions = PreparePositions(local_counts, global_counts);
+    ScatterIntoBuffer(keys, buffer, positions, chunks, chunk_size, n, shift);
 
     keys.swap(buffer);
   }
 
-  tbb::parallel_for(size_t(0), n, [&](size_t i) { nonnan[i] = FromKey(keys[i]); });
+  ScatterValues(nonnan, keys);
 
   data = std::move(nonnan);
   data.insert(data.end(), nans.begin(), nans.end());
