@@ -6,7 +6,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -24,7 +23,7 @@ ParallelPlan MakePlan(size_t total) {
   const size_t threads = static_cast<size_t>(std::max(1, omp_get_max_threads()));
   const size_t clamped_threads = std::min(threads, total);
   const size_t chunk_size = (total + clamped_threads - 1) / clamped_threads;
-  return ParallelPlan{clamped_threads, chunk_size, total};
+  return ParallelPlan{.threads = clamped_threads, .chunk_size = chunk_size, .total = total};
 }
 
 void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys) {
