@@ -12,11 +12,15 @@
 #include "omp/tarakanov_d_fox_algorithm/include/ops_omp.hpp"
 
 namespace {
-std::vector<double> GenerateRandomMatrix(size_t n, double min_val, double max_val) {
+struct LimitsStruct {
+  double min_val;
+  double max_val;
+};
+
+std::vector<double> GenerateRandomMatrix(size_t n, LimitsStruct limits) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(min_val, max_val);
-
+  std::uniform_real_distribution<> dis(limits.min_val, limits.max_val);
   std::vector<double> matrix(n * n);
   for (size_t i = 0; i < n * n; ++i) {
     matrix[i] = dis(gen);
@@ -195,8 +199,9 @@ TEST(tarakanov_d_fox_algorithm_omp, identity_times_arbitrary_3x3) {
 TEST(tarakanov_d_fox_algorithm_omp, test_random_6x6) {
   constexpr size_t kN = 6;
 
-  std::vector<double> a = GenerateRandomMatrix(kN, -10.0, 10.0);
-  std::vector<double> b = GenerateRandomMatrix(kN, -10.0, 10.0);
+  LimitsStruct limits{.min_val = -10.0, .max_val = 10.0};
+  std::vector<double> a = GenerateRandomMatrix(kN, limits);
+  std::vector<double> b = GenerateRandomMatrix(kN, limits);
   std::vector<double> out(kN * kN, 0.0);
 
   std::vector<double> expected(kN * kN, 0.0);
