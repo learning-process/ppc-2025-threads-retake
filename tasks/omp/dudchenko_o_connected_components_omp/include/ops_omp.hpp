@@ -23,10 +23,12 @@ class ConnectedComponentsOmp : public ppc::core::Task {
   int height_ = 0;
   int components_count_ = 0;
 
-  void ProcessPixel(int x, int y, std::vector<int>& labels, std::vector<int>& parent, int& next_label);
+  void ProcessPixel(int x, int y, std::vector<int>& out_labels, std::vector<int>& union_parent, int& next_label);
+  void CreateNewComponent(std::vector<int>& labels, std::vector<int>& parent, int& next_label, size_t idx);
+  void HandleBothNeighbors(std::vector<int>& labels, std::vector<int>& parent, size_t idx, int left_label, int top_label);
   void ResolveLabels(std::vector<int>& labels, const std::vector<int>& parent);
   void CompactLabels(const std::vector<int>& labels);
-  int FindRoot(std::vector<int>& parent, int x) const;
+  int FindRoot(const std::vector<int>& parent, int x) const;
 };
 
 }  // namespace dudchenko_o_connected_components_omp
