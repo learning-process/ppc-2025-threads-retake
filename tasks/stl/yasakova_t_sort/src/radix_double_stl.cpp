@@ -19,6 +19,95 @@ size_t ClampThreads(size_t requested, size_t n) {
   return std::max<size_t>(1, std::min(requested, n));
 }
 
+void RunParallel(size_t threads, size_t chunk_size, size_t n, const auto& fn) {
+  std::vector<std::thread> workers;
+  workers.reserve(threads);
+  for (size_t t = 0; t < threads; ++t) {
+    const size_t begin = t * chunk_size;
+    if (begin >= n) {
+      break;
+    }
+    const size_t end = std::min(n, begin + chunk_size);
+    workers.emplace_back([&, begin, end, t]() { fn(begin, end, t); });
+  }
+  for (auto& worker : workers) {
+    worker.join();
+  }
+}
+
+void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys, size_t threads, size_t chunk_size,
+                      size_t n) {
+  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t) {
+    for (size_t i = begin; i < end; ++i) {
+      keys[i] = ToKey(nonnan[i]);
+    }
+  });
+}
+
+void ComputeLocalCounts(const std::vector<uint64_t>& keys, std::vector<std::array<size_t, 256>>& local_counts,
+                        size_t threads, size_t chunk_size, size_t n, int shift) {
+  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t thread_id) {
+    auto& local = local_counts[thread_id];
+    local.fill(0);
+    for (size_t i = begin; i < end; ++i) {
+      ++local[static_cast<uint8_t>(keys[i] >> shift)];
+    }
+  });
+}
+
+std::array<size_t, 256> AggregateCounts(const std::vector<std::array<size_t, 256>>& local_counts, size_t threads) {
+  std::array<size_t, 256> global_counts{};
+  for (size_t thread_id = 0; thread_id < threads; ++thread_id) {
+    for (int bucket = 0; bucket < 256; ++bucket) {
+      global_counts[bucket] += local_counts[thread_id][bucket];
+    }
+  }
+  return global_counts;
+}
+
+void PrefixSums(std::array<size_t, 256>& counts) {
+  size_t sum = 0;
+  for (int bucket = 0; bucket < 256; ++bucket) {
+    const auto current = counts[bucket];
+    counts[bucket] = sum;
+    sum += current;
+  }
+}
+
+std::vector<std::array<size_t, 256>> PreparePositions(const std::vector<std::array<size_t, 256>>& local_counts,
+                                                      const std::array<size_t, 256>& global_counts, size_t threads) {
+  std::vector<std::array<size_t, 256>> positions(threads);
+  for (int bucket = 0; bucket < 256; ++bucket) {
+    size_t pos = global_counts[bucket];
+    for (size_t thread_id = 0; thread_id < threads; ++thread_id) {
+      positions[thread_id][bucket] = pos;
+      pos += local_counts[thread_id][bucket];
+    }
+  }
+  return positions;
+}
+
+void ScatterIntoBuffer(const std::vector<uint64_t>& keys, std::vector<uint64_t>& buffer,
+                       const std::vector<std::array<size_t, 256>>& positions, size_t threads, size_t chunk_size,
+                       size_t n, int shift) {
+  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t thread_id) {
+    auto local_pos = positions[thread_id];
+    for (size_t i = begin; i < end; ++i) {
+      const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
+      buffer[local_pos[bucket]++] = keys[i];
+    }
+  });
+}
+
+void ScatterValues(std::vector<double>& nonnan, const std::vector<uint64_t>& keys, size_t threads, size_t chunk_size,
+                   size_t n) {
+  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t) {
+    for (size_t i = begin; i < end; ++i) {
+      nonnan[i] = FromKey(keys[i]);
+    }
+  });
+}
+
 }  // namespace
 
 bool SortTaskSTL::ValidationImpl() {
@@ -76,82 +165,26 @@ void RadixSortDoubleStl(std::vector<double>& data) {
   const size_t threads = ClampThreads(std::thread::hardware_concurrency(), n);
   const size_t chunk_size = (n + threads - 1) / threads;
 
-  auto run_parallel = [&](auto&& fn) {
-    std::vector<std::thread> workers;
-    workers.reserve(threads);
-    for (size_t t = 0; t < threads; ++t) {
-      const size_t begin = t * chunk_size;
-      if (begin >= n) {
-        break;
-      }
-      const size_t end = std::min(n, begin + chunk_size);
-      workers.emplace_back([&, begin, end, t]() { fn(begin, end, t); });
-    }
-    for (auto& worker : workers) {
-      worker.join();
-    }
-  };
-
   std::vector<uint64_t> keys(n);
-  run_parallel([&](size_t begin, size_t end, size_t) {
-    for (size_t i = begin; i < end; ++i) {
-      keys[i] = ToKey(nonnan[i]);
-    }
-  });
+  ComputeLocalKeys(nonnan, keys, threads, chunk_size, n);
 
   std::vector<uint64_t> buffer(n);
-
   for (int pass = 0; pass < 8; ++pass) {
     const int shift = pass * 8;
+
     std::vector<std::array<size_t, 256>> local_counts(threads);
+    ComputeLocalCounts(keys, local_counts, threads, chunk_size, n, shift);
 
-    run_parallel([&](size_t begin, size_t end, size_t thread_id) {
-      auto& local = local_counts[thread_id];
-      local.fill(0);
-      for (size_t i = begin; i < end; ++i) {
-        ++local[static_cast<uint8_t>(keys[i] >> shift)];
-      }
-    });
+    auto global_counts = AggregateCounts(local_counts, threads);
+    PrefixSums(global_counts);
 
-    std::array<size_t, 256> global_counts{};
-    for (size_t thread_id = 0; thread_id < threads; ++thread_id) {
-      for (int bucket = 0; bucket < 256; ++bucket) {
-        global_counts[bucket] += local_counts[thread_id][bucket];
-      }
-    }
-
-    size_t sum = 0;
-    for (int bucket = 0; bucket < 256; ++bucket) {
-      const auto current = global_counts[bucket];
-      global_counts[bucket] = sum;
-      sum += current;
-    }
-
-    std::vector<std::array<size_t, 256>> positions(threads);
-    for (int bucket = 0; bucket < 256; ++bucket) {
-      size_t pos = global_counts[bucket];
-      for (size_t thread_id = 0; thread_id < threads; ++thread_id) {
-        positions[thread_id][bucket] = pos;
-        pos += local_counts[thread_id][bucket];
-      }
-    }
-
-    run_parallel([&](size_t begin, size_t end, size_t thread_id) {
-      auto local_pos = positions[thread_id];
-      for (size_t i = begin; i < end; ++i) {
-        const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
-        buffer[local_pos[bucket]++] = keys[i];
-      }
-    });
+    const auto positions = PreparePositions(local_counts, global_counts, threads);
+    ScatterIntoBuffer(keys, buffer, positions, threads, chunk_size, n, shift);
 
     keys.swap(buffer);
   }
 
-  run_parallel([&](size_t begin, size_t end, size_t) {
-    for (size_t i = begin; i < end; ++i) {
-      nonnan[i] = FromKey(keys[i]);
-    }
-  });
+  ScatterValues(nonnan, keys, threads, chunk_size, n);
 
   data = std::move(nonnan);
   data.insert(data.end(), nans.begin(), nans.end());
