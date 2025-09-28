@@ -132,15 +132,15 @@ void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find, int m
   const int new_root = std::min(root_min, root_max);
   const int old_root = std::max(root_min, root_max);
 
-#pragma omp atomic write
+#pragma omp atomic
   union_find[old_root] = new_root;
 
   if (min_label != root_min) {
-#pragma omp atomic write
+#pragma omp atomic
     union_find[min_label] = new_root;
   }
   if (max_label != root_max) {
-#pragma omp atomic write
+#pragma omp atomic
     union_find[max_label] = new_root;
   }
 }
@@ -173,9 +173,9 @@ void ConnectedComponentsOmp::CompactLabels(const std::vector<int>& labels) {
 
   components_count_ = current_label - 1;
 
-  const size_t size = labels.size();
+  const int size = static_cast<int>(labels.size());
 #pragma omp parallel for schedule(static)
-  for (size_t i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i) {
     if (labels[i] > 0) {
       output_labels_[i] = label_map[labels[i]];
     } else {
