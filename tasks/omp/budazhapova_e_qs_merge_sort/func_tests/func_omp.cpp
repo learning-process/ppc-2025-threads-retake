@@ -188,7 +188,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_empty_array) {
   std::vector<int> expected = {};
   std::vector<int> out = {};
 
-  // Create task_data
+  // Create task_dat
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_omp->inputs_count.emplace_back(in.size());
