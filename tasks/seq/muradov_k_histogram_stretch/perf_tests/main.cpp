@@ -62,7 +62,7 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
 }
 
 TEST(muradov_k_histogram_stretch_seq, test_task_run) {
-  const int k_size = 600000;  // restart job
+  const int k_size = 600000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);
   std::mt19937 gen(777);
