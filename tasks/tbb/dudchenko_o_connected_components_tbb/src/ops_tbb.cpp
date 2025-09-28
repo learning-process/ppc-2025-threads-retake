@@ -164,14 +164,13 @@ bool ConnectedComponentsTbb::RunImpl() {
     label_map[unique_labels[i]] = static_cast<int>(i + 1);
   }
 
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, output_labels_.size()),
-    [&](const tbb::blocked_range<size_t>& range) {
-      for (size_t i = range.begin(); i < range.end(); ++i) {
-        if (output_labels_[i] != 0) {
-          output_labels_[i] = label_map[output_labels_[i]];
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, output_labels_.size()), [&](const tbb::blocked_range<size_t>& range) {
+    for (size_t i = range.begin(); i < range.end(); ++i) {
+      if (output_labels_[i] != 0) {
+        output_labels_[i] = label_map[output_labels_[i]];
         }
-      }
-    });
+    }
+  });
 
   components_count_ = static_cast<int>(unique_labels.size());
   return true;
