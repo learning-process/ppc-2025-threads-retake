@@ -94,3 +94,4 @@ TEST(dudchenko_o_connected_components_tbb, test_task_run) {
   task->PreProcessingImpl();
   perf->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+}
