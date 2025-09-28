@@ -1,11 +1,11 @@
 #include "tbb/shishkarev_a_radix_sort/include/ops_tbb.hpp"
 
-#include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_invoke.h>
 #include <oneapi/tbb/parallel_reduce.h>
 #include <oneapi/tbb/spin_mutex.h>
 #include <oneapi/tbb/task_arena.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_invoke.h>
 
 #include <algorithm>
 #include <cmath>
