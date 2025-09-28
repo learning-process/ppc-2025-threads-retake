@@ -119,7 +119,7 @@ bool ConnectedComponentsOmp::RunImpl() {
               if (min_label != root_min) {
 #pragma omp atomic write
                 parent[min_label] = new_root;
-                }
+              }
               if (max_label != root_max) {
 #pragma omp atomic write
                 parent[max_label] = new_root;
@@ -140,9 +140,9 @@ bool ConnectedComponentsOmp::RunImpl() {
             label = parent[label];
           }
           labels[idx] = label;
+        }
       }
     }
-  }
 
     std::map<int, int> label_map;
     int current_label = 1;
@@ -150,12 +150,12 @@ bool ConnectedComponentsOmp::RunImpl() {
     for (size_t i = 0; i < image_size; ++i) {
       if (labels[i] > 0) {
         label_map[labels[i]] = 0;
+      }
     }
-  }
 
     for (auto& pair : label_map) {
       pair.second = current_label++;
-  }
+    }
 
     components_count_ = current_label - 1;
 
@@ -166,9 +166,9 @@ bool ConnectedComponentsOmp::RunImpl() {
       } else {
         output_labels_[i] = 0;
       }
-  }
+    }
 
-  return true;
+    return true;
 }
 
   bool ConnectedComponentsOmp::PostProcessingImpl() {
