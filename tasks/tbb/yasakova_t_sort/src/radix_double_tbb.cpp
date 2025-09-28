@@ -4,7 +4,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -25,7 +24,7 @@ ParallelPlan MakePlan(size_t total) {
   auto chunks = std::max<size_t>(1, tbb::this_task_arena::max_concurrency());
   chunks = std::min(chunks, total);
   const size_t chunk_size = (total + chunks - 1) / chunks;
-  return ParallelPlan{chunks, chunk_size, total};
+  return ParallelPlan{.chunks = chunks, .chunk_size = chunk_size, .total = total};
 }
 
 void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys) {
