@@ -53,6 +53,7 @@ inline double NowSec() {
 struct ImageSpec {
   int width;
   int height;
+  ImageSpec(int w, int h) : width(w), height(h) {}
 };
 
 std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
@@ -82,7 +83,7 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& im
 TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
   const auto img = GenerateTestImage(kLargeWidth, kLargeHeight, 0.3);
   std::vector<int> labels(img.size());
-  ImageSpec spec{.width = kLargeWidth, .height = kLargeHeight};
+  ImageSpec spec(kLargeWidth, kLargeHeight);
 
   auto td = MakeTaskData(img, spec, labels);
   auto task = std::make_shared<ConnectedComponentsOmp>(td);

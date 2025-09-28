@@ -26,6 +26,9 @@ class ConnectedComponentsOmp : public ppc::core::Task {
   void FirstPass(std::vector<int>& labels, std::vector<int>& parent) const;
   void SecondPass(std::vector<int>& labels, const std::vector<int>& parent) const;
   int FindRoot(std::vector<int>& parent, int x) const;
+  void ProcessPixel(int x, int y, std::vector<int>& labels, std::vector<int>& parent, int& next_label);
+  void ResolveLabels(std::vector<int>& labels, const std::vector<int>& parent);
+  void CompactLabels(const std::vector<int>& labels);
 };
 
 }  // namespace dudchenko_o_connected_components_omp

@@ -35,6 +35,15 @@ std::vector<int> RunComponents(const std::vector<uint8_t>& img, int w, int h) {
     ADD_FAILURE() << "PreProcessingImpl() returned false";
     return {};
   }
+  if (!task->ProcessPixel()) {
+    ADD_FAILURE() << "ProcessPixel() returned false";
+    return {};
+  if (!task->ResolveLabels()) {
+    ADD_FAILURE() << "ResolveLabels() returned false";
+    return {};
+  if (!task->CompactLabels()) {
+    ADD_FAILURE() << "CompactLabels() returned false";
+    return {};
   if (!task->RunImpl()) {
     ADD_FAILURE() << "RunImpl() returned false";
     return {};
