@@ -69,7 +69,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_task_run) {
   std::vector<int> expected = in;
   std::ranges::sort(expected);
 
-  // Create task_data
+  // Create task_dat
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_omp->inputs_count.emplace_back(in.size());
