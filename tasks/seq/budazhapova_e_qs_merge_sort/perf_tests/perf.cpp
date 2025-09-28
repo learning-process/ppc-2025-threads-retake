@@ -35,7 +35,7 @@ TEST(budazhapova_e_qs_merge_sort_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
+  // Create Tas
   auto test_task_sequential = std::make_shared<budazhapova_e_qs_merge_sort_seq::QSMergeSortSequential>(task_data_seq);
 
   // Create Perf attributes
