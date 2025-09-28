@@ -1,9 +1,8 @@
-#include <cstddef>
+#include "seq/somov_i_radix_sort_simple_merging/include/ops_seq.hpp"
+
 #include <cstdint>
 #include <cstring>
 #include <vector>
-
-#include "seq/somov_i_radix_sort_simple_merging/include/ops_seq.hpp"
 
 bool somov_i_radix_sort_simple_merging_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
