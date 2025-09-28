@@ -2,12 +2,10 @@
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
 #include <cstddef>
 #include <mutex>
-#include <unordered_map>
 #include <vector>
 
 using namespace dudchenko_o_connected_components_tbb;
@@ -50,10 +48,7 @@ class DisjointSetUnion {
 static void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, int>>& equivalences) {
   if (equivalences.empty()) return;
 
-  int max_label = 0;
-  for (int label : labels) {
-    if (label > max_label) max_label = label;
-  }
+  int max_label = *std::max_element(labels.begin(), labels.end());
   if (max_label == 0) return;
 
   DisjointSetUnion dsu(max_label + 1);
@@ -64,18 +59,18 @@ static void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<
     }
   }
 
-  std::vector<int> label_map(max_label + 1, 0);
+  std::vector<int> new_labels(max_label + 1, 0);
   int current_label = 1;
   for (int i = 1; i <= max_label; ++i) {
     int root = dsu.find(i);
-    if (label_map[root] == 0) {
-      label_map[root] = current_label++;
+    if (new_labels[root] == 0) {
+      new_labels[root] = current_label++;
     }
   }
 
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
-      labels[i] = label_map[dsu.find(labels[i])];
+      labels[i] = new_labels[dsu.find(labels[i])];
     }
   }
 }
@@ -122,76 +117,39 @@ bool ConnectedComponentsTbb::RunImpl() {
     return true;
   }
 
-  int global_next_label = 1;
-  std::mutex global_label_mutex;
+  int next_label = 1;
+  std::vector<std::pair<int, int>> equivalences;
 
-  std::vector<std::pair<int, int>> all_equivalences;
-  std::mutex eq_mutex;
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, height_), [&](const tbb::blocked_range<int>& range) {
-    int local_next_label = 0;
-    std::vector<std::pair<int, int>> local_equivalences;
-    std::unordered_map<int, int> global_to_local;
-    std::unordered_map<int, int> local_to_global;
+      if (input_image_[idx] == 0) {
+        output_labels_[idx] = 0;
+        continue;
+      }
 
-    for (int y = range.begin(); y < range.end(); ++y) {
-      for (int x = 0; x < width_; ++x) {
-        size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
+      int left_label = (x > 0) ? output_labels_[idx - 1] : 0;
+      int top_label = (y > 0) ? output_labels_[idx - static_cast<size_t>(width_)] : 0;
 
-        if (input_image_[idx] == 0) {
-          output_labels_[idx] = 0;
-          continue;
-        }
-
-        int left_label = (x > 0) ? output_labels_[idx - 1] : 0;
-        int top_label = (y > 0) ? output_labels_[idx - static_cast<size_t>(width_)] : 0;
-
-        int local_left = 0, local_top = 0;
-        if (left_label != 0) {
-          if (global_to_local.find(left_label) == global_to_local.end()) {
-            local_next_label++;
-            global_to_local[left_label] = local_next_label;
-            local_to_global[local_next_label] = left_label;
-          }
-          local_left = global_to_local[left_label];
-        }
-        if (top_label != 0) {
-          if (global_to_local.find(top_label) == global_to_local.end()) {
-            local_next_label++;
-            global_to_local[top_label] = local_next_label;
-            local_to_global[local_next_label] = top_label;
-          }
-          local_top = global_to_local[top_label];
-        }
-
-        if (local_left == 0 && local_top == 0) {
-          std::lock_guard<std::mutex> lock(global_label_mutex);
-          int new_global_label = global_next_label++;
-          output_labels_[idx] = new_global_label;
-          global_to_local[new_global_label] = ++local_next_label;
-          local_to_global[local_next_label] = new_global_label;
-        } else if (local_left != 0 && local_top == 0) {
-          output_labels_[idx] = local_to_global[local_left];
-        } else if (local_left == 0 && local_top != 0) {
-          output_labels_[idx] = local_to_global[local_top];
-        } else {
-          int min_global = std::min(local_to_global[local_left], local_to_global[local_top]);
-          int max_global = std::max(local_to_global[local_left], local_to_global[local_top]);
-          output_labels_[idx] = min_global;
-          if (min_global != max_global) {
-            local_equivalences.push_back({max_global, min_global});
-          }
+      if (left_label == 0 && top_label == 0) {
+        output_labels_[idx] = next_label++;
+      } else if (left_label != 0 && top_label == 0) {
+        output_labels_[idx] = left_label;
+      } else if (left_label == 0 && top_label != 0) {
+        output_labels_[idx] = top_label;
+      } else {
+        int min_label = std::min(left_label, top_label);
+        int max_label = std::max(left_label, top_label);
+        output_labels_[idx] = min_label;
+        if (min_label != max_label) {
+          equivalences.push_back({max_label, min_label});
         }
       }
     }
+  }
 
-    if (!local_equivalences.empty()) {
-      std::lock_guard<std::mutex> lock(eq_mutex);
-      all_equivalences.insert(all_equivalences.end(), local_equivalences.begin(), local_equivalences.end());
-    }
-  });
-
-  ResolveEquivalences(output_labels_, all_equivalences);
+  ResolveEquivalences(output_labels_, equivalences);
 
   std::vector<int> unique_labels;
   for (int label : output_labels_) {
@@ -201,16 +159,19 @@ bool ConnectedComponentsTbb::RunImpl() {
   }
   std::sort(unique_labels.begin(), unique_labels.end());
 
-  std::unordered_map<int, int> relabel_map;
+  std::vector<int> label_map(*std::max_element(output_labels_.begin(), output_labels_.end()) + 1, 0);
   for (size_t i = 0; i < unique_labels.size(); ++i) {
-    relabel_map[unique_labels[i]] = static_cast<int>(i + 1);
+    label_map[unique_labels[i]] = static_cast<int>(i + 1);
   }
 
-  for (size_t i = 0; i < output_labels_.size(); ++i) {
-    if (output_labels_[i] != 0) {
-      output_labels_[i] = relabel_map[output_labels_[i]];
-    }
-  }
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, output_labels_.size()),
+    [&](const tbb::blocked_range<size_t>& range) {
+      for (size_t i = range.begin(); i < range.end(); ++i) {
+        if (output_labels_[i] != 0) {
+          output_labels_[i] = label_map[output_labels_[i]];
+        }
+      }
+    });
 
   components_count_ = static_cast<int>(unique_labels.size());
   return true;
