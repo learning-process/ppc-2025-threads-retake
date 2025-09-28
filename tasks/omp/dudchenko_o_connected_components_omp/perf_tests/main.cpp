@@ -87,7 +87,7 @@ TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
   auto td = MakeTaskData(img, spec, labels);
   auto task = std::make_shared<ConnectedComponentsOmp>(td);
 
-  auto perf_attr = MakePerfAttr(120);
+  auto perf_attr = MakePerfAttr(200);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
 
@@ -112,7 +112,7 @@ TEST(dudchenko_o_connected_components_omp, test_task_run) {
   auto td = MakeTaskData(img, spec, labels);
   auto task = std::make_shared<ConnectedComponentsOmp>(td);
 
-  auto perf_attr = MakePerfAttr(100);
+  auto perf_attr = MakePerfAttr(200);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
 
