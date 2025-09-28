@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "stl/ersoz_b_hoare_sort_simple_merge/include/ops_stl.hpp"
 
 namespace {
