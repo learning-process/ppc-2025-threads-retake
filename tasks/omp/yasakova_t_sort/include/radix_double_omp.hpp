@@ -10,21 +10,23 @@
 
 namespace yasakova_t_sort_omp {
 
-inline bool is_nan(double x) { return std::isnan(x); }
+inline bool IsNan(double x) { return std::isnan(x); }
 
-inline uint64_t to_key(double x) {
-  uint64_t b = std::bit_cast<uint64_t>(x);
-  if ((b >> 63) == 0) return b ^ 0x8000'0000'0000'0000ull;
-  return ~b;
+inline auto ToKey(double x) -> uint64_t {
+  const auto bits = std::bit_cast<uint64_t>(x);
+  if ((bits >> 63) == 0) {
+    return bits ^ 0x8000'0000'0000'0000ULL;
+  }
+  return ~bits;
 }
 
-inline double from_key(uint64_t k) {
-  if ((k >> 63) != 0) {
-    uint64_t b = k ^ 0x8000'0000'0000'0000ull;
-    return std::bit_cast<double>(b);
+inline auto FromKey(uint64_t key) -> double {
+  if ((key >> 63) != 0) {
+    const auto bits = key ^ 0x8000'0000'0000'0000ULL;
+    return std::bit_cast<double>(bits);
   }
-  uint64_t b = ~k;
-  return std::bit_cast<double>(b);
+  const auto bits = ~key;
+  return std::bit_cast<double>(bits);
 }
 
 class SortTaskOpenMP : public ppc::core::Task {
@@ -41,6 +43,6 @@ class SortTaskOpenMP : public ppc::core::Task {
   std::vector<double> output_;
 };
 
-void radix_sort_double_omp(std::vector<double>& a);
+void RadixSortDoubleOmp(std::vector<double>& data);
 
 }  // namespace yasakova_t_sort_omp
