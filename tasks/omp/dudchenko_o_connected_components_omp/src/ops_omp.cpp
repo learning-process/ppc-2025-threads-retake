@@ -67,8 +67,8 @@ bool ConnectedComponentsOmp::PreProcessingImpl() {
   return true;
 }
 
-void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label) {
-  const size_t index = (static_cast<size_t>(y) * static_cast<size_t>(width_)) + static_cast<size_t>(x);
+void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find,
+                                          int& next_label) {
 
   if (input_image_[index] != kForeground) {
     return;
@@ -93,8 +93,8 @@ void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_
   HandleBothNeighbors(pixel_labels, union_find, index, left_label_value, top_label_value);
 }
 
-void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find, 
-                                               int& next_label, size_t index) {
+void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find,
+                                                int& next_label, size_t index) {
 #pragma omp critical
   {
     pixel_labels[index] = next_label;

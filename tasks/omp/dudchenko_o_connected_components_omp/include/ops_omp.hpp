@@ -25,7 +25,8 @@ class ConnectedComponentsOmp : public ppc::core::Task {
 
   void ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label);
   void CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label, size_t index);
-  void HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find, size_t index, int left_label_value, int top_label_value);
+  void HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find, size_t index,
+                           int left_label_value, int top_label_value);
   static void UnionComponents(std::vector<int>& parent, int min_label, int max_label, int root_min, int root_max);
   void ResolveLabels(std::vector<int>& labels, const std::vector<int>& parent);
   void CompactLabels(const std::vector<int>& labels);
