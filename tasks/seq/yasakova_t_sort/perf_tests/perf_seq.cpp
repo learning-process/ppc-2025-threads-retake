@@ -46,7 +46,7 @@ TEST(yasakova_t_sort_seq, test_pipeline_run) {
 
   auto task_data = make_task_data(input, output);
   auto task = std::make_shared<yasakova_t_sort_seq::SortTaskSequential>(task_data);
-  auto perf_attr = make_perf_attr(5);
+  auto perf_attr = make_perf_attr(200);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   auto perf = std::make_shared<ppc::core::Perf>(task);
@@ -62,7 +62,7 @@ TEST(yasakova_t_sort_seq, test_task_run) {
 
   auto task_data = make_task_data(input, output);
   auto task = std::make_shared<yasakova_t_sort_seq::SortTaskSequential>(task_data);
-  auto perf_attr = make_perf_attr(5);
+  auto perf_attr = make_perf_attr(200);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   auto perf = std::make_shared<ppc::core::Perf>(task);
