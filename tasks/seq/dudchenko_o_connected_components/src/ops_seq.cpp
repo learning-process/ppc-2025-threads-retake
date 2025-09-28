@@ -72,8 +72,9 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(ComponentLa
     for (int x = 0; x < width_; ++x) {
       int index = (y * width_) + x;
 
-      if (input_[index] == 0) {
-        component_labels.labels[index] = 0;
+      // ИСПРАВЛЕНИЕ: 0 - это foreground, ненулевые значения - background
+      if (input_[index] != 0) {
+        component_labels.labels[index] = 0;  // background получает метку 0
         continue;
       }
 
