@@ -62,8 +62,8 @@ TEST(dudchenko_o_connected_components_seq, test_pipeline_run) {
 }
 
 TEST(dudchenko_o_connected_components_seq, test_task_run) {
-  int width = 100;
-  int height = 100;
+  int width = 150;
+  int height = 150;
   std::vector<int> image_data(width * height);
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
