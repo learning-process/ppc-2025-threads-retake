@@ -59,9 +59,9 @@ void HoareSortSimpleMergeSTL::QuickSortHoare(std::vector<int>& a, long long l, l
 void HoareSortSimpleMergeSTL::MergeTwo(const std::vector<int>& src, Segment left, Segment right,
                                        std::vector<int>& dst) {
   if (dst.empty()) {
-    return;  // defensive: nothing to write
+    return;
   }
-  // Iterators (partition may yield empty half ranges; that's fine)
+
   auto left_first = src.begin() + static_cast<long long>(left.begin);
   auto left_last = src.begin() + static_cast<long long>(left.end);
   auto right_first = src.begin() + static_cast<long long>(right.begin);
@@ -116,9 +116,9 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
     QuickSortHoare(input_, mid, static_cast<long long>(n - 1));
   }
   if (output_.empty()) {
-    return true;  // defensive guard (static analyzer)
+    return true;
   }
-  // Clamp mid into [0, n] just in case (Partition may return n)
+
   if (mid < 0) {
     mid = 0;
   } else if (mid > static_cast<long long>(n)) {
