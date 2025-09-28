@@ -13,7 +13,7 @@
 using dudchenko_o_connected_components_tbb::ConnectedComponentsTbb;
 
 namespace {
-constexpr int kSmallSize = 1024;
+constexpr int kSmallSize = 2048;
 
 std::vector<uint8_t> CreateTestImage(int size) {
   std::vector<uint8_t> img(size * size, 0);
