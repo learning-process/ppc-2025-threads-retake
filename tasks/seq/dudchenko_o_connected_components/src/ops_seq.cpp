@@ -54,12 +54,14 @@ bool dudchenko_o_connected_components::TestTaskSequential::PostProcessingImpl() 
 
 void dudchenko_o_connected_components::TestTaskSequential::LabelComponents() {
   size_t total_pixels = width_ * height_;
-  ComponentLabels labels(total_pixels, 0);
-  ParentStructure parent(total_pixels + 1, 0);
+  ComponentLabels labels;
+  labels.labels.resize(total_pixels, 0);
+  ParentStructure parent;
+  parent.parents.resize(total_pixels + 1, 0);
 
   FirstPass(labels, parent);
   SecondPass(labels, parent);
-  output_ = labels;
+  output_ = labels.labels;
 }
 
 void dudchenko_o_connected_components::TestTaskSequential::FirstPass(ComponentLabels& component_labels,
@@ -71,26 +73,26 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(ComponentLa
       int index = (y * width_) + x;
 
       if (input_[index] == 0) {
-        component_labels[index] = 0;
+        component_labels.labels[index] = 0;
         continue;
       }
 
-      int left_label = (x > 0) ? component_labels[index - 1] : 0;
-      int top_label = (y > 0) ? component_labels[index - width_] : 0;
+      int left_label = (x > 0) ? component_labels.labels[index - 1] : 0;
+      int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
 
       if (left_label == 0 && top_label == 0) {
-        component_labels[index] = next_label;
-        parent_structure[next_label] = next_label;
+        component_labels.labels[index] = next_label;
+        parent_structure.parents[next_label] = next_label;
         next_label++;
       } else if (left_label != 0 && top_label == 0) {
-        component_labels[index] = left_label;
+        component_labels.labels[index] = left_label;
       } else if (left_label == 0 && top_label != 0) {
-        component_labels[index] = top_label;
+        component_labels.labels[index] = top_label;
       } else {
         int root_left = FindRoot(parent_structure, left_label);
         int root_top = FindRoot(parent_structure, top_label);
         int min_root = std::min(root_left, root_top);
-        component_labels[index] = min_root;
+        component_labels.labels[index] = min_root;
 
         if (root_left != root_top) {
           UnionSets(parent_structure, root_left, root_top);
@@ -102,18 +104,18 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(ComponentLa
 
 void dudchenko_o_connected_components::TestTaskSequential::SecondPass(ComponentLabels& component_labels,
                                                                       const ParentStructure& parent_structure) {
-  for (size_t i = 0; i < component_labels.size(); ++i) {
-    if (component_labels[i] != 0) {
-      component_labels[i] = FindRoot(const_cast<ParentStructure&>(parent_structure), component_labels[i]);
+  for (size_t i = 0; i < component_labels.labels.size(); ++i) {
+    if (component_labels.labels[i] != 0) {
+      component_labels.labels[i] = FindRoot(const_cast<ParentStructure&>(parent_structure), component_labels.labels[i]);
     }
   }
 }
 
 int dudchenko_o_connected_components::TestTaskSequential::FindRoot(ParentStructure& parent, int x) {
-  if (parent[x] != x) {
-    parent[x] = FindRoot(parent, parent[x]);
+  if (parent.parents[x] != x) {
+    parent.parents[x] = FindRoot(parent, parent.parents[x]);
   }
-  return parent[x];
+  return parent.parents[x];
 }
 
 void dudchenko_o_connected_components::TestTaskSequential::UnionSets(ParentStructure& parent, int x, int y) {
@@ -122,9 +124,9 @@ void dudchenko_o_connected_components::TestTaskSequential::UnionSets(ParentStruc
 
   if (root_x != root_y) {
     if (root_x < root_y) {
-      parent[root_y] = root_x;
+      parent.parents[root_y] = root_x;
     } else {
-      parent[root_x] = root_y;
+      parent.parents[root_x] = root_y;
     }
   }
 }

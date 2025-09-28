@@ -46,7 +46,7 @@ void CheckAllLabelsUnique(const OutputData& output,
   std::vector<int> labels;
   for (size_t idx : indices.indices) {
     if (output.data[idx] != 0 && 
-        std::find(labels.begin(), labels.end(), output.data[idx]) == labels.end()) {
+        std::ranges::find(labels, output.data[idx]) == labels.end()) {
       labels.push_back(output.data[idx]);
     }
   }

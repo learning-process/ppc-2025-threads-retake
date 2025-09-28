@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -17,9 +16,14 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  // Объявляем типы для устранения предупреждения о легко переставляемых параметрах
-  using ComponentLabels = std::vector<int>;
-  using ParentStructure = std::vector<int32_t>;
+  // Создаем настоящие структуры вместо typedef
+  struct ComponentLabels {
+    std::vector<int> labels;
+  };
+  
+  struct ParentStructure {
+    std::vector<int32_t> parents;
+  };
 
   std::vector<int> input_;
   std::vector<int> output_;
