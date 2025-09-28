@@ -66,156 +66,158 @@ bool ConnectedComponentsOmp::PreProcessingImpl() {
   return true;
 }
 
-void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& out_labels,
-                                         std::vector<int>& union_parent, int& next_label) {
-    const size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(width_)) + static_cast<size_t>(x);
-    if (input_image_[idx] != kForeground) {
+void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& out_labels, std::vector<int>& union_parent,
+                                          int& next_label) {
+  const size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(width_)) + static_cast<size_t>(x);
+  if (input_image_[idx] != kForeground) {
     return;
     }
 
-    const bool has_left = (x > 0 && input_image_[idx - 1] == kForeground);
-    const bool has_top = (y > 0 && input_image_[idx - width_] == kForeground);
+  }
 
-    if (!has_left && !has_top) {
-        CreateNewComponent(out_labels, union_parent, next_label, idx);
-        return;
-    }
+  const bool has_left = (x > 0 && input_image_[idx - 1] == kForeground);
+  const bool has_top = (y > 0 && input_image_[idx - width_] == kForeground);
 
-    const int left_label = has_left ? out_labels[idx - 1] : 0;
-    const int top_label = has_top ? out_labels[idx - width_] : 0;
+  if (!has_left && !has_top) {
+    CreateNewComponent(out_labels, union_parent, next_label, idx);
+    return;
+  }
 
-    if (!has_left || !has_top) {
-        out_labels[idx] = has_left ? left_label : top_label;
-        return;
-    }
+  const int left_label = has_left ? out_labels[idx - 1] : 0;
+  const int top_label = has_top ? out_labels[idx - width_] : 0;
 
-    HandleBothNeighbors(out_labels, union_parent, idx, left_label, top_label);
+  if (!has_left || !has_top) {
+    out_labels[idx] = has_left ? left_label : top_label;
+    return;
+  }
+
+  HandleBothNeighbors(out_labels, union_parent, idx, left_label, top_label);
 }
 
-void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& labels, std::vector<int>& parent,
-                                               int& next_label, size_t idx) {
+void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& labels, std::vector<int>& parent, int& next_label,
+                                                size_t idx) {
 #pragma omp critical
-    {
-        labels[idx] = next_label;
-        if (static_cast<size_t>(next_label) >= parent.size()) {
-            parent.resize(next_label * 2, 0);
-        }
-        parent[next_label] = next_label;
-        next_label++;
+  {
+    labels[idx] = next_label;
+    if (static_cast<size_t>(next_label) >= parent.size()) {
+      parent.resize(next_label * 2, 0);
     }
+    parent[next_label] = next_label;
+    next_label++;
+  }
 }
 
-void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& labels, std::vector<int>& parent,
-                                                size_t idx, int left_label, int top_label) {
-    const int min_label = std::min(left_label, top_label);
-    const int max_label = std::max(left_label, top_label);
-    
-    labels[idx] = min_label;
+void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& labels, std::vector<int>& parent, size_t idx,
+                                                 int left_label, int top_label) {
+  const int min_label = std::min(left_label, top_label);
+  const int max_label = std::max(left_label, top_label);
 
-    if (min_label == max_label) return;
+  labels[idx] = min_label;
 
-    const int root_min = FindRoot(parent, min_label);
-    const int root_max = FindRoot(parent, max_label);
+  if (min_label == max_label) return;
 
-    if (root_min == root_max) return;
+  const int root_min = FindRoot(parent, min_label);
+  const int root_max = FindRoot(parent, max_label);
 
-    UnionComponents(parent, min_label, top_label, root_min, root_max);
+  if (root_min == root_max) return;
+
+  UnionComponents(parent, min_label, top_label, root_min, root_max);
 }
 
-void ConnectedComponentsOmp::UnionComponents(std::vector<int>& parent, int min_label, int max_label,
-                                           int root_min, int root_max) {
-    const int new_root = std::min(root_min, root_max);
-    const int old_root = std::max(root_min, root_max);
+void ConnectedComponentsOmp::UnionComponents(std::vector<int>& parent, int min_label, int max_label, int root_min,
+                                             int root_max) {
+  const int new_root = std::min(root_min, root_max);
+  const int old_root = std::max(root_min, root_max);
 
 #pragma omp atomic write
-    parent[old_root] = new_root;
+  parent[old_root] = new_root;
 
-    if (min_label != root_min) {
+  if (min_label != root_min) {
 #pragma omp atomic write
-        parent[min_label] = new_root;
-    }
-    if (max_label != root_max) {
+    parent[min_label] = new_root;
+  }
+  if (max_label != root_max) {
 #pragma omp atomic write
-        parent[max_label] = new_root;
-    }
+    parent[max_label] = new_root;
+  }
 }
 
 void ConnectedComponentsOmp::ResolveLabels(std::vector<int>& labels, const std::vector<int>& parent) {
 #pragma omp parallel for schedule(static)
-    for (int y = 0; y < height_; ++y) {
-      for (int x = 0; x < width_; ++x) {
-        const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
-          if (labels[idx] > 0) {
-            labels[idx] = FindRoot(parent, labels[idx]);
-          }
-        }
-      }
-    }
-
-  void ConnectedComponentsOmp::CompactLabels(const std::vector<int>& labels) {
-    std::map<int, int> label_map;
-    int current_label = 1;
-
-    for (size_t i = 0; i < labels.size(); ++i) {
-      if (labels[i] > 0) {
-        label_map[labels[i]] = 0;
-      }
-    }
-
-    for (auto& pair : label_map) {
-      pair.second = current_label++;
-    }
-
-    components_count_ = current_label - 1;
-
-    const size_t size = labels.size();
-#pragma omp parallel for schedule(static)
-    for (size_t i = 0; i < size; ++i) {
-      if (labels[i] > 0) {
-        output_labels_[i] = label_map[labels[i]];
-      } else {
-        output_labels_[i] = 0;
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
+      if (labels[idx] > 0) {
+        labels[idx] = FindRoot(parent, labels[idx]);
       }
     }
   }
+}
 
-  bool ConnectedComponentsOmp::RunImpl() {
-    const size_t image_size = static_cast<size_t>(width_) * static_cast<size_t>(height_);
-    std::vector<int> labels(image_size, 0);
-    std::vector<int> parent(1000, 0);
-    int next_label = 1;
+void ConnectedComponentsOmp::CompactLabels(const std::vector<int>& labels) {
+  std::map<int, int> label_map;
+  int current_label = 1;
 
-    for (int y = 0; y < height_; ++y) {
-      for (int x = 0; x < width_; ++x) {
-        ProcessPixel(x, y, labels, parent, next_label);
-      }
+  for (size_t i = 0; i < labels.size(); ++i) {
+    if (labels[i] > 0) {
+      label_map[labels[i]] = 0;
     }
-
-    ResolveLabels(labels, parent);
-
-    CompactLabels(labels);
-
-    return true;
   }
 
-  bool ConnectedComponentsOmp::PostProcessingImpl() {
-    auto* output_data = reinterpret_cast<int*>(task_data->outputs[0]);
-    const unsigned int output_capacity = task_data->outputs_count[0];
-    const size_t data_size = output_labels_.size();
-    const size_t copy_size = std::min(static_cast<size_t>(output_capacity), data_size);
-
-    for (size_t i = 0; i < copy_size; ++i) {
-      output_data[i] = output_labels_[i];
-    }
-
-    task_data->outputs_count[0] = static_cast<unsigned int>(copy_size);
-
-    return true;
+  for (auto& pair : label_map) {
+    pair.second = current_label++;
   }
 
-  int ConnectedComponentsOmp::FindRoot(const std::vector<int>& parent, int x) const {
-    while (parent[x] != x) {
-      x = parent[x];
+  components_count_ = current_label - 1;
+
+  const size_t size = labels.size();
+  #pragma omp parallel for schedule(static)
+  for (size_t i = 0; i < size; ++i) {
+    if (labels[i] > 0) {
+      output_labels_[i] = label_map[labels[i]];
+    } else {
+      output_labels_[i] = 0;
     }
-    return x;
   }
+}
+
+bool ConnectedComponentsOmp::RunImpl() {
+  const size_t image_size = static_cast<size_t>(width_) * static_cast<size_t>(height_);
+  std::vector<int> labels(image_size, 0);
+  std::vector<int> parent(1000, 0);
+  int next_label = 1;
+
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      ProcessPixel(x, y, labels, parent, next_label);
+    }
+  }
+
+  ResolveLabels(labels, parent);
+
+  CompactLabels(labels);
+
+  return true;
+}
+
+bool ConnectedComponentsOmp::PostProcessingImpl() {
+  auto* output_data = reinterpret_cast<int*>(task_data->outputs[0]);
+  const unsigned int output_capacity = task_data->outputs_count[0];
+  const size_t data_size = output_labels_.size();
+  const size_t copy_size = std::min(static_cast<size_t>(output_capacity), data_size);
+
+  for (size_t i = 0; i < copy_size; ++i) {
+    output_data[i] = output_labels_[i];
+  }
+
+  task_data->outputs_count[0] = static_cast<unsigned int>(copy_size);
+
+  return true;
+}
+
+int ConnectedComponentsOmp::FindRoot(const std::vector<int>& parent, int x) const {
+  while (parent[x] != x) {
+    x = parent[x];
+  }
+  return x;
+}
