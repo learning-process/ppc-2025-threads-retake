@@ -12,32 +12,43 @@ namespace yasakova_t_sort_stl {
 
 namespace {
 
-size_t ClampThreads(size_t requested, size_t n) {
+size_t ClampThreads(size_t requested, size_t total) {
   if (requested == 0) {
-    return std::min<size_t>(1, n);
+    return std::min<size_t>(1, total);
   }
-  return std::max<size_t>(1, std::min(requested, n));
+  return std::max<size_t>(1, std::min(requested, total));
 }
 
-void RunParallel(size_t threads, size_t chunk_size, size_t n, const auto& fn) {
+struct ParallelPlan {
+  size_t threads;
+  size_t chunk_size;
+  size_t total;
+};
+
+ParallelPlan MakePlan(size_t total) {
+  const size_t threads = ClampThreads(std::thread::hardware_concurrency(), total);
+  const size_t chunk_size = (total + threads - 1) / threads;
+  return ParallelPlan{threads, chunk_size, total};
+}
+
+void RunParallel(const ParallelPlan& plan, const auto& fn) {
   std::vector<std::thread> workers;
-  workers.reserve(threads);
-  for (size_t t = 0; t < threads; ++t) {
-    const size_t begin = t * chunk_size;
-    if (begin >= n) {
+  workers.reserve(plan.threads);
+  for (size_t thread_id = 0; thread_id < plan.threads; ++thread_id) {
+    const size_t begin = thread_id * plan.chunk_size;
+    if (begin >= plan.total) {
       break;
     }
-    const size_t end = std::min(n, begin + chunk_size);
-    workers.emplace_back([&, begin, end, t]() { fn(begin, end, t); });
+    const size_t end = std::min(plan.total, begin + plan.chunk_size);
+    workers.emplace_back([&, begin, end, thread_id]() { fn(begin, end, thread_id); });
   }
   for (auto& worker : workers) {
     worker.join();
   }
 }
 
-void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys, size_t threads, size_t chunk_size,
-                      size_t n) {
-  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t) {
+void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys, const ParallelPlan& plan) {
+  RunParallel(plan, [&](size_t begin, size_t end, size_t) {
     for (size_t i = begin; i < end; ++i) {
       keys[i] = ToKey(nonnan[i]);
     }
@@ -45,8 +56,8 @@ void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& 
 }
 
 void ComputeLocalCounts(const std::vector<uint64_t>& keys, std::vector<std::array<size_t, 256>>& local_counts,
-                        size_t threads, size_t chunk_size, size_t n, int shift) {
-  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t thread_id) {
+                        const ParallelPlan& plan, int shift) {
+  RunParallel(plan, [&](size_t begin, size_t end, size_t thread_id) {
     auto& local = local_counts[thread_id];
     local.fill(0);
     for (size_t i = begin; i < end; ++i) {
@@ -55,11 +66,11 @@ void ComputeLocalCounts(const std::vector<uint64_t>& keys, std::vector<std::arra
   });
 }
 
-std::array<size_t, 256> AggregateCounts(const std::vector<std::array<size_t, 256>>& local_counts, size_t threads) {
+std::array<size_t, 256> AggregateCounts(const std::vector<std::array<size_t, 256>>& local_counts) {
   std::array<size_t, 256> global_counts{};
-  for (size_t thread_id = 0; thread_id < threads; ++thread_id) {
+  for (const auto& local : local_counts) {
     for (int bucket = 0; bucket < 256; ++bucket) {
-      global_counts[bucket] += local_counts[thread_id][bucket];
+      global_counts[bucket] += local[bucket];
     }
   }
   return global_counts;
@@ -75,11 +86,11 @@ void PrefixSums(std::array<size_t, 256>& counts) {
 }
 
 std::vector<std::array<size_t, 256>> PreparePositions(const std::vector<std::array<size_t, 256>>& local_counts,
-                                                      const std::array<size_t, 256>& global_counts, size_t threads) {
-  std::vector<std::array<size_t, 256>> positions(threads);
+                                                      const std::array<size_t, 256>& global_counts) {
+  std::vector<std::array<size_t, 256>> positions(local_counts.size());
   for (int bucket = 0; bucket < 256; ++bucket) {
     size_t pos = global_counts[bucket];
-    for (size_t thread_id = 0; thread_id < threads; ++thread_id) {
+    for (size_t thread_id = 0; thread_id < local_counts.size(); ++thread_id) {
       positions[thread_id][bucket] = pos;
       pos += local_counts[thread_id][bucket];
     }
@@ -88,9 +99,8 @@ std::vector<std::array<size_t, 256>> PreparePositions(const std::vector<std::arr
 }
 
 void ScatterIntoBuffer(const std::vector<uint64_t>& keys, std::vector<uint64_t>& buffer,
-                       const std::vector<std::array<size_t, 256>>& positions, size_t threads, size_t chunk_size,
-                       size_t n, int shift) {
-  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t thread_id) {
+                       const std::vector<std::array<size_t, 256>>& positions, const ParallelPlan& plan, int shift) {
+  RunParallel(plan, [&](size_t begin, size_t end, size_t thread_id) {
     auto local_pos = positions[thread_id];
     for (size_t i = begin; i < end; ++i) {
       const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
@@ -99,9 +109,8 @@ void ScatterIntoBuffer(const std::vector<uint64_t>& keys, std::vector<uint64_t>&
   });
 }
 
-void ScatterValues(std::vector<double>& nonnan, const std::vector<uint64_t>& keys, size_t threads, size_t chunk_size,
-                   size_t n) {
-  RunParallel(threads, chunk_size, n, [&](size_t begin, size_t end, size_t) {
+void ScatterValues(std::vector<double>& nonnan, const std::vector<uint64_t>& keys, const ParallelPlan& plan) {
+  RunParallel(plan, [&](size_t begin, size_t end, size_t) {
     for (size_t i = begin; i < end; ++i) {
       nonnan[i] = FromKey(keys[i]);
     }
@@ -162,29 +171,28 @@ void RadixSortDoubleStl(std::vector<double>& data) {
     return;
   }
 
-  const size_t threads = ClampThreads(std::thread::hardware_concurrency(), n);
-  const size_t chunk_size = (n + threads - 1) / threads;
+  const auto plan = MakePlan(n);
 
   std::vector<uint64_t> keys(n);
-  ComputeLocalKeys(nonnan, keys, threads, chunk_size, n);
+  ComputeLocalKeys(nonnan, keys, plan);
 
   std::vector<uint64_t> buffer(n);
   for (int pass = 0; pass < 8; ++pass) {
     const int shift = pass * 8;
 
-    std::vector<std::array<size_t, 256>> local_counts(threads);
-    ComputeLocalCounts(keys, local_counts, threads, chunk_size, n, shift);
+    std::vector<std::array<size_t, 256>> local_counts(plan.threads);
+    ComputeLocalCounts(keys, local_counts, plan, shift);
 
-    auto global_counts = AggregateCounts(local_counts, threads);
+    auto global_counts = AggregateCounts(local_counts);
     PrefixSums(global_counts);
 
-    const auto positions = PreparePositions(local_counts, global_counts, threads);
-    ScatterIntoBuffer(keys, buffer, positions, threads, chunk_size, n, shift);
+    const auto positions = PreparePositions(local_counts, global_counts);
+    ScatterIntoBuffer(keys, buffer, positions, plan, shift);
 
     keys.swap(buffer);
   }
 
-  ScatterValues(nonnan, keys, threads, chunk_size, n);
+  ScatterValues(nonnan, keys, plan);
 
   data = std::move(nonnan);
   data.insert(data.end(), nans.begin(), nans.end());
