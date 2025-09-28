@@ -55,7 +55,7 @@ bool dudchenko_o_connected_components::TestTaskSequential::PostProcessingImpl() 
 void dudchenko_o_connected_components::TestTaskSequential::LabelComponents() {
   size_t total_pixels = width_ * height_;
   std::vector<int> labels(total_pixels, 0);
-  std::vector<int> parent(total_pixels + 1, 0);
+  std::vector<int32_t> parent(total_pixels + 1, 0);
 
   FirstPass(labels, parent);
   SecondPass(labels, parent);
@@ -63,7 +63,7 @@ void dudchenko_o_connected_components::TestTaskSequential::LabelComponents() {
 }
 
 void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector<int>& component_labels,
-                                                                     std::vector<int>& union_find_data) {
+                                                                     std::vector<int32_t>& parent_structure) {
   int next_label = 1;
 
   for (int y = 0; y < height_; ++y) {
@@ -80,20 +80,20 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector
 
       if (left_label == 0 && top_label == 0) {
         component_labels[index] = next_label;
-        union_find_data[next_label] = next_label;
+        parent_structure[next_label] = next_label;
         next_label++;
       } else if (left_label != 0 && top_label == 0) {
         component_labels[index] = left_label;
       } else if (left_label == 0 && top_label != 0) {
         component_labels[index] = top_label;
       } else {
-        int root_left = FindRoot(union_find_data, left_label);
-        int root_top = FindRoot(union_find_data, top_label);
+        int root_left = FindRoot(parent_structure, left_label);
+        int root_top = FindRoot(parent_structure, top_label);
         int min_root = std::min(root_left, root_top);
         component_labels[index] = min_root;
 
         if (root_left != root_top) {
-          UnionSets(union_find_data, root_left, root_top);
+          UnionSets(parent_structure, root_left, root_top);
         }
       }
     }
@@ -101,22 +101,22 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector
 }
 
 void dudchenko_o_connected_components::TestTaskSequential::SecondPass(std::vector<int>& component_labels,
-                                                                      const std::vector<int>& union_find_data) {
+                                                                      const std::vector<int32_t>& parent_structure) {
   for (size_t i = 0; i < component_labels.size(); ++i) {
     if (component_labels[i] != 0) {
-      component_labels[i] = FindRoot(const_cast<std::vector<int>&>(union_find_data), component_labels[i]);
+      component_labels[i] = FindRoot(const_cast<std::vector<int32_t>&>(parent_structure), component_labels[i]);
     }
   }
 }
 
-int dudchenko_o_connected_components::TestTaskSequential::FindRoot(std::vector<int>& parent, int x) {
+int dudchenko_o_connected_components::TestTaskSequential::FindRoot(std::vector<int32_t>& parent, int x) {
   if (parent[x] != x) {
     parent[x] = FindRoot(parent, parent[x]);
   }
   return parent[x];
 }
 
-void dudchenko_o_connected_components::TestTaskSequential::UnionSets(std::vector<int>& parent, int x, int y) {
+void dudchenko_o_connected_components::TestTaskSequential::UnionSets(std::vector<int32_t>& parent, int x, int y) {
   int root_x = FindRoot(parent, x);
   int root_y = FindRoot(parent, y);
 

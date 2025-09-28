@@ -10,6 +10,42 @@
 #include "core/task/include/task.hpp"
 #include "seq/dudchenko_o_connected_components/include/ops_seq.hpp"
 
+namespace {
+
+void CheckForegroundBackground(const std::vector<int>& output_data, 
+                              const std::vector<size_t>& foreground_indices,
+                              const std::vector<size_t>& background_indices) {
+  for (size_t idx : foreground_indices) {
+    EXPECT_NE(output_data[idx], 0);
+  }
+  for (size_t idx : background_indices) {
+    EXPECT_EQ(output_data[idx], 0);
+  }
+}
+
+void CheckAllLabelsUnique(const std::vector<int>& output_data, 
+                         const std::vector<size_t>& indices) {
+  std::vector<int> labels;
+  for (size_t idx : indices) {
+    if (output_data[idx] != 0 && 
+        std::find(labels.begin(), labels.end(), output_data[idx]) == labels.end()) {
+      labels.push_back(output_data[idx]);
+    }
+  }
+  
+  // Все метки уже уникальны по построению, проверяем что их количество равно количеству индексов
+  EXPECT_EQ(labels.size(), indices.size());
+}
+
+void CheckComponentPoints(const std::vector<int>& output_data, int component_label, 
+                         const std::vector<size_t>& indices) {
+  for (size_t idx : indices) {
+    EXPECT_EQ(output_data[idx], component_label);
+  }
+}
+
+}  // namespace
+
 TEST(dudchenko_o_connected_components_seq, test_small_image) {
   int width = 3;
   int height = 3;
@@ -36,26 +72,9 @@ TEST(dudchenko_o_connected_components_seq, test_small_image) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  // Проверяем foreground точки имеют ненулевые метки
-  const std::vector<size_t> foreground_indices = {0, 2, 4, 6, 8};
-  for (size_t idx : foreground_indices) {
-    EXPECT_NE(output_data[idx], 0) << "Foreground point at index " << idx << " should have non-zero label";
-  }
-
-  // Проверяем background точки имеют нулевые метки
-  const std::vector<size_t> background_indices = {1, 3, 5, 7};
-  for (size_t idx : background_indices) {
-    EXPECT_EQ(output_data[idx], 0) << "Background point at index " << idx << " should have zero label";
-  }
-
-  // Проверяем что все foreground точки имеют разные метки (они не связаны)
-  for (size_t i = 0; i < foreground_indices.size(); ++i) {
-    for (size_t j = i + 1; j < foreground_indices.size(); ++j) {
-      EXPECT_NE(output_data[foreground_indices[i]], output_data[foreground_indices[j]])
-          << "Points at indices " << foreground_indices[i] << " and " << foreground_indices[j] 
-          << " should have different labels";
-    }
-  }
+  // Проверяем базовые свойства
+  CheckForegroundBackground(output_data, {0, 2, 4, 6, 8}, {1, 3, 5, 7});
+  CheckAllLabelsUnique(output_data, {0, 2, 4, 6, 8});
 }
 
 TEST(dudchenko_o_connected_components_seq, test_single_component) {
@@ -123,7 +142,6 @@ TEST(dudchenko_o_connected_components_seq, test_no_components) {
 TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   int width = 5;
   int height = 5;
-  // Два отдельных компонента из foreground точек (0)
   std::vector<int> image_data = {0, 0, 255, 255, 255,
                                  0, 0, 255, 255, 255, 
                                  255, 255, 255, 255, 255, 
@@ -149,20 +167,22 @@ TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  int comp1 = output_data[0];  // левый верхний компонент
-  int comp2 = output_data[18]; // правый нижний компонент
+  // Проверяем два компонента
+  int comp1 = output_data[0];
+  int comp2 = output_data[18];
 
   EXPECT_NE(comp1, 0);
   EXPECT_NE(comp2, 0);
   EXPECT_NE(comp1, comp2);
 
-  // Проверяем точки первого компонента
-  EXPECT_EQ(output_data[1], comp1);
-  EXPECT_EQ(output_data[5], comp1);
-  EXPECT_EQ(output_data[6], comp1);
+  // Проверяем точки компонентов
+  CheckComponentPoints(output_data, comp1, {0, 1, 5, 6});
+  CheckComponentPoints(output_data, comp2, {18, 19, 23, 24});
+}
 
-  // Проверяем точки второго компонента
-  EXPECT_EQ(output_data[19], comp2);
-  EXPECT_EQ(output_data[23], comp2);
-  EXPECT_EQ(output_data[24], comp2);
+void CheckComponentPoints(const std::vector<int>& output_data, int component_label, 
+                         const std::vector<size_t>& indices) {
+  for (size_t idx : indices) {
+    EXPECT_EQ(output_data[idx], component_label);
+  }
 }
