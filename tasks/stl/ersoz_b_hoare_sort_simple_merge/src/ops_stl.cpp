@@ -24,7 +24,7 @@ long long HoareSortSimpleMergeSTL::Partition(std::vector<int>& a, long long l, l
       --j;
     }
   }
-  return i;  
+  return i;
 }
 
 void HoareSortSimpleMergeSTL::QuickSortHoare(std::vector<int>& a, long long l, long long r) {
@@ -108,7 +108,6 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
     return true;
   }
   if (n == 1) {
-
     output_[0] = input_[0];
     return true;
   }
