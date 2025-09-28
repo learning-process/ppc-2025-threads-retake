@@ -106,19 +106,25 @@ bool ConnectedComponentsOmp::RunImpl() {
           labels[idx] = min_label;
 
           if (min_label != max_label) {
-#pragma omp critical(parent_update) {
             int root_min = FindRoot(parent, min_label);
             int root_max = FindRoot(parent, max_label);
 
             if (root_min != root_max) {
-              int new_root = std::min(root_min, root_max);
-              int old_root = std::max(root_min, root_max);
+                int new_root = std::min(root_min, root_max);
+                int old_root = std::max(root_min, root_max);
 
-              parent[old_root] = new_root;
-              if (min_label != root_min) parent[min_label] = new_root;
-              if (max_label != root_max) parent[max_label] = new_root;
+#pragma omp atomic write
+                parent[old_root] = new_root;
+
+                if (min_label != root_min) {
+#pragma omp atomic write
+                    parent[min_label] = new_root;
+                }
+                if (max_label != root_max) {
+#pragma omp atomic write
+                    parent[max_label] = new_root;
+                }
             }
-          }
         }
       }
     }
