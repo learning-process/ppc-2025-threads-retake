@@ -93,6 +93,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
+  //..
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(sort_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
