@@ -17,16 +17,25 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  // Создаем настоящие структуры вместо typedef
+  struct ComponentLabels {
+    std::vector<int> labels;
+  };
+
+  struct ParentStructure {
+    std::vector<int32_t> parents;
+  };
+
   std::vector<int> input_;
   std::vector<int> output_;
   int width_;
   int height_;
 
   void LabelComponents();
-  void FirstPass(std::vector<int>& component_labels, std::vector<int32_t>& parent_structure);
-  static void SecondPass(std::vector<int>& component_labels, const std::vector<int32_t>& parent_structure);
-  static int FindRoot(std::vector<int32_t>& parent, int x);
-  static void UnionSets(std::vector<int32_t>& parent, int x, int y);
+  void FirstPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
+  static void SecondPass(ComponentLabels& component_labels, const ParentStructure& parent_structure);
+  static int FindRoot(ParentStructure& parent, int x);
+  static void UnionSets(ParentStructure& parent, int x, int y);
 };
 
 }  // namespace dudchenko_o_connected_components
