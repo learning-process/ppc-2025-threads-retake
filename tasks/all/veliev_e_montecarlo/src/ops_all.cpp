@@ -18,7 +18,7 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::PreProcessingImpl() {
     Int2_[0] = reinterpret_cast<double *>(task_data->inputs[1])[0];
     Int2_[1] = reinterpret_cast<double *>(task_data->inputs[1])[1];
 
-    N_ = *reinterpret_cast<int *>(task_data->inputs[3]);
+    N_ = *reinterpret_cast<int *>(task_data->inputs[2]);
     res_ = 0.0;
   }
   return true;
