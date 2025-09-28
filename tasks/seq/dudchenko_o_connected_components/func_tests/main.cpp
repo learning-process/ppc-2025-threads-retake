@@ -13,7 +13,6 @@
 TEST(dudchenko_o_connected_components_seq, test_small_image) {
   int width = 3;
   int height = 3;
-  // Используем 0 для foreground (связных компонентов), 255 для background
   std::vector<int> image_data = {0, 255, 0, 
                                  255, 0, 255, 
                                  0, 255, 0};
@@ -37,29 +36,26 @@ TEST(dudchenko_o_connected_components_seq, test_small_image) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  // Проверяем что foreground точки (0 в исходных данных) получили ненулевые метки
-  // а background точки (255) остались с 0
-  EXPECT_NE(output_data[0], 0);  // (0,0) - foreground
-  EXPECT_EQ(output_data[1], 0);  // (1,0) - background
-  EXPECT_NE(output_data[2], 0);  // (2,0) - foreground
-  EXPECT_EQ(output_data[3], 0);  // (0,1) - background
-  EXPECT_NE(output_data[4], 0);  // (1,1) - foreground
-  EXPECT_EQ(output_data[5], 0);  // (2,1) - background
-  EXPECT_NE(output_data[6], 0);  // (0,2) - foreground
-  EXPECT_EQ(output_data[7], 0);  // (1,2) - background
-  EXPECT_NE(output_data[8], 0);  // (2,2) - foreground
+  // Проверяем foreground точки имеют ненулевые метки
+  const std::vector<size_t> foreground_indices = {0, 2, 4, 6, 8};
+  for (size_t idx : foreground_indices) {
+    EXPECT_NE(output_data[idx], 0) << "Foreground point at index " << idx << " should have non-zero label";
+  }
 
-  // Все foreground точки должны быть разными компонентами (диагональные точки не связаны)
-  EXPECT_NE(output_data[0], output_data[2]);
-  EXPECT_NE(output_data[0], output_data[4]);
-  EXPECT_NE(output_data[0], output_data[6]);
-  EXPECT_NE(output_data[0], output_data[8]);
-  EXPECT_NE(output_data[2], output_data[4]);
-  EXPECT_NE(output_data[2], output_data[6]);
-  EXPECT_NE(output_data[2], output_data[8]);
-  EXPECT_NE(output_data[4], output_data[6]);
-  EXPECT_NE(output_data[4], output_data[8]);
-  EXPECT_NE(output_data[6], output_data[8]);
+  // Проверяем background точки имеют нулевые метки
+  const std::vector<size_t> background_indices = {1, 3, 5, 7};
+  for (size_t idx : background_indices) {
+    EXPECT_EQ(output_data[idx], 0) << "Background point at index " << idx << " should have zero label";
+  }
+
+  // Проверяем что все foreground точки имеют разные метки (они не связаны)
+  for (size_t i = 0; i < foreground_indices.size(); ++i) {
+    for (size_t j = i + 1; j < foreground_indices.size(); ++j) {
+      EXPECT_NE(output_data[foreground_indices[i]], output_data[foreground_indices[j]])
+          << "Points at indices " << foreground_indices[i] << " and " << foreground_indices[j] 
+          << " should have different labels";
+    }
+  }
 }
 
 TEST(dudchenko_o_connected_components_seq, test_single_component) {

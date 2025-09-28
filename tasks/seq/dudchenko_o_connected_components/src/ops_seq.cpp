@@ -63,7 +63,7 @@ void dudchenko_o_connected_components::TestTaskSequential::LabelComponents() {
 }
 
 void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector<int>& component_labels,
-                                                                     std::vector<int>& union_find_parent) {
+                                                                     std::vector<int>& union_find_data) {
   int next_label = 1;
 
   for (int y = 0; y < height_; ++y) {
@@ -80,20 +80,20 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector
 
       if (left_label == 0 && top_label == 0) {
         component_labels[index] = next_label;
-        union_find_parent[next_label] = next_label;
+        union_find_data[next_label] = next_label;
         next_label++;
       } else if (left_label != 0 && top_label == 0) {
         component_labels[index] = left_label;
       } else if (left_label == 0 && top_label != 0) {
         component_labels[index] = top_label;
       } else {
-        int root_left = FindRoot(union_find_parent, left_label);
-        int root_top = FindRoot(union_find_parent, top_label);
+        int root_left = FindRoot(union_find_data, left_label);
+        int root_top = FindRoot(union_find_data, top_label);
         int min_root = std::min(root_left, root_top);
         component_labels[index] = min_root;
 
         if (root_left != root_top) {
-          UnionSets(union_find_parent, root_left, root_top);
+          UnionSets(union_find_data, root_left, root_top);
         }
       }
     }
@@ -101,10 +101,10 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(std::vector
 }
 
 void dudchenko_o_connected_components::TestTaskSequential::SecondPass(std::vector<int>& component_labels,
-                                                                      const std::vector<int>& union_find_parent) {
+                                                                      const std::vector<int>& union_find_data) {
   for (size_t i = 0; i < component_labels.size(); ++i) {
     if (component_labels[i] != 0) {
-      component_labels[i] = FindRoot(const_cast<std::vector<int>&>(union_find_parent), component_labels[i]);
+      component_labels[i] = FindRoot(const_cast<std::vector<int>&>(union_find_data), component_labels[i]);
     }
   }
 }
