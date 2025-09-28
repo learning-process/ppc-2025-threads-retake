@@ -132,15 +132,15 @@ void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find, int m
   const int new_root = std::min(root_min, root_max);
   const int old_root = std::max(root_min, root_max);
 
-#pragma omp atomic
+#pragma omp critical(union_update)
   union_find[old_root] = new_root;
 
   if (min_label != root_min) {
-#pragma omp atomic
+#pragma omp critical(union_update)
     union_find[min_label] = new_root;
   }
   if (max_label != root_max) {
-#pragma omp atomic
+#pragma omp critical(union_update)
     union_find[max_label] = new_root;
   }
 }
