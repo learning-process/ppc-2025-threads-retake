@@ -27,7 +27,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_small_array) {
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -56,7 +57,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_medium_array) {
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -84,7 +86,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_large_array) {
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -106,7 +109,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_already_sorted) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -129,7 +133,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_reverse_sorted) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -140,8 +145,10 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_reverse_sorted) {
 TEST(budazhapova_e_qs_merge_sort_omp, test_sort_with_duplicates) {
   constexpr size_t kCount = 20;
 
-  std::vector<int> in = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4};
-  std::vector<int> expected = {1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8, 8, 9, 9, 9};
+  std::vector<int> in = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3,
+                         5, 8, 9, 7, 9, 3, 2, 3, 8, 4};
+  std::vector<int> expected = {1, 1, 2, 2, 3, 3, 3, 3, 4, 4,
+                               5, 5, 5, 6, 7, 8, 8, 9, 9, 9};
   std::vector<int> out(kCount, 0);
 
   // Create task_data
@@ -152,7 +159,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_with_duplicates) {
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -175,7 +183,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_single_element) {
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -196,7 +205,8 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_sort_empty_array) {
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -218,6 +228,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_validation_fail) {
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task - validation should fail
-  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(task_data_omp);
+  budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP test_task_omp(
+      task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), false);
 }

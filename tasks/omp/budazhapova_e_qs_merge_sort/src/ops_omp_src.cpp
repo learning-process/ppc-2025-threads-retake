@@ -55,7 +55,8 @@ MergeRange MakeMergeRange(int range_start, int range_mid, int range_end) {
 }
 
 void SequentialMerge(std::vector<int>& arr, const MergeRange& range) {
-  if (range.start > range.end || range.mid < range.start || range.mid > range.end) {
+  if (range.start > range.end || range.mid < range.start ||
+      range.mid > range.end) {
     return;
   }
 
@@ -86,7 +87,8 @@ void SequentialMerge(std::vector<int>& arr, const MergeRange& range) {
 
 // NOLINTBEGIN(modernize-use-designated-initializers)
 void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
-  if (range.start >= range.end || range.mid < range.start || range.mid >= range.end) {
+  if (range.start >= range.end || range.mid < range.start ||
+      range.mid >= range.end) {
     return;
   }
 
@@ -113,7 +115,8 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
 
   if (range.start <= i - 1 && j - 1 >= range.start && i - 1 >= range.start) {
     MergeRange left_range = MakeMergeRange(range.start, i - 1, j - 1);
-    if (left_range.start <= left_range.mid && left_range.mid <= left_range.end) {
+    if (left_range.start <= left_range.mid &&
+        left_range.mid <= left_range.end) {
 #pragma omp task default(none) shared(arr) firstprivate(left_range)
       { ParallelMerge(arr, left_range); }
     }
@@ -121,7 +124,8 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
 
   if (i <= range.mid && range.end >= j && j <= range.end) {
     MergeRange right_range = MakeMergeRange(i, range.mid, range.end);
-    if (right_range.start <= right_range.mid && right_range.mid <= right_range.end) {
+    if (right_range.start <= right_range.mid &&
+        right_range.mid <= right_range.end) {
 #pragma omp task default(none) shared(arr) firstprivate(right_range)
       { ParallelMerge(arr, right_range); }
     }
@@ -158,7 +162,8 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
 
     if (low <= pi && pi < high) {
       MergeRange merge_range = MakeMergeRange(low, pi, high);
-      if (merge_range.start <= merge_range.mid && merge_range.mid < merge_range.end) {
+      if (merge_range.start <= merge_range.mid &&
+          merge_range.mid < merge_range.end) {
         ParallelMerge(arr, merge_range);
       }
     }
@@ -192,7 +197,10 @@ bool budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP::RunImpl() {
 #pragma omp parallel
     {
 #pragma omp single nowait
-      { QuickSortMergeParallel(output_, 0, static_cast<int>(output_.size()) - 1); }
+      {
+        QuickSortMergeParallel(output_, 0,
+                               static_cast<int>(output_.size()) - 1);
+      }
     }
   }
 
