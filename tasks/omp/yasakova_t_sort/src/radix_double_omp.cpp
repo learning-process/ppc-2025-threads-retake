@@ -14,6 +14,19 @@ namespace yasakova_t_sort_omp {
 
 namespace {
 
+struct ParallelPlan {
+  size_t threads;
+  size_t chunk_size;
+  size_t total;
+};
+
+ParallelPlan MakePlan(size_t total) {
+  const size_t threads = static_cast<size_t>(std::max(1, omp_get_max_threads()));
+  const size_t clamped_threads = std::min(threads, total);
+  const size_t chunk_size = (total + clamped_threads - 1) / clamped_threads;
+  return ParallelPlan{clamped_threads, chunk_size, total};
+}
+
 void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys) {
 #pragma omp parallel for schedule(static)
   for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(nonnan.size()); ++i) {
@@ -22,11 +35,11 @@ void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& 
 }
 
 void ComputeLocalCounts(const std::vector<uint64_t>& keys, std::vector<std::array<size_t, 256>>& local_counts,
-                        size_t threads, size_t chunk_size, size_t n, int shift) {
+                        const ParallelPlan& plan, int shift) {
 #pragma omp parallel for schedule(static)
-  for (std::ptrdiff_t chunk = 0; chunk < static_cast<std::ptrdiff_t>(threads); ++chunk) {
-    const size_t begin = static_cast<size_t>(chunk) * chunk_size;
-    const size_t end = std::min(n, begin + chunk_size);
+  for (std::ptrdiff_t chunk = 0; chunk < static_cast<std::ptrdiff_t>(plan.threads); ++chunk) {
+    const size_t begin = static_cast<size_t>(chunk) * plan.chunk_size;
+    const size_t end = std::min(plan.total, begin + plan.chunk_size);
     auto& local = local_counts[static_cast<size_t>(chunk)];
     local.fill(0);
     for (size_t i = begin; i < end; ++i) {
@@ -67,13 +80,12 @@ std::vector<std::array<size_t, 256>> PreparePositions(const std::vector<std::arr
   return positions;
 }
 
-void ScatterIntoBuffer(const std::vector<uint64_t>& keys, std::vector<uint64_t>& buffer,
-                       const std::vector<std::array<size_t, 256>>& positions, size_t threads, size_t chunk_size,
-                       size_t n, int shift) {
+void ScatterIntoBuffer(const std::vector<uint64_t>& keys, std::vector<uint64_t>& buffer, const ParallelPlan& plan,
+                       const std::vector<std::array<size_t, 256>>& positions, int shift) {
 #pragma omp parallel for schedule(static)
-  for (std::ptrdiff_t chunk = 0; chunk < static_cast<std::ptrdiff_t>(threads); ++chunk) {
-    const size_t begin = static_cast<size_t>(chunk) * chunk_size;
-    const size_t end = std::min(n, begin + chunk_size);
+  for (std::ptrdiff_t chunk = 0; chunk < static_cast<std::ptrdiff_t>(plan.threads); ++chunk) {
+    const size_t begin = static_cast<size_t>(chunk) * plan.chunk_size;
+    const size_t end = std::min(plan.total, begin + plan.chunk_size);
     auto local_pos = positions[static_cast<size_t>(chunk)];
     for (size_t i = begin; i < end; ++i) {
       const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
@@ -143,25 +155,23 @@ void RadixSortDoubleOmp(std::vector<double>& data) {
     return;
   }
 
+  const auto plan = MakePlan(n);
+
   std::vector<uint64_t> keys(n);
   ComputeLocalKeys(nonnan, keys);
-
-  auto threads = static_cast<size_t>(std::max(1, omp_get_max_threads()));
-  threads = std::min(threads, n);
-  const size_t chunk_size = (n + threads - 1) / threads;
 
   std::vector<uint64_t> buffer(n);
   for (int pass = 0; pass < 8; ++pass) {
     const int shift = pass * 8;
 
-    std::vector<std::array<size_t, 256>> local_counts(threads);
-    ComputeLocalCounts(keys, local_counts, threads, chunk_size, n, shift);
+    std::vector<std::array<size_t, 256>> local_counts(plan.threads);
+    ComputeLocalCounts(keys, local_counts, plan, shift);
 
     auto global_counts = AggregateCounts(local_counts);
     PrefixSums(global_counts);
 
     const auto positions = PreparePositions(local_counts, global_counts);
-    ScatterIntoBuffer(keys, buffer, positions, threads, chunk_size, n, shift);
+    ScatterIntoBuffer(keys, buffer, plan, positions, shift);
 
     keys.swap(buffer);
   }
