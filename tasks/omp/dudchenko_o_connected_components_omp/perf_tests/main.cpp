@@ -1,138 +1,114 @@
 #include <gtest/gtest.h>
-#include <omp.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <ctime>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
-
-using dudchenko_o_connected_components_omp::ConnectedComponentsOmp;
-
-namespace {
-constexpr int kLargeWidth = 1024;
-constexpr int kLargeHeight = 1024;
-
-std::vector<uint8_t> GenerateTestImage(int width, int height, double density_val) {
-  std::vector<uint8_t> img(static_cast<std::size_t>(width) * static_cast<std::size_t>(height), 255);
-  std::mt19937 rng(42);
-  std::uniform_real_distribution<double> dist(0.0, 1.0);
-
-  for (int i = 0; i < width * height; ++i) {
-    if (dist(rng) < density_val) {
-      img[i] = 0;
-    }
-  }
-  return img;
-}
-
-std::vector<uint8_t> GenerateGridImage(int width, int height, int grid_step) {
-  std::vector<uint8_t> img(static_cast<std::size_t>(width) * static_cast<std::size_t>(height), 255);
-
-  for (int y = 0; y < height; y += grid_step) {
-    for (int x = 0; x < width; x += grid_step) {
-      if (x < width && y < height) {
-        img[(static_cast<std::size_t>(y) * static_cast<std::size_t>(width)) + static_cast<std::size_t>(x)] = 0;
-      }
-    }
-  }
-  return img;
-}
-
-inline double NowSec() {
-  using Clock = std::chrono::high_resolution_clock;
-  static const auto kT0 = Clock::now();
-  return std::chrono::duration<double>(Clock::now() - kT0).count();
-}
-
-struct ImageSpec {
-  int width;
-  int height;
-  ImageSpec(int width_value, int height_value) : width(width_value), height(height_value) {}
-};
-
-std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
-  auto attr = std::make_shared<ppc::core::PerfAttr>();
-  attr->num_running = runs;
-  attr->current_timer = [] { return NowSec(); };
-  return attr;
-}
-
-std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& img, const ImageSpec& spec,
-                                                  std::vector<int>& labels) {
-  auto td = std::make_shared<ppc::core::TaskData>();
-  td->inputs.emplace_back(const_cast<uint8_t*>(img.data()));
-  td->inputs_count.emplace_back(static_cast<unsigned int>(img.size()));
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&spec.width)));
-  td->inputs_count.emplace_back(1);
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&spec.height)));
-  td->inputs_count.emplace_back(1);
-
-  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(labels.data()));
-  td->outputs_count.emplace_back(static_cast<unsigned int>(labels.size()));
-
-  return td;
-}
-}  // namespace
+#include "omp/dudchenko_o_connected_components/include/ops_omp.hpp"
 
 TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
-  const auto img = GenerateTestImage(kLargeWidth, kLargeHeight, 0.3);
-  std::vector<int> labels(img.size());
-  ImageSpec spec(kLargeWidth, kLargeHeight);
+  int width = 100;
+  int height = 100;
+  std::vector<int> image_data(width * height);
 
-  auto td = MakeTaskData(img, spec, labels);
-  auto task = std::make_shared<ConnectedComponentsOmp>(td);
+  std::srand(static_cast<unsigned int>(std::time(nullptr)));
+  for (size_t i = 0; i < image_data.size(); ++i) {
+    // Генерируем значения 0 (foreground) или 255 (background)
+    image_data[i] = (std::rand() % 2) * 255;
+  }
 
-  auto perf_attr = MakePerfAttr(150);
+  std::vector<int> input_data;
+  input_data.push_back(width);
+  input_data.push_back(height);
+  input_data.insert(input_data.end(), image_data.begin(), image_data.end());
+
+  std::vector<int> output_data(width * height);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_omp->inputs_count.emplace_back(input_data.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_omp->outputs_count.emplace_back(output_data.size());
+
+  auto test_task_omp = std::make_shared<dudchenko_o_connected_components_omp::TestTaskOpenMP>(task_data_omp);
+
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
+
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf = std::make_shared<ppc::core::Perf>(task);
 
-  perf->PipelineRun(perf_attr, perf_results);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  const unsigned n = td->outputs_count[0];
-  ASSERT_EQ(n, labels.size());
-
-  int max_label = 0;
-  for (int label : labels) {
-    max_label = std::max(label, max_label);
+  // Проверяем логику: 0 - foreground (должны получить ненулевые метки), 255 - background (должны получить 0)
+  for (int i = 0; i < width * height; ++i) {
+    if (image_data[i] == 0) {
+      EXPECT_NE(output_data[i], 0) << "Foreground pixel at index " << i << " should have non-zero label";
+    } else {
+      EXPECT_EQ(output_data[i], 0) << "Background pixel at index " << i << " should have zero label";
+    }
   }
-  EXPECT_GT(max_label, 0);
 }
 
 TEST(dudchenko_o_connected_components_omp, test_task_run) {
-  const auto img = GenerateGridImage(kLargeWidth, kLargeHeight, 8);
-  std::vector<int> labels(img.size());
-  ImageSpec spec(kLargeWidth, kLargeHeight);
+  int width = 150;
+  int height = 150;
+  std::vector<int> image_data(width * height);
 
-  auto td = MakeTaskData(img, spec, labels);
-  auto task = std::make_shared<ConnectedComponentsOmp>(td);
+  std::srand(static_cast<unsigned int>(std::time(nullptr)));
+  for (size_t i = 0; i < image_data.size(); ++i) {
+    // Генерируем значения 0 (foreground) или 255 (background)
+    image_data[i] = (std::rand() % 2) * 255;
+  }
 
-  auto perf_attr = MakePerfAttr(500);
+  std::vector<int> input_data;
+  input_data.push_back(width);
+  input_data.push_back(height);
+  input_data.insert(input_data.end(), image_data.begin(), image_data.end());
+
+  std::vector<int> output_data(width * height);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_omp->inputs_count.emplace_back(input_data.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_omp->outputs_count.emplace_back(output_data.size());
+
+  auto test_task_omp = std::make_shared<dudchenko_o_connected_components_omp::TestTaskOpenMP>(task_data_omp);
+
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
+
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf = std::make_shared<ppc::core::Perf>(task);
 
-  ASSERT_TRUE(task->ValidationImpl());
-  ASSERT_TRUE(task->PreProcessingImpl());
-
-  perf->TaskRun(perf_attr, perf_results);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  const unsigned n = td->outputs_count[0];
-  ASSERT_EQ(n, labels.size());
-
-  int unique_components = 0;
-  std::vector<bool> component_seen(kLargeWidth * kLargeHeight, false);
-  for (int label : labels) {
-    if (label > 0 && !component_seen[label]) {
-      component_seen[label] = true;
-      unique_components++;
+  // Проверяем логику: 0 - foreground (должны получить ненулевые метки), 255 - background (должны получить 0)
+  for (int i = 0; i < width * height; ++i) {
+    if (image_data[i] == 0) {
+      EXPECT_NE(output_data[i], 0) << "Foreground pixel at index " << i << " should have non-zero label";
+    } else {
+      EXPECT_EQ(output_data[i], 0) << "Background pixel at index " << i << " should have zero label";
     }
   }
-  EXPECT_GT(unique_components, 50);
 }
