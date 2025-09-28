@@ -43,8 +43,7 @@ void CheckForegroundBackground(const OutputData& output, const ForegroundIndices
 void CheckAllLabelsUnique(const OutputData& output, const Indices& indices) {
   std::vector<int> labels;
   for (size_t idx : indices.indices) {
-    if (output.data[idx] != 0 && 
-        std::ranges::find(labels, output.data[idx]) == labels.end()) {
+    if (output.data[idx] != 0 && std::ranges::find(labels, output.data[idx]) == labels.end()) {
       labels.push_back(output.data[idx]);
     }
   }
