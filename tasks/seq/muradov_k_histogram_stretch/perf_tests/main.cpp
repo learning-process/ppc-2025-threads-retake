@@ -11,18 +11,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/muradov_k_histogram_stretch/include/ops_seq.hpp"
 
-namespace {
-void ExtraCheck(const std::vector<int>& out) {
-  volatile int sum = 0;
-  for (int r = 0; r < 32; ++r) {
-    for (int v : out) {
-      sum += v & 1;
-    }
-  }
-  (void)sum;
-}
-}  // namespace
-
 TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   const int k_size = 600000;
   std::vector<int> in(k_size);
@@ -58,7 +46,6 @@ TEST(muradov_k_histogram_stretch_seq, test_pipeline_run) {
   auto mm = std::ranges::minmax_element(out);
   ASSERT_EQ(*mm.min, 0);
   ASSERT_EQ(*mm.max, 255);
-  ExtraCheck(out);
 }
 
 TEST(muradov_k_histogram_stretch_seq, test_task_run) {
@@ -96,5 +83,4 @@ TEST(muradov_k_histogram_stretch_seq, test_task_run) {
   auto mm = std::ranges::minmax_element(out);
   ASSERT_EQ(*mm.min, 0);
   ASSERT_EQ(*mm.max, 255);
-  ExtraCheck(out);
 }
