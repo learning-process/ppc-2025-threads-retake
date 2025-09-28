@@ -12,35 +12,52 @@
 
 namespace {
 
-void CheckForegroundBackground(const std::vector<int>& output_data, 
-                              const std::vector<size_t>& foreground_indices,
-                              const std::vector<size_t>& background_indices) {
-  for (size_t idx : foreground_indices) {
-    EXPECT_NE(output_data[idx], 0);
+// Структуры для устранения предупреждения о легко переставляемых параметрах
+struct OutputData {
+  const std::vector<int>& data;
+};
+
+struct ForegroundIndices {
+  const std::vector<size_t>& indices;
+};
+
+struct BackgroundIndices {
+  const std::vector<size_t>& indices;
+};
+
+struct Indices {
+  const std::vector<size_t>& indices;
+};
+
+void CheckForegroundBackground(const OutputData& output, 
+                              const ForegroundIndices& foreground,
+                              const BackgroundIndices& background) {
+  for (size_t idx : foreground.indices) {
+    EXPECT_NE(output.data[idx], 0);
   }
-  for (size_t idx : background_indices) {
-    EXPECT_EQ(output_data[idx], 0);
+  for (size_t idx : background.indices) {
+    EXPECT_EQ(output.data[idx], 0);
   }
 }
 
-void CheckAllLabelsUnique(const std::vector<int>& output_data, 
-                         const std::vector<size_t>& indices) {
+void CheckAllLabelsUnique(const OutputData& output, 
+                         const Indices& indices) {
   std::vector<int> labels;
-  for (size_t idx : indices) {
-    if (output_data[idx] != 0 && 
-        std::find(labels.begin(), labels.end(), output_data[idx]) == labels.end()) {
-      labels.push_back(output_data[idx]);
+  for (size_t idx : indices.indices) {
+    if (output.data[idx] != 0 && 
+        std::find(labels.begin(), labels.end(), output.data[idx]) == labels.end()) {
+      labels.push_back(output.data[idx]);
     }
   }
   
   // Все метки уже уникальны по построению, проверяем что их количество равно количеству индексов
-  EXPECT_EQ(labels.size(), indices.size());
+  EXPECT_EQ(labels.size(), indices.indices.size());
 }
 
-void CheckComponentPoints(const std::vector<int>& output_data, int component_label, 
-                         const std::vector<size_t>& indices) {
-  for (size_t idx : indices) {
-    EXPECT_EQ(output_data[idx], component_label);
+void CheckComponentPoints(const OutputData& output, int component_label, 
+                         const Indices& indices) {
+  for (size_t idx : indices.indices) {
+    EXPECT_EQ(output.data[idx], component_label);
   }
 }
 
@@ -73,8 +90,12 @@ TEST(dudchenko_o_connected_components_seq, test_small_image) {
   test_task_sequential.PostProcessing();
 
   // Проверяем базовые свойства
-  CheckForegroundBackground(output_data, {0, 2, 4, 6, 8}, {1, 3, 5, 7});
-  CheckAllLabelsUnique(output_data, {0, 2, 4, 6, 8});
+  OutputData output{output_data};
+  ForegroundIndices foreground{{0, 2, 4, 6, 8}};
+  BackgroundIndices background{{1, 3, 5, 7}};
+  
+  CheckForegroundBackground(output, foreground, background);
+  CheckAllLabelsUnique(output, Indices{{0, 2, 4, 6, 8}});
 }
 
 TEST(dudchenko_o_connected_components_seq, test_single_component) {
@@ -176,13 +197,7 @@ TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   EXPECT_NE(comp1, comp2);
 
   // Проверяем точки компонентов
-  CheckComponentPoints(output_data, comp1, {0, 1, 5, 6});
-  CheckComponentPoints(output_data, comp2, {18, 19, 23, 24});
-}
-
-void CheckComponentPoints(const std::vector<int>& output_data, int component_label, 
-                         const std::vector<size_t>& indices) {
-  for (size_t idx : indices) {
-    EXPECT_EQ(output_data[idx], component_label);
-  }
+  OutputData output{output_data};
+  CheckComponentPoints(output, comp1, Indices{{0, 1, 5, 6}});
+  CheckComponentPoints(output, comp2, Indices{{18, 19, 23, 24}});
 }

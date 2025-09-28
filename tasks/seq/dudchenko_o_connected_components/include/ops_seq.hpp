@@ -16,16 +16,20 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  // Объявляем типы для устранения предупреждения о легко переставляемых параметрах
+  using LabelVector = std::vector<int>;
+  using ParentVector = std::vector<int32_t>;
+
   std::vector<int> input_;
   std::vector<int> output_;
   int width_;
   int height_;
 
   void LabelComponents();
-  void FirstPass(std::vector<int>& component_labels, std::vector<int32_t>& parent_structure);
-  static void SecondPass(std::vector<int>& component_labels, const std::vector<int>& union_find_data);
-  static int FindRoot(std::vector<int>& parent, int x);
-  static void UnionSets(std::vector<int>& parent, int x, int y);
+  void FirstPass(LabelVector& component_labels, ParentVector& parent_structure);
+  static void SecondPass(LabelVector& component_labels, const ParentVector& parent_structure);
+  static int FindRoot(ParentVector& parent, int x);
+  static void UnionSets(ParentVector& parent, int x, int y);
 };
 
 }  // namespace dudchenko_o_connected_components
