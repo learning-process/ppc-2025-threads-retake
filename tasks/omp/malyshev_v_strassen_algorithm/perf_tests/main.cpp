@@ -25,7 +25,7 @@ std::vector<double> GenerateRandomMatrix(size_t size) {
 }  // namespace
 
 TEST(malyshev_v_strassen_algorithm_omp, test_pipeline_run) {
-  constexpr size_t kMatrixSize = 512;
+  constexpr size_t kMatrixSize = 2048;
   std::vector<double> in_a = GenerateRandomMatrix(kMatrixSize);
   std::vector<double> in_b = GenerateRandomMatrix(kMatrixSize);
   std::vector<double> out(kMatrixSize * kMatrixSize, 0.0);
@@ -62,7 +62,7 @@ TEST(malyshev_v_strassen_algorithm_omp, test_pipeline_run) {
 }
 
 TEST(malyshev_v_strassen_algorithm_omp, test_task_run) {
-  constexpr size_t kMatrixSize = 512;
+  constexpr size_t kMatrixSize = 2048;
   std::vector<double> in_a = GenerateRandomMatrix(kMatrixSize);
   std::vector<double> in_b = GenerateRandomMatrix(kMatrixSize);
   std::vector<double> out(kMatrixSize * kMatrixSize, 0.0);
