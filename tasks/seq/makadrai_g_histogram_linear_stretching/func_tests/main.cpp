@@ -44,8 +44,6 @@ TEST(makadrai_g_histogram_linear_stretching, test_opencv_image_validation) {
                  cv::IMREAD_GRAYSCALE);
   ASSERT_FALSE(reference_image.empty());
 
-
-   
   // images validation
   ASSERT_EQ(input_image.size(), reference_image.size());
   ASSERT_EQ(input_image.type(), reference_image.type());
