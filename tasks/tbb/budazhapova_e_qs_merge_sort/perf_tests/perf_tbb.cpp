@@ -26,7 +26,6 @@ TEST(budazhapova_e_qs_merge_sort_tbb, test_pipeline_run) {
   std::vector<int> expected = in;
   std::ranges::sort(expected);
 
-  // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_tbb->inputs_count.emplace_back(in.size());
