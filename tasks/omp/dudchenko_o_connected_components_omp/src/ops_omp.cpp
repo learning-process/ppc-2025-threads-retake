@@ -127,8 +127,8 @@ void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& pixel_labels,
   UnionComponents(union_find, min_label, max_label, root_min, root_max);
 }
 
-void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find, int min_label, int max_label, int root_min, 
-                                            int root_max) {
+void ConnectedComponentsOmp::UnionComponents(std::vector<int>& union_find, int min_label, int max_label, int root_min,
+                                             int root_max) {
   const int new_root = std::min(root_min, root_max);
   const int old_root = std::max(root_min, root_max);
 
