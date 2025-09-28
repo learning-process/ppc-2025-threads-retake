@@ -1,12 +1,13 @@
 #include "tbb/vasenkov_a_vertical_gauss_3x3/include/ops_tbb.hpp"
 
 #include <tbb/blocked_range2d.h>
-#include <tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+
+#include "oneapi/tbb/parallel_for.h"
 
 bool vasenkov_a_vertical_gauss_3x3_tbb::VerticalGauss::PreProcessingImpl() {
   img_width_ = static_cast<int32_t>(task_data->inputs_count[0]);
