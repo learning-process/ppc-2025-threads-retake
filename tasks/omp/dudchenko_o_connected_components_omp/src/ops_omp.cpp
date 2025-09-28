@@ -169,7 +169,7 @@ bool ConnectedComponentsOmp::RunImpl() {
     }
 
     return true;
-}
+  }
 
   bool ConnectedComponentsOmp::PostProcessingImpl() {
     auto* output_data = reinterpret_cast<int*>(task_data->outputs[0]);
