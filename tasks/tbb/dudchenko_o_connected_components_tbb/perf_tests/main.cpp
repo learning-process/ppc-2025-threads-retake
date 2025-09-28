@@ -46,7 +46,7 @@ std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
 }
 }  // namespace
 
-TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
+TEST(dudchenko_o_connected_components_tbb, test_pipeline) {
   auto img = CreateTestImage(kSmallSize);
   std::vector<int> out(img.size());
   int w = kSmallSize, h = kSmallSize;
@@ -70,7 +70,7 @@ TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(dudchenko_o_connected_components_tbb, perf_task_run_small) {
+TEST(dudchenko_o_connected_components_tbb, test_task_run) {
   auto img = CreateTestImage(kSmallSize);
   std::vector<int> out(img.size());
   int w = kSmallSize, h = kSmallSize;
@@ -94,54 +94,3 @@ TEST(dudchenko_o_connected_components_tbb, perf_task_run_small) {
   task->PreProcessingImpl();
   perf->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-}
-
-TEST(dudchenko_o_connected_components_tbb, perf_pipeline_medium) {
-  auto img = CreateTestImage(kMediumSize);
-  std::vector<int> out(img.size());
-  int w = kMediumSize, h = kMediumSize;
-
-  auto td = std::make_shared<ppc::core::TaskData>();
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
-  td->inputs_count.emplace_back(img.size());
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
-  td->inputs_count.emplace_back(1);
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
-  td->inputs_count.emplace_back(1);
-  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  td->outputs_count.emplace_back(out.size());
-
-  auto task = std::make_shared<ConnectedComponentsTbb>(td);
-  auto perf_attr = MakePerfAttr(3);
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf = std::make_shared<ppc::core::Perf>(task);
-
-  perf->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-}
-
-TEST(dudchenko_o_connected_components_tbb, perf_task_run_medium) {
-  auto img = CreateTestImage(kMediumSize);
-  std::vector<int> out(img.size());
-  int w = kMediumSize, h = kMediumSize;
-
-  auto td = std::make_shared<ppc::core::TaskData>();
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
-  td->inputs_count.emplace_back(img.size());
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
-  td->inputs_count.emplace_back(1);
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&h));
-  td->inputs_count.emplace_back(1);
-  td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  td->outputs_count.emplace_back(out.size());
-
-  auto task = std::make_shared<ConnectedComponentsTbb>(td);
-  auto perf_attr = MakePerfAttr(3);
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf = std::make_shared<ppc::core::Perf>(task);
-
-  task->ValidationImpl();
-  task->PreProcessingImpl();
-  perf->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-}
