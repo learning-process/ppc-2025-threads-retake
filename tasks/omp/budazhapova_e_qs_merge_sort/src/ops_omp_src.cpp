@@ -96,16 +96,12 @@ void ParallelMerge(std::vector<int>& arr, int start, int mid, int end) {
   int j = static_cast<int>(j_iter - arr.begin());
 
   if (start <= i - 1 && j - 1 >= start && i - 1 >= start) {
-#pragma omp task
-    { ParallelMerge(arr, start, i - 1, j - 1); }
+    ParallelMerge(arr, start, i - 1, j - 1);
   }
 
   if (i <= mid && end >= j && j <= end) {
-#pragma omp task
-    { ParallelMerge(arr, i, mid, end); }
+    ParallelMerge(arr, i, mid, end);
   }
-
-#pragma omp taskwait
 }
 
 void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
@@ -122,17 +118,22 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
       pi = low + ((high - low) / 2);
     }
 
-    if (low < pi) {
-#pragma omp task
-      { QuickSortMergeParallel(arr, low, pi); }
-    }
+    if (low < pi && pi + 1 < high) {
+#pragma omp parallel sections
+      {
+#pragma omp section
+        { QuickSortMergeParallel(arr, low, pi); }
 
-    if (pi + 1 < high) {
-#pragma omp task
-      { QuickSortMergeParallel(arr, pi + 1, high); }
+#pragma omp section
+        { QuickSortMergeParallel(arr, pi + 1, high); }
+      }
+      if (low < pi) {
+        QuickSortMergeParallel(arr, low, pi);
+      }
+      if (pi + 1 < high) {
+        QuickSortMergeParallel(arr, pi + 1, high);
+      }
     }
-
-#pragma omp taskwait
 
     if (low <= pi && pi < high) {
       ParallelMerge(arr, low, pi, high);
@@ -163,11 +164,7 @@ bool budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP::RunImpl() {
   output_ = input_;
 
   if (!output_.empty() && output_.size() > 1) {
-#pragma omp parallel
-    {
-#pragma omp single
-      { QuickSortMergeParallel(output_, 0, static_cast<int>(output_.size()) - 1); }
-    }
+    QuickSortMergeParallel(output_, 0, static_cast<int>(output_.size()) - 1);
   }
 
   return true;
