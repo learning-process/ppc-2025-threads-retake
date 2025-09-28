@@ -111,7 +111,7 @@ void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& labels, std::
                                                  int left_label, int top_label) {
   const int min_label_value = std::min(left_label_value, top_label_value);
   const int max_label_value = std::max(left_label_value, top_label_value);
-  
+
   pixel_labels[idx] = min_label_value;
 
   if (min_label_value == max_label_value) {
