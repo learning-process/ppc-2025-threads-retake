@@ -3,14 +3,12 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
+#include <numeric>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/budazhapova_e_qs_merge_sort/include/ops_omp_inc.hpp"
 
 TEST(budazhapova_e_qs_merge_sort_omp, test_sort_small_array) {

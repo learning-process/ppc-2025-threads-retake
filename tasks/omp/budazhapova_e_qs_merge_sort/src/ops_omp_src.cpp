@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <vector>
 
-#include "omp/budazhapova_e_qs_merge_sort/include/ops_omp_inc.h"
+#include "omp/budazhapova_e_qs_merge_sort/include/ops_omp_inc.hpp"
 
 namespace budazhapova_e_qs_merge_sort_omp {
 namespace {
@@ -29,6 +29,7 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
     j--;
   }
 }
+
 void SequentialMerge(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
   int i = left, j = mid + 1, k = 0;
@@ -64,10 +65,10 @@ void ParallelMerge(std::vector<int>& arr, int left, int mid, int right) {
   int i = left + (mid - left) / 2;
   int j = std::lower_bound(arr.begin() + mid + 1, arr.begin() + right + 1, arr[i]) - arr.begin();
 
-#pragma omp task default(none) firstprivate(arr, left, i, mid, j)
+#pragma omp task default(none) shared(arr) firstprivate(left, i, mid, j)
   { ParallelMerge(arr, left, i - 1, j - 1); }
 
-#pragma omp task default(none) firstprivate(arr, i, mid, j, right)
+#pragma omp task default(none) shared(arr) firstprivate(i, mid, j, right)
   { ParallelMerge(arr, i, mid, right); }
 
 #pragma omp taskwait
@@ -78,10 +79,10 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
 
   if (low < high && high - low >= MIN_SIZE) {
     int pi = PartitionHoare(arr, low, high);
-#pragma omp task default(none) firstprivate(arr, low, pi)
+#pragma omp task default(none) shared(arr) firstprivate(low, pi)
     { QuickSortMergeParallel(arr, low, pi); }
 
-#pragma omp task default(none) firstprivate(arr, pi, high)
+#pragma omp task default(none) shared(arr) firstprivate(pi, high)
     { QuickSortMergeParallel(arr, pi + 1, high); }
 
 #pragma omp taskwait
