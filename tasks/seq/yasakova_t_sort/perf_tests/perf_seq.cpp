@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/yasakova_t_sort/include/radix_double_seq.hpp"
 
 namespace {

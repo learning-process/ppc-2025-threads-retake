@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <ranges>
+#include <utility>
 #include <vector>
 
 namespace yasakova_t_sort_seq {
