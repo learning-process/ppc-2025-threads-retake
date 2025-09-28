@@ -123,9 +123,7 @@ TEST(dudchenko_o_connected_components_omp, u_shaped_component) {
   const int component_label = labels[(1 * static_cast<std::size_t>(w)) + 1];
   EXPECT_GT(component_label, 0);
 
-  const std::vector<std::pair<int, int>> component_points = {
-    {2, 1}, {3, 1}, {1, 3}, {2, 3}, {3, 2}
-  };
+  const std::vector<std::pair<int, int>> component_points = {{2, 1}, {3, 1}, {1, 3}, {2, 3}, {3, 2}};
 
   for (const auto& point : component_points) {
     const int x = point.first;
