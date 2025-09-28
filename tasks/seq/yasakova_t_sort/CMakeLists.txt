@@ -8,8 +8,6 @@ add_library(${PROJ}
 target_include_directories(${PROJ} PUBLIC include)
 
 # Подключаем наши тестовые файлы к ОБЩЕМУ раннеру seq_tests
-# (который определяется в tasks/seq/CMakeLists.txt и использует runner.cpp)
-# ВАЖНО: здесь НЕ создаём свои executables и НЕ линкуем gtest_main.
 target_sources(seq_tests PRIVATE
     func_tests/radix_double_seq_gtest.cpp
     perf_tests/perf_seq.cpp
