@@ -72,9 +72,7 @@ int shishkarev_a_radix_sort_omp::TestTaskOpenMP::GetMax(const std::vector<int>& 
     }
 
 #pragma omp critical
-    {
-      max_val = std::max(local_max, max_val);
-    }
+    { max_val = std::max(local_max, max_val); }
   }
 
   return max_val;
