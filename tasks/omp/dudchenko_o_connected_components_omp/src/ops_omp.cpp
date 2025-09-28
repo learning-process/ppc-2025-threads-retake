@@ -105,7 +105,7 @@ bool ConnectedComponentsOmp::RunImpl() {
           int max_label = std::max(left_label, top_label);
           labels[idx] = min_label;
 
-        if (min_label != max_label) {
+          if (min_label != max_label) {
 #pragma omp critical(parent_update) {
             int root_min = FindRoot(parent, min_label);
             int root_max = FindRoot(parent, max_label);
