@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <utility>
 
 namespace yasakova_t_sort_seq {
 
@@ -45,7 +46,7 @@ void radix_sort_double_seq(std::vector<double>& a) {
 
   const size_t n = nonnan.size();
   if (n <= 1) {
-    a.assign(nonnan.begin(), nonnan.end());
+    a = std::move(nonnan);
     a.insert(a.end(), nans.begin(), nans.end());
     return;
   }
@@ -78,7 +79,7 @@ void radix_sort_double_seq(std::vector<double>& a) {
 
   for (size_t i = 0; i < n; ++i) nonnan[i] = from_key(keys[i]);
 
-  a.assign(nonnan.begin(), nonnan.end());
+  a = std::move(nonnan);
   a.insert(a.end(), nans.begin(), nans.end());
 }
 
