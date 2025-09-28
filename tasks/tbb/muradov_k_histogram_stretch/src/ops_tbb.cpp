@@ -1,4 +1,4 @@
-#include "tbb/muradov_k_histogram_stretch_tbb/include/ops_tbb.hpp"
+#include "tbb/muradov_k_histogram_stretch/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace muradov_k_histogram_stretch_tbb {
+namespace muradov_k_histogram_stretch {
 
 bool HistogramStretchTBBTask::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -90,4 +90,4 @@ bool HistogramStretchTBBTask::PostProcessingImpl() {
   return true;
 }
 
-}  // namespace muradov_k_histogram_stretch_tbb
+}  // namespace muradov_k_histogram_stretch

@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace muradov_k_histogram_stretch_tbb {
+namespace muradov_k_histogram_stretch {
 
 class HistogramStretchTBBTask : public ppc::core::Task {
  public:
@@ -21,4 +21,4 @@ class HistogramStretchTBBTask : public ppc::core::Task {
   int max_val_{0};
 };
 
-}  // namespace muradov_k_histogram_stretch_tbb
+}  // namespace muradov_k_histogram_stretch

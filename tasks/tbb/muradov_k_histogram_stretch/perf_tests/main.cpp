@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/muradov_k_histogram_stretch_tbb/include/ops_tbb.hpp"
+#include "tbb/muradov_k_histogram_stretch/include/ops_tbb.hpp"
 
 namespace {
 void ExtraCheck(const std::vector<int>& out) {
@@ -23,7 +23,7 @@ void ExtraCheck(const std::vector<int>& out) {
 }
 }  // namespace
 
-TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
+TEST(muradov_k_histogram_stretch, test_pipeline_run) {
   const int k_size = 600000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);
@@ -39,7 +39,7 @@ TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<muradov_k_histogram_stretch_tbb::HistogramStretchTBBTask>(task_data);
+  auto task = std::make_shared<muradov_k_histogram_stretch::HistogramStretchTBBTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -61,7 +61,7 @@ TEST(muradov_k_histogram_stretch_tbb, test_pipeline_run) {
   ExtraCheck(out);
 }
 
-TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
+TEST(muradov_k_histogram_stretch, test_task_run) {
   const int k_size = 600000;
   std::vector<int> in(k_size);
   std::vector<int> out(k_size, 0);
@@ -77,7 +77,7 @@ TEST(muradov_k_histogram_stretch_tbb, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<muradov_k_histogram_stretch_tbb::HistogramStretchTBBTask>(task_data);
+  auto task = std::make_shared<muradov_k_histogram_stretch::HistogramStretchTBBTask>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
