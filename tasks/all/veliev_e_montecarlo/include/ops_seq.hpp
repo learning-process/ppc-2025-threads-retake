@@ -2,8 +2,8 @@
 
 #include <utility>
 
-#include "core/task/include/task.hpp"
 #include "all/veliev_e_montecarlo/include/my_funcs.hpp"
+#include "core/task/include/task.hpp"
 
 namespace veliev_e_all_test {
 
@@ -23,4 +23,4 @@ class VelievEMonteCarloSeq : public ppc::core::Task {
   double res_{};
 };
 
-}  // namespace veliev_e_omp_test
+}  // namespace veliev_e_all_test
