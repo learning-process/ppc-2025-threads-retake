@@ -6,59 +6,69 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <utility>
+#include <vector>
 
 namespace yasakova_t_sort_tbb {
 
 bool SortTaskTBB::ValidationImpl() {
-  if (!task_data) return false;
-  if (task_data->inputs.size() != 1 || task_data->outputs.size() != 1) return false;
-  if (task_data->inputs_count.size() != 1 || task_data->outputs_count.size() != 1) return false;
-  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) return false;
+  if (!task_data) {
+    return false;
+  }
+  if (task_data->inputs.size() != 1 || task_data->outputs.size() != 1) {
+    return false;
+  }
+  if (task_data->inputs_count.size() != 1 || task_data->outputs_count.size() != 1) {
+    return false;
+  }
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
+    return false;
+  }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool SortTaskTBB::PreProcessingImpl() {
-  const size_t count = static_cast<size_t>(task_data->inputs_count[0]);
-  const auto* in_ptr = reinterpret_cast<const double*>(task_data->inputs[0]);
-  input_.assign(in_ptr, in_ptr + count);
+  const auto count = static_cast<size_t>(task_data->inputs_count[0]);
+  const auto* input_ptr = reinterpret_cast<const double*>(task_data->inputs[0]);
+  input_.assign(input_ptr, input_ptr + count);
   output_.assign(count, 0.0);
   return true;
 }
 
 bool SortTaskTBB::RunImpl() {
   output_ = input_;
-  radix_sort_double_tbb(output_);
+  RadixSortDoubleTbb(output_);
   return true;
 }
 
 bool SortTaskTBB::PostProcessingImpl() {
-  auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  std::ranges::copy(output_, output_ptr);
   return true;
 }
 
-void radix_sort_double_tbb(std::vector<double>& a) {
+void RadixSortDoubleTbb(std::vector<double>& data) {
   std::vector<double> nonnan;
-  nonnan.reserve(a.size());
+  nonnan.reserve(data.size());
   std::vector<double> nans;
   nans.reserve(16);
-  for (double x : a) {
-    (is_nan(x) ? nans : nonnan).push_back(x);
+  for (double value : data) {
+    (IsNan(value) ? nans : nonnan).push_back(value);
   }
 
-  const size_t n = nonnan.size();
+  const auto n = nonnan.size();
   if (n <= 1) {
-    a = std::move(nonnan);
-    a.insert(a.end(), nans.begin(), nans.end());
+    data = std::move(nonnan);
+    data.insert(data.end(), nans.begin(), nans.end());
     return;
   }
 
   std::vector<uint64_t> keys(n);
-  tbb::parallel_for(size_t(0), n, [&](size_t i) { keys[i] = to_key(nonnan[i]); });
+  tbb::parallel_for(size_t(0), n, [&](size_t i) { keys[i] = ToKey(nonnan[i]); });
 
-  std::vector<uint64_t> buf(n);
-  size_t chunks = std::max<size_t>(1, tbb::this_task_arena::max_concurrency());
+  std::vector<uint64_t> buffer(n);
+  auto chunks = std::max<size_t>(1, tbb::this_task_arena::max_concurrency());
   chunks = std::min(chunks, n);
   const size_t chunk_size = (n + chunks - 1) / chunks;
 
@@ -80,24 +90,24 @@ void radix_sort_double_tbb(std::vector<double>& a) {
 
     std::array<size_t, 256> global_counts{};
     for (size_t chunk = 0; chunk < chunks; ++chunk) {
-      for (int b = 0; b < 256; ++b) {
-        global_counts[b] += local_counts[chunk][b];
+      for (int bucket = 0; bucket < 256; ++bucket) {
+        global_counts[bucket] += local_counts[chunk][bucket];
       }
     }
 
     size_t sum = 0;
-    for (int b = 0; b < 256; ++b) {
-      size_t c = global_counts[b];
-      global_counts[b] = sum;
-      sum += c;
+    for (int bucket = 0; bucket < 256; ++bucket) {
+      const auto current = global_counts[bucket];
+      global_counts[bucket] = sum;
+      sum += current;
     }
 
     std::vector<std::array<size_t, 256>> positions(chunks);
-    for (int b = 0; b < 256; ++b) {
-      size_t pos = global_counts[b];
+    for (int bucket = 0; bucket < 256; ++bucket) {
+      size_t pos = global_counts[bucket];
       for (size_t chunk = 0; chunk < chunks; ++chunk) {
-        positions[chunk][b] = pos;
-        pos += local_counts[chunk][b];
+        positions[chunk][bucket] = pos;
+        pos += local_counts[chunk][bucket];
       }
     }
 
@@ -107,19 +117,19 @@ void radix_sort_double_tbb(std::vector<double>& a) {
         const size_t end = std::min(n, begin + chunk_size);
         auto local_pos = positions[chunk];
         for (size_t i = begin; i < end; ++i) {
-          uint8_t b = static_cast<uint8_t>(keys[i] >> shift);
-          buf[local_pos[b]++] = keys[i];
+          const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
+          buffer[local_pos[bucket]++] = keys[i];
         }
       }
     });
 
-    keys.swap(buf);
+    keys.swap(buffer);
   }
 
-  tbb::parallel_for(size_t(0), n, [&](size_t i) { nonnan[i] = from_key(keys[i]); });
+  tbb::parallel_for(size_t(0), n, [&](size_t i) { nonnan[i] = FromKey(keys[i]); });
 
-  a = std::move(nonnan);
-  a.insert(a.end(), nans.begin(), nans.end());
+  data = std::move(nonnan);
+  data.insert(data.end(), nans.begin(), nans.end());
 }
 
 }  // namespace yasakova_t_sort_tbb
