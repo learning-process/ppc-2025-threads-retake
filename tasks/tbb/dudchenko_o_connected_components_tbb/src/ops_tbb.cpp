@@ -168,7 +168,7 @@ bool ConnectedComponentsTbb::RunImpl() {
     for (size_t i = range.begin(); i < range.end(); ++i) {
       if (output_labels_[i] != 0) {
         output_labels_[i] = label_map[output_labels_[i]];
-        }
+      }
     }
   });
 
