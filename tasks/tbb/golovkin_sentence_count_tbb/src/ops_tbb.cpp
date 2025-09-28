@@ -1,12 +1,12 @@
 #include "tbb/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
 
-#include <tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
 #include <tbb/partitioner.h>
 
-#include <functional>
 #include <cctype>
 #include <cstddef>
+#include <functional>
 #include <utility>
 
 #include "core/task/include/task.hpp"
