@@ -10,7 +10,7 @@
 
 namespace {
 
-std::vector<double> make_data(size_t n) {
+std::vector<double> MakeData(size_t n) {
   std::mt19937_64 rng(123);
   std::uniform_real_distribution<double> dist(-1e9, 1e9);
   std::vector<double> values(n);
@@ -18,7 +18,7 @@ std::vector<double> make_data(size_t n) {
   return values;
 }
 
-std::shared_ptr<ppc::core::PerfAttr> make_perf_attr(uint64_t runs) {
+std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(uint64_t runs) {
   auto attr = std::make_shared<ppc::core::PerfAttr>();
   attr->num_running = runs;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -29,7 +29,7 @@ std::shared_ptr<ppc::core::PerfAttr> make_perf_attr(uint64_t runs) {
   return attr;
 }
 
-std::shared_ptr<ppc::core::TaskData> make_task_data(std::vector<double>& input, std::vector<double>& output) {
+std::shared_ptr<ppc::core::TaskData> MakeTaskData(std::vector<double>& input, std::vector<double>& output) {
   auto data = std::make_shared<ppc::core::TaskData>();
   data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   data->inputs_count.emplace_back(static_cast<uint32_t>(input.size()));
@@ -41,12 +41,12 @@ std::shared_ptr<ppc::core::TaskData> make_task_data(std::vector<double>& input, 
 }  // namespace
 
 TEST(yasakova_t_sort_seq, test_pipeline_run) {
-  auto input = make_data(300000);
+  auto input = MakeData(300000);
   std::vector<double> output(input.size(), 0.0);
 
-  auto task_data = make_task_data(input, output);
+  auto task_data = MakeTaskData(input, output);
   auto task = std::make_shared<yasakova_t_sort_seq::SortTaskSequential>(task_data);
-  auto perf_attr = make_perf_attr(200);
+  auto perf_attr = MakePerfAttr(200);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   auto perf = std::make_shared<ppc::core::Perf>(task);
@@ -57,12 +57,12 @@ TEST(yasakova_t_sort_seq, test_pipeline_run) {
 }
 
 TEST(yasakova_t_sort_seq, test_task_run) {
-  auto input = make_data(300000);
+  auto input = MakeData(300000);
   std::vector<double> output(input.size(), 0.0);
 
-  auto task_data = make_task_data(input, output);
+  auto task_data = MakeTaskData(input, output);
   auto task = std::make_shared<yasakova_t_sort_seq::SortTaskSequential>(task_data);
-  auto perf_attr = make_perf_attr(200);
+  auto perf_attr = MakePerfAttr(200);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   auto perf = std::make_shared<ppc::core::Perf>(task);

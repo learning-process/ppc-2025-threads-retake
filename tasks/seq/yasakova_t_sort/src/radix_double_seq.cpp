@@ -24,7 +24,7 @@ bool SortTaskSequential::PreProcessingImpl() {
 
 bool SortTaskSequential::RunImpl() {
   output_ = input_;
-  radix_sort_double_seq(output_);
+  RadixSortDoubleSeq(output_);
   return true;
 }
 
@@ -34,14 +34,14 @@ bool SortTaskSequential::PostProcessingImpl() {
   return true;
 }
 
-void radix_sort_double_seq(std::vector<double>& a) {
+void RadixSortDoubleSeq(std::vector<double>& a) {
   // Move NaNs to the tail while keeping sortable values separate
   std::vector<double> nonnan;
   nonnan.reserve(a.size());
   std::vector<double> nans;
   nans.reserve(16);
   for (double x : a) {
-    (is_nan(x) ? nans : nonnan).push_back(x);
+    (IsNan(x) ? nans : nonnan).push_back(x);
   }
 
   const size_t n = nonnan.size();
@@ -52,7 +52,7 @@ void radix_sort_double_seq(std::vector<double>& a) {
   }
 
   std::vector<uint64_t> keys(n);
-  for (size_t i = 0; i < n; ++i) keys[i] = to_key(nonnan[i]);
+  for (size_t i = 0; i < n; ++i) keys[i] = ToKey(nonnan[i]);
 
   std::vector<uint64_t> buf(n);
   for (int pass = 0; pass < 8; ++pass) {
@@ -77,7 +77,7 @@ void radix_sort_double_seq(std::vector<double>& a) {
     keys.swap(buf);
   }
 
-  for (size_t i = 0; i < n; ++i) nonnan[i] = from_key(keys[i]);
+  for (size_t i = 0; i < n; ++i) nonnan[i] = FromKey(keys[i]);
 
   a = std::move(nonnan);
   a.insert(a.end(), nans.begin(), nans.end());
