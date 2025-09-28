@@ -61,7 +61,7 @@ TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
   td->outputs_count.emplace_back(out.size());
 
   auto task = std::make_shared<ConnectedComponentsTbb>(td);
-  auto perf_attr = MakePerfAttr(20);
+  auto perf_attr = MakePerfAttr(60);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
 
@@ -85,7 +85,7 @@ TEST(dudchenko_o_connected_components_tbb, perf_task_run_small) {
   td->outputs_count.emplace_back(out.size());
 
   auto task = std::make_shared<ConnectedComponentsTbb>(td);
-  auto perf_attr = MakePerfAttr(20);
+  auto perf_attr = MakePerfAttr(60);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
 
