@@ -28,7 +28,7 @@ struct ParallelPlan {
 ParallelPlan MakePlan(size_t total) {
   const size_t threads = ClampThreads(std::thread::hardware_concurrency(), total);
   const size_t chunk_size = (total + threads - 1) / threads;
-  return ParallelPlan{threads, chunk_size, total};
+  return ParallelPlan{.threads = threads, .chunk_size = chunk_size, .total = total};
 }
 
 void RunParallel(const ParallelPlan& plan, const auto& fn) {
