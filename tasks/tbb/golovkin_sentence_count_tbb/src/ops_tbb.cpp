@@ -1,3 +1,4 @@
+// Golovkin
 #include "tbb/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
