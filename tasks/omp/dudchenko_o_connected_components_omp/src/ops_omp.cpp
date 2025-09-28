@@ -113,7 +113,7 @@ bool ConnectedComponentsOmp::RunImpl() {
               int new_root = std::min(root_min, root_max);
               int old_root = std::max(root_min, root_max);
 
-#pragma omp atomic write
+#pragma omp critical
               parent[old_root] = new_root;
             }
           }
