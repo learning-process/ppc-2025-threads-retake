@@ -1,4 +1,5 @@
 # tasks/seq/yasakova_t_sort/CMakeLists.txt
+# Библиотека с реализацией алгоритма
 set(PROJ yasakova_t_sort_seq)
 
 add_library(${PROJ}
@@ -6,18 +7,13 @@ add_library(${PROJ}
 )
 target_include_directories(${PROJ} PUBLIC include)
 
-add_executable(${PROJ}_func_tests
+# Подключаем наши тестовые файлы к ОБЩЕМУ раннеру seq_tests
+# (который определяется в tasks/seq/CMakeLists.txt и использует runner.cpp)
+# ВАЖНО: здесь НЕ создаём свои executables и НЕ линкуем gtest_main.
+target_sources(seq_tests PRIVATE
     func_tests/radix_double_seq_gtest.cpp
-)
-target_link_libraries(${PROJ}_func_tests
-    ${PROJ} gtest gtest_main
-)
-gtest_discover_tests(${PROJ}_func_tests)
-
-add_executable(${PROJ}_perf_tests
     perf_tests/perf_seq.cpp
 )
-target_link_libraries(${PROJ}_perf_tests
-    ${PROJ} gtest gtest_main
-)
-gtest_discover_tests(${PROJ}_perf_tests)
+
+# И даём раннеру доступ к нашей библиотеке
+target_link_libraries(seq_tests PRIVATE ${PROJ})
