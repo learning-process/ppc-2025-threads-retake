@@ -39,32 +39,17 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
   }
 }
 
-struct MergeRange {
-  int start;
-  int mid;
-  int end;
-};
-
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-MergeRange MakeMergeRange(int range_start, int range_mid, int range_end) {
-  MergeRange range;
-  range.start = range_start;
-  range.mid = range_mid;
-  range.end = range_end;
-  return range;
-}
-
-void SequentialMerge(std::vector<int>& arr, const MergeRange& range) {
-  if (range.start > range.end || range.mid < range.start || range.mid > range.end) {
+void SequentialMerge(std::vector<int>& arr, int start, int mid, int end) {
+  if (start > end || mid < start || mid > end) {
     return;
   }
 
-  std::vector<int> temp(range.end - range.start + 1);
-  int i = range.start;
-  int j = range.mid + 1;
+  std::vector<int> temp(end - start + 1);
+  int i = start;
+  int j = mid + 1;
   int k = 0;
 
-  while (i <= range.mid && j <= range.end) {
+  while (i <= mid && j <= end) {
     if (arr[i] <= arr[j]) {
       temp[k++] = arr[i++];
     } else {
@@ -72,59 +57,52 @@ void SequentialMerge(std::vector<int>& arr, const MergeRange& range) {
     }
   }
 
-  while (i <= range.mid) {
+  while (i <= mid) {
     temp[k++] = arr[i++];
   }
-  while (j <= range.end) {
+  while (j <= end) {
     temp[k++] = arr[j++];
   }
 
-  for (i = range.start, k = 0; i <= range.end; i++, k++) {
+  for (i = start, k = 0; i <= end; i++, k++) {
     arr[i] = temp[k];
   }
 }
 
-// NOLINTBEGIN(modernize-use-designated-initializers)
-void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
-  if (range.start >= range.end || range.mid < range.start || range.mid >= range.end) {
+void ParallelMerge(std::vector<int>& arr, int start, int mid, int end) {
+  if (start >= end || mid < start || mid >= end) {
     return;
   }
 
   const int merge_threshold = 500;
-  if (range.end - range.start + 1 <= merge_threshold) {
-    SequentialMerge(arr, range);
+  if (end - start + 1 <= merge_threshold) {
+    SequentialMerge(arr, start, mid, end);
     return;
   }
 
-  int i = range.start + ((range.mid - range.start) / 2);
-  if (i < range.start || i > range.mid) {
-    i = range.start;
+  int i = start + ((mid - start) / 2);
+  if (i < start || i > mid) {
+    i = start;
   }
 
-  auto start_it = arr.begin() + (range.mid + 1);
-  auto end_it = arr.begin() + range.end + 1;
+  auto start_it = arr.begin() + (mid + 1);
+  auto end_it = arr.begin() + end + 1;
   if (start_it >= arr.end() || end_it > arr.end()) {
-    SequentialMerge(arr, range);
+    SequentialMerge(arr, start, mid, end);
     return;
   }
 
   auto j_iter = std::lower_bound(start_it, end_it, arr[i]);
   int j = static_cast<int>(j_iter - arr.begin());
 
-  if (range.start <= i - 1 && j - 1 >= range.start && i - 1 >= range.start) {
-    MergeRange left_range = MakeMergeRange(range.start, i - 1, j - 1);
-    if (left_range.start <= left_range.mid && left_range.mid <= left_range.end) {
-#pragma omp task default(none) shared(arr) firstprivate(left_range)
-      { ParallelMerge(arr, left_range); }
-    }
+  if (start <= i - 1 && j - 1 >= start && i - 1 >= start) {
+#pragma omp task
+    { ParallelMerge(arr, start, i - 1, j - 1); }
   }
 
-  if (i <= range.mid && range.end >= j && j <= range.end) {
-    MergeRange right_range = MakeMergeRange(i, range.mid, range.end);
-    if (right_range.start <= right_range.mid && right_range.mid <= right_range.end) {
-#pragma omp task default(none) shared(arr) firstprivate(right_range)
-      { ParallelMerge(arr, right_range); }
-    }
+  if (i <= mid && end >= j && j <= end) {
+#pragma omp task
+    { ParallelMerge(arr, i, mid, end); }
   }
 
 #pragma omp taskwait
@@ -145,28 +123,24 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
     }
 
     if (low < pi) {
-#pragma omp task default(none) shared(arr) firstprivate(low, pi)
+#pragma omp task
       { QuickSortMergeParallel(arr, low, pi); }
     }
 
     if (pi + 1 < high) {
-#pragma omp task default(none) shared(arr) firstprivate(pi, high)
+#pragma omp task
       { QuickSortMergeParallel(arr, pi + 1, high); }
     }
 
 #pragma omp taskwait
 
     if (low <= pi && pi < high) {
-      MergeRange merge_range = MakeMergeRange(low, pi, high);
-      if (merge_range.start <= merge_range.mid && merge_range.mid < merge_range.end) {
-        ParallelMerge(arr, merge_range);
-      }
+      ParallelMerge(arr, low, pi, high);
     }
   } else {
     std::sort(arr.begin() + low, arr.begin() + high + 1);
   }
 }
-// NOLINTEND(modernize-use-designated-initializers)
 
 }  // namespace
 
@@ -191,7 +165,7 @@ bool budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP::RunImpl() {
   if (!output_.empty() && output_.size() > 1) {
 #pragma omp parallel
     {
-#pragma omp single nowait
+#pragma omp single
       { QuickSortMergeParallel(output_, 0, static_cast<int>(output_.size()) - 1); }
     }
   }
