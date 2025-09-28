@@ -68,16 +68,12 @@ int shishkarev_a_radix_sort_omp::TestTaskOpenMP::GetMax(const std::vector<int>& 
 
 #pragma omp for nowait
     for (int i = 1; i < static_cast<int>(arr.size()); i++) {
-      if (arr[i] > local_max) {
-        local_max = arr[i];
-      }
+      local_max = std::max(arr[i], local_max);
     }
 
 #pragma omp critical
     {
-      if (local_max > max_val) {
-        max_val = local_max;
-      }
+      max_val = std::max(local_max, max_val);
     }
   }
 
@@ -127,7 +123,9 @@ void shishkarev_a_radix_sort_omp::TestTaskOpenMP::BatcherOddEvenMerge(std::vecto
   // Параллельная реализация с исправленным условием цикла
   for (int gap = n / 2; gap > 0; gap /= 2) {
     int iterations = right - left - gap + 1;
-    if (iterations <= 0) continue;
+    if (iterations <= 0) {
+      continue;
+    }
 
 #pragma omp parallel for
     for (int j = 0; j < iterations; j++) {
