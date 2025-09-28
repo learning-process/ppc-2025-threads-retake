@@ -1,10 +1,8 @@
-#include "omp/dudchenko_o_connected_components/include/ops_omp.hpp"
+#include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
 #include <omp.h>
 
-#include <algorithm>
 #include <cmath>
-#include <vector>
 
 bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PreProcessingImpl() {
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
@@ -46,7 +44,7 @@ bool dudchenko_o_connected_components_omp::TestTaskOpenMP::RunImpl() {
 }
 
 bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PostProcessingImpl() {
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < static_cast<int>(output_.size()); i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
@@ -69,9 +67,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
                                                                      ParentStructure& parent_structure) {
   int next_label = 1;
 
-  #pragma omp parallel
+#pragma omp parallel
   {
-    #pragma omp for collapse(2) schedule(static)
+#pragma omp for collapse(2) schedule(static)
     for (int y = 0; y < height_; ++y) {
       for (int x = 0; x < width_; ++x) {
         int index = (y * width_) + x;
@@ -85,7 +83,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
         int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
 
         if (left_label == 0 && top_label == 0) {
-          #pragma omp critical
+#pragma omp critical
           {
             component_labels.labels[index] = next_label;
             parent_structure.parents[next_label] = next_label;
@@ -102,7 +100,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
           component_labels.labels[index] = min_root;
 
           if (root_left != root_top) {
-            #pragma omp critical
+#pragma omp critical
             {
               UnionSets(parent_structure, root_left, root_top);
             }
@@ -115,7 +113,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentLabels& component_labels,
                                                                       ParentStructure& parent_structure) {
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < static_cast<int>(component_labels.labels.size()); ++i) {
     if (component_labels.labels[i] != 0) {
       component_labels.labels[i] = FindRoot(parent_structure, component_labels.labels[i]);

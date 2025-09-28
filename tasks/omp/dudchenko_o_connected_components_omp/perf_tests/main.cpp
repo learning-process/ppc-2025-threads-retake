@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/dudchenko_o_connected_components/include/ops_omp.hpp"
+#include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
 TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
   int width = 100;
@@ -55,9 +55,9 @@ TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
   // Проверяем логику: 0 - foreground (должны получить ненулевые метки), 255 - background (должны получить 0)
   for (int i = 0; i < width * height; ++i) {
     if (image_data[i] == 0) {
-      EXPECT_NE(output_data[i], 0) << "Foreground pixel at index " << i << " should have non-zero label";
+      EXPECT_NE(output_data[i], 0);
     } else {
-      EXPECT_EQ(output_data[i], 0) << "Background pixel at index " << i << " should have zero label";
+      EXPECT_EQ(output_data[i], 0);
     }
   }
 }
@@ -106,9 +106,9 @@ TEST(dudchenko_o_connected_components_omp, test_task_run) {
   // Проверяем логику: 0 - foreground (должны получить ненулевые метки), 255 - background (должны получить 0)
   for (int i = 0; i < width * height; ++i) {
     if (image_data[i] == 0) {
-      EXPECT_NE(output_data[i], 0) << "Foreground pixel at index " << i << " should have non-zero label";
+      EXPECT_NE(output_data[i], 0);
     } else {
-      EXPECT_EQ(output_data[i], 0) << "Background pixel at index " << i << " should have zero label";
+      EXPECT_EQ(output_data[i], 0);
     }
   }
 }
