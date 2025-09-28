@@ -21,7 +21,7 @@ class TestTaskSequential : public ppc::core::Task {
   struct ComponentLabels {
     std::vector<int> labels;
   };
-  
+
   struct ParentStructure {
     std::vector<int32_t> parents;
   };

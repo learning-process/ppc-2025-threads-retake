@@ -30,9 +30,8 @@ struct Indices {
   const std::vector<size_t>& indices;
 };
 
-void CheckForegroundBackground(const OutputData& output, 
-                              const ForegroundIndices& foreground,
-                              const BackgroundIndices& background) {
+void CheckForegroundBackground(const OutputData& output, const ForegroundIndices& foreground,
+                               const BackgroundIndices& background) {
   for (size_t idx : foreground.indices) {
     EXPECT_NE(output.data[idx], 0);
   }
@@ -41,8 +40,7 @@ void CheckForegroundBackground(const OutputData& output,
   }
 }
 
-void CheckAllLabelsUnique(const OutputData& output, 
-                         const Indices& indices) {
+void CheckAllLabelsUnique(const OutputData& output, const Indices& indices) {
   std::vector<int> labels;
   for (size_t idx : indices.indices) {
     if (output.data[idx] != 0 && 
@@ -50,13 +48,12 @@ void CheckAllLabelsUnique(const OutputData& output,
       labels.push_back(output.data[idx]);
     }
   }
-  
+
   // Все метки уже уникальны по построению, проверяем что их количество равно количеству индексов
   EXPECT_EQ(labels.size(), indices.indices.size());
 }
 
-void CheckComponentPoints(const OutputData& output, int component_label, 
-                         const Indices& indices) {
+void CheckComponentPoints(const OutputData& output, int component_label, const Indices& indices) {
   for (size_t idx : indices.indices) {
     EXPECT_EQ(output.data[idx], component_label);
   }
@@ -67,9 +64,7 @@ void CheckComponentPoints(const OutputData& output, int component_label,
 TEST(dudchenko_o_connected_components_seq, test_small_image) {
   int width = 3;
   int height = 3;
-  std::vector<int> image_data = {0, 255, 0, 
-                                 255, 0, 255, 
-                                 0, 255, 0};
+  std::vector<int> image_data = {0, 255, 0, 255, 0, 255, 0, 255, 0};
 
   std::vector<int> input_data;
   input_data.push_back(width);
@@ -94,7 +89,7 @@ TEST(dudchenko_o_connected_components_seq, test_small_image) {
   OutputData output{output_data};
   ForegroundIndices foreground{{0, 2, 4, 6, 8}};
   BackgroundIndices background{{1, 3, 5, 7}};
-  
+
   CheckForegroundBackground(output, foreground, background);
   CheckAllLabelsUnique(output, Indices{{0, 2, 4, 6, 8}});
 }
@@ -164,11 +159,8 @@ TEST(dudchenko_o_connected_components_seq, test_no_components) {
 TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   int width = 5;
   int height = 5;
-  std::vector<int> image_data = {0, 0, 255, 255, 255,
-                                 0, 0, 255, 255, 255, 
-                                 255, 255, 255, 255, 255, 
-                                 255, 255, 255, 0, 0, 
-                                 255, 255, 255, 0, 0};
+  std::vector<int> image_data = {0,   0,   255, 255, 255, 0, 0, 255, 255, 255, 255, 255, 255,
+                                 255, 255, 255, 255, 255, 0, 0, 255, 255, 255, 0,   0};
 
   std::vector<int> input_data;
   input_data.push_back(width);
