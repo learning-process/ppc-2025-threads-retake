@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <vector>
 
 using namespace dudchenko_o_connected_components_omp;
@@ -71,27 +72,26 @@ void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& out_la
   const size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(width_)) + static_cast<size_t>(x);
   if (input_image_[idx] != kForeground) {
     return;
-    }
-
   }
+}
 
-  const bool has_left = (x > 0 && input_image_[idx - 1] == kForeground);
-  const bool has_top = (y > 0 && input_image_[idx - width_] == kForeground);
+const bool has_left = (x > 0 && input_image_[idx - 1] == kForeground);
+const bool has_top = (y > 0 && input_image_[idx - width_] == kForeground);
 
-  if (!has_left && !has_top) {
-    CreateNewComponent(out_labels, union_parent, next_label, idx);
-    return;
-  }
+if (!has_left && !has_top) {
+  CreateNewComponent(out_labels, union_parent, next_label, idx);
+  return;
+}
 
-  const int left_label = has_left ? out_labels[idx - 1] : 0;
-  const int top_label = has_top ? out_labels[idx - width_] : 0;
+const int left_label = has_left ? out_labels[idx - 1] : 0;
+const int top_label = has_top ? out_labels[idx - width_] : 0;
 
-  if (!has_left || !has_top) {
-    out_labels[idx] = has_left ? left_label : top_label;
-    return;
-  }
+if (!has_left || !has_top) {
+  out_labels[idx] = has_left ? left_label : top_label;
+  return;
+}
 
-  HandleBothNeighbors(out_labels, union_parent, idx, left_label, top_label);
+HandleBothNeighbors(out_labels, union_parent, idx, left_label, top_label);
 }
 
 void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& labels, std::vector<int>& parent, int& next_label,
@@ -114,14 +114,18 @@ void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& labels, std::
 
   labels[idx] = min_label;
 
-  if (min_label == max_label) return;
+  if (min_label == max_label) {
+    return;
+  }
 
   const int root_min = FindRoot(parent, min_label);
   const int root_max = FindRoot(parent, max_label);
 
-  if (root_min == root_max) return;
+  if (root_min == root_max) {
+    return;
+  }
 
-  UnionComponents(parent, min_label, top_label, root_min, root_max);
+  UnionComponents(parent, min_label, max_label, root_min, root_max);
 }
 
 void ConnectedComponentsOmp::UnionComponents(std::vector<int>& parent, int min_label, int max_label, int root_min,
@@ -146,7 +150,7 @@ void ConnectedComponentsOmp::ResolveLabels(std::vector<int>& labels, const std::
 #pragma omp parallel for schedule(static)
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
-      const size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
+      const size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(width_)) + static_cast<size_t>(x);
       if (labels[idx] > 0) {
         labels[idx] = FindRoot(parent, labels[idx]);
       }
@@ -171,7 +175,7 @@ void ConnectedComponentsOmp::CompactLabels(const std::vector<int>& labels) {
   components_count_ = current_label - 1;
 
   const size_t size = labels.size();
-  #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
   for (size_t i = 0; i < size; ++i) {
     if (labels[i] > 0) {
       output_labels_[i] = label_map[labels[i]];
@@ -215,7 +219,7 @@ bool ConnectedComponentsOmp::PostProcessingImpl() {
   return true;
 }
 
-int ConnectedComponentsOmp::FindRoot(const std::vector<int>& parent, int x) const {
+int ConnectedComponentsOmp::FindRoot(const std::vector<int>& parent, int x) {
   while (parent[x] != x) {
     x = parent[x];
   }

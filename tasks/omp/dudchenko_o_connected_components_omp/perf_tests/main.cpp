@@ -18,12 +18,12 @@ namespace {
 constexpr int kLargeWidth = 1024;
 constexpr int kLargeHeight = 1024;
 
-std::vector<uint8_t> GenerateTestImage(int w, int h, double density) {
-  std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 255);
+std::vector<uint8_t> GenerateTestImage(int width, int height, double density) {
+  std::vector<uint8_t> img(static_cast<std::size_t>(width) * static_cast<std::size_t>(height), 255);
   std::mt19937 rng(42);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  for (int i = 0; i < w * h; ++i) {
+  for (int i = 0; i < width * height; ++i) {
     if (dist(rng) < density) {
       img[i] = 0;
     }
@@ -31,13 +31,13 @@ std::vector<uint8_t> GenerateTestImage(int w, int h, double density) {
   return img;
 }
 
-std::vector<uint8_t> GenerateGridImage(int w, int h, int grid_size) {
-  std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 255);
+std::vector<uint8_t> GenerateGridImage(int width, int height, int grid_size) {
+  std::vector<uint8_t> img(static_cast<std::size_t>(width) * static_cast<std::size_t>(height), 255);
 
-  for (int y = 0; y < h; y += grid_size) {
-    for (int x = 0; x < w; x += grid_size) {
-      if (x < w && y < h) {
-        img[static_cast<std::size_t>(y) * static_cast<std::size_t>(w) + static_cast<std::size_t>(x)] = 0;
+  for (int y = 0; y < height; y += grid_size) {
+    for (int x = 0; x < width; x += grid_size) {
+      if (x < width && y < height) {
+        img[(static_cast<std::size_t>(y) * static_cast<std::size_t>(width)) + static_cast<std::size_t>(x)] = 0;
       }
     }
   }
@@ -53,7 +53,7 @@ inline double NowSec() {
 struct ImageSpec {
   int width;
   int height;
-  ImageSpec(int w, int h) : width(w), height(h) {}
+  ImageSpec(int width_val, int height_val) : width(width_val), height(height_val) {}
 };
 
 std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
@@ -100,7 +100,7 @@ TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
 
   int max_label = 0;
   for (int label : labels) {
-    if (label > max_label) max_label = label;
+    max_label = std::max(label, max_label);
   }
   EXPECT_GT(max_label, 0);
 }
@@ -108,7 +108,7 @@ TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
 TEST(dudchenko_o_connected_components_omp, test_task_run) {
   const auto img = GenerateGridImage(kLargeWidth, kLargeHeight, 8);
   std::vector<int> labels(img.size());
-  ImageSpec spec{.width = kLargeWidth, .height = kLargeHeight};
+  ImageSpec spec(kLargeWidth, kLargeHeight);
 
   auto td = MakeTaskData(img, spec, labels);
   auto task = std::make_shared<ConnectedComponentsOmp>(td);

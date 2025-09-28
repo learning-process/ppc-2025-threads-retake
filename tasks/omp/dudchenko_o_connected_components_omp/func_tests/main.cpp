@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -48,7 +49,7 @@ std::vector<int> RunComponents(const std::vector<uint8_t>& img, int w, int h) {
 int CountUniqueComponents(const std::vector<int>& labels) {
   std::vector<int> unique_labels;
   for (int label : labels) {
-    if (label > 0 && std::find(unique_labels.begin(), unique_labels.end(), label) == unique_labels.end()) {
+    if (label > 0 && std::ranges::find(unique_labels, label) == unique_labels.end()) {
       unique_labels.push_back(label);
     }
   }
@@ -112,20 +113,25 @@ TEST(dudchenko_o_connected_components_omp, u_shaped_component) {
   std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 255);
 
   for (int y = 1; y <= 3; ++y) {
-    img[y * w + 1] = 0;
-    img[y * w + 3] = 0;
+    img[(static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + 1] = 0;
+    img[(static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + 3] = 0;
   }
-  img[3 * w + 2] = 0;
+  img[(3 * static_cast<std::size_t>(w)) + 2] = 0;
 
   auto labels = RunComponents(img, w, h);
 
-  int component_label = labels[1 * w + 1];
+  const int component_label = labels[(1 * static_cast<std::size_t>(w)) + 1];
   EXPECT_GT(component_label, 0);
 
-  EXPECT_EQ(labels[2 * w + 1], component_label);
-  EXPECT_EQ(labels[3 * w + 1], component_label);
-  EXPECT_EQ(labels[1 * w + 3], component_label);
-  EXPECT_EQ(labels[2 * w + 3], component_label);
-  EXPECT_EQ(labels[3 * w + 2], component_label);
+  const std::vector<std::pair<int, int>> component_points = {
+    {2, 1}, {3, 1}, {1, 3}, {2, 3}, {3, 2}
+  };
+
+  for (const auto& point : component_points) {
+    const int x = point.first;
+    const int y = point.second;
+    EXPECT_EQ(labels[(static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + x], component_label);
+  }
+
   EXPECT_EQ(CountUniqueComponents(labels), 1);
 }
