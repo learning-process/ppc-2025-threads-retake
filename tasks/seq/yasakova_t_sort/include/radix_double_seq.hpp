@@ -12,21 +12,21 @@ namespace yasakova_t_sort_seq {
 
 inline bool IsNan(double x) { return std::isnan(x); }
 
-// double -> lexicographically comparable key (IEEE-754 order)
-inline uint64_t ToKey(double x) {
-  uint64_t b = std::bit_cast<uint64_t>(x);
-  if ((b >> 63) == 0) return b ^ 0x8000'0000'0000'0000ull;
-  return ~b;
-}
-// key -> double (inverse transform)
-inline double FromKey(uint64_t k) {
-  if ((k >> 63) != 0) {
-    uint64_t b = k ^ 0x8000'0000'0000'0000ull;
-    return std::bit_cast<double>(b);
-  } else {
-    uint64_t b = ~k;
-    return std::bit_cast<double>(b);
+inline auto ToKey(double x) -> uint64_t {
+  const auto bits = std::bit_cast<uint64_t>(x);
+  if ((bits >> 63) == 0) {
+    return bits ^ 0x8000'0000'0000'0000ULL;
   }
+  return ~bits;
+}
+
+inline auto FromKey(uint64_t key) -> double {
+  if ((key >> 63) != 0) {
+    const auto bits = key ^ 0x8000'0000'0000'0000ULL;
+    return std::bit_cast<double>(bits);
+  }
+  const auto bits = ~key;
+  return std::bit_cast<double>(bits);
 }
 
 class SortTaskSequential : public ppc::core::Task {
@@ -43,7 +43,6 @@ class SortTaskSequential : public ppc::core::Task {
   std::vector<double> output_;
 };
 
-// LSD-radix sort over 8-bit passes
-void RadixSortDoubleSeq(std::vector<double>& a);
+void RadixSortDoubleSeq(std::vector<double>& data);
 
 }  // namespace yasakova_t_sort_seq

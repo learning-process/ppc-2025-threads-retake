@@ -2,22 +2,33 @@
 
 #include <algorithm>
 #include <array>
-#include <utility>
+#include <cstddef>
+#include <cstdint>
+#include <ranges>
+#include <vector>
 
 namespace yasakova_t_sort_seq {
 
 bool SortTaskSequential::ValidationImpl() {
-  if (!task_data) return false;
-  if (task_data->inputs.size() != 1 || task_data->outputs.size() != 1) return false;
-  if (task_data->inputs_count.size() != 1 || task_data->outputs_count.size() != 1) return false;
-  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) return false;
+  if (!task_data) {
+    return false;
+  }
+  if (task_data->inputs.size() != 1 || task_data->outputs.size() != 1) {
+    return false;
+  }
+  if (task_data->inputs_count.size() != 1 || task_data->outputs_count.size() != 1) {
+    return false;
+  }
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
+    return false;
+  }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool SortTaskSequential::PreProcessingImpl() {
-  const size_t count = static_cast<size_t>(task_data->inputs_count[0]);
-  const auto* in_ptr = reinterpret_cast<const double*>(task_data->inputs[0]);
-  input_.assign(in_ptr, in_ptr + count);
+  const auto count = static_cast<size_t>(task_data->inputs_count[0]);
+  const auto* input_ptr = reinterpret_cast<const double*>(task_data->inputs[0]);
+  input_.assign(input_ptr, input_ptr + count);
   output_.assign(count, 0.0);
   return true;
 }
@@ -29,58 +40,61 @@ bool SortTaskSequential::RunImpl() {
 }
 
 bool SortTaskSequential::PostProcessingImpl() {
-  auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  std::ranges::copy(output_, output_ptr);
   return true;
 }
 
-void RadixSortDoubleSeq(std::vector<double>& a) {
-  // Move NaNs to the tail while keeping sortable values separate
+void RadixSortDoubleSeq(std::vector<double>& data) {
   std::vector<double> nonnan;
-  nonnan.reserve(a.size());
+  nonnan.reserve(data.size());
   std::vector<double> nans;
   nans.reserve(16);
-  for (double x : a) {
-    (IsNan(x) ? nans : nonnan).push_back(x);
+  for (double value : data) {
+    (IsNan(value) ? nans : nonnan).push_back(value);
   }
 
-  const size_t n = nonnan.size();
+  const auto n = nonnan.size();
   if (n <= 1) {
-    a = std::move(nonnan);
-    a.insert(a.end(), nans.begin(), nans.end());
+    data = std::move(nonnan);
+    data.insert(data.end(), nans.begin(), nans.end());
     return;
   }
 
   std::vector<uint64_t> keys(n);
-  for (size_t i = 0; i < n; ++i) keys[i] = ToKey(nonnan[i]);
+  for (size_t i = 0; i < n; ++i) {
+    keys[i] = ToKey(nonnan[i]);
+  }
 
-  std::vector<uint64_t> buf(n);
+  std::vector<uint64_t> buffer(n);
   for (int pass = 0; pass < 8; ++pass) {
-    std::array<size_t, 256> cnt{};
+    std::array<size_t, 256> counts{};
     const int shift = pass * 8;
 
     for (size_t i = 0; i < n; ++i) {
-      ++cnt[static_cast<uint8_t>(keys[i] >> shift)];
+      ++counts[static_cast<uint8_t>(keys[i] >> shift)];
     }
 
     size_t sum = 0;
-    for (int b = 0; b < 256; ++b) {
-      size_t c = cnt[b];
-      cnt[b] = sum;
-      sum += c;
+    for (int bucket = 0; bucket < 256; ++bucket) {
+      const auto current = counts[bucket];
+      counts[bucket] = sum;
+      sum += current;
     }
 
     for (size_t i = 0; i < n; ++i) {
-      uint8_t b = static_cast<uint8_t>(keys[i] >> shift);
-      buf[cnt[b]++] = keys[i];
+      const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
+      buffer[counts[bucket]++] = keys[i];
     }
-    keys.swap(buf);
+    keys.swap(buffer);
   }
 
-  for (size_t i = 0; i < n; ++i) nonnan[i] = FromKey(keys[i]);
+  for (size_t i = 0; i < n; ++i) {
+    nonnan[i] = FromKey(keys[i]);
+  }
 
-  a = std::move(nonnan);
-  a.insert(a.end(), nans.begin(), nans.end());
+  data = std::move(nonnan);
+  data.insert(data.end(), nans.begin(), nans.end());
 }
 
 }  // namespace yasakova_t_sort_seq
