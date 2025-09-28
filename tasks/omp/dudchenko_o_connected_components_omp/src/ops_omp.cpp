@@ -69,34 +69,36 @@ bool ConnectedComponentsOmp::PreProcessingImpl() {
 
 void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find,
                                           int& next_label) {
-  if (input_image_[index] != kForeground) {
+  const size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(width_)) + static_cast<size_t>(x);
+
+  if (input_image_[idx] != kForeground) {
     return;
   }
 
-  const bool has_left_neighbor = (x > 0 && input_image_[index - 1] == kForeground);
-  const bool has_top_neighbor = (y > 0 && input_image_[index - width_] == kForeground);
+  const bool has_left_neighbor = (x > 0 && input_image_[idx - 1] == kForeground);
+  const bool has_top_neighbor = (y > 0 && input_image_[idx - width_] == kForeground);
 
   if (!has_left_neighbor && !has_top_neighbor) {
-    CreateNewComponent(pixel_labels, union_find, next_label, index);
+    CreateNewComponent(pixel_labels, union_find, next_label, idx);
     return;
   }
 
-  const int left_label_value = has_left_neighbor ? pixel_labels[index - 1] : 0;
-  const int top_label_value = has_top_neighbor ? pixel_labels[index - width_] : 0;
+  const int left_label_value = has_left_neighbor ? pixel_labels[idx - 1] : 0;
+  const int top_label_value = has_top_neighbor ? pixel_labels[idx - width_] : 0;
 
   if (!has_left_neighbor || !has_top_neighbor) {
-    pixel_labels[index] = has_left_neighbor ? left_label_value : top_label_value;
+    pixel_labels[idx] = has_left_neighbor ? left_label_value : top_label_value;
     return;
   }
 
-  HandleBothNeighbors(pixel_labels, union_find, index, left_label_value, top_label_value);
+  HandleBothNeighbors(pixel_labels, union_find, idx, left_label_value, top_label_value);
 }
 
 void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find,
                                                 int& next_label, size_t index) {
 #pragma omp critical
   {
-    pixel_labels[index] = next_label;
+    pixel_labels[idx] = next_label;
     if (static_cast<size_t>(next_label) >= union_find.size()) {
       union_find.resize(next_label * 2, 0);
     }
@@ -107,23 +109,23 @@ void ConnectedComponentsOmp::CreateNewComponent(std::vector<int>& pixel_labels, 
 
 void ConnectedComponentsOmp::HandleBothNeighbors(std::vector<int>& labels, std::vector<int>& parent, size_t idx,
                                                  int left_label, int top_label) {
-  const int min_label = std::min(left_label, top_label);
-  const int max_label = std::max(left_label, top_label);
+  const int min_label_value = std::min(left_label_value, top_label_value);
+  const int max_label_value = std::max(left_label_value, top_label_value);
+  
+  pixel_labels[idx] = min_label_value;
 
-  labels[idx] = min_label;
-
-  if (min_label == max_label) {
+  if (min_label_value == max_label_value) {
     return;
   }
 
-  const int root_min = FindRoot(parent, min_label);
-  const int root_max = FindRoot(parent, max_label);
+  const int root_min = FindRoot(union_find, min_label_value);
+  const int root_max = FindRoot(union_find, max_label_value);
 
   if (root_min == root_max) {
     return;
   }
 
-  UnionComponents(parent, min_label, max_label, root_min, root_max);
+  UnionComponents(union_find, min_label_value, max_label_value, root_min, root_max);
 }
 
 void ConnectedComponentsOmp::UnionComponents(std::vector<int>& parent, int min_label, int max_label, int root_min,
