@@ -29,6 +29,7 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
     j--;
   }
 }
+
 struct MergeRange {
   int start;
   int mid;
@@ -36,7 +37,9 @@ struct MergeRange {
 };
 
 void SequentialMerge(std::vector<int>& arr, const MergeRange& range) {
-  if (range.start >= range.end) return;
+  if (range.start >= range.end) {
+    return;
+  }
 
   std::vector<int> temp(range.end - range.start + 1);
   int i = range.start;
@@ -72,7 +75,9 @@ void SequentialMerge(std::vector<int>& arr, const MergeRange& range) {
 }
 
 void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
-  if (range.start >= range.end) return;
+  if (range.start >= range.end) {
+    return;
+  }
 
   const int merge_threshold = 500;
 
@@ -89,13 +94,13 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
   int j = static_cast<int>(j_iter - arr.begin());
 
   if (range.start <= i - 1 && j - 1 >= range.start) {
-    MergeRange left_range{range.start, i - 1, j - 1};
+    MergeRange left_range{.start = range.start, .mid = i - 1, .end = j - 1};
 #pragma omp task default(none) shared(arr) firstprivate(left_range)
     { ParallelMerge(arr, left_range); }
   }
 
   if (i <= range.mid && range.end >= i) {
-    MergeRange right_range{i, range.mid, range.end};
+    MergeRange right_range{.start = i, .mid = range.mid, .end = range.end};
 #pragma omp task default(none) shared(arr) firstprivate(right_range)
     { ParallelMerge(arr, right_range); }
   }
@@ -104,7 +109,9 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
 }
 
 void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
-  if (low >= high) return;
+  if (low >= high) {
+    return;
+  }
 
   const int min_size = 10;
 
@@ -120,7 +127,7 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
 #pragma omp taskwait
 
     if (low <= pi && pi <= high) {
-      MergeRange merge_range{low, pi, high};
+      MergeRange merge_range{.start = low, .mid = pi, .end = high};
       ParallelMerge(arr, merge_range);
     }
   } else if (low < high) {
@@ -131,7 +138,7 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
     if (pi + 1 < high) {
       QuickSortMergeParallel(arr, pi + 1, high);
     }
-    MergeRange merge_range{low, pi, high};
+    MergeRange merge_range{.start = low, .mid = pi, .end = high};
     SequentialMerge(arr, merge_range);
   }
 }
