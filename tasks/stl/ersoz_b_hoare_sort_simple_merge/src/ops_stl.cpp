@@ -25,7 +25,7 @@ long long HoareSortSimpleMergeSTL::Partition(std::vector<int>& a, long long l, l
       --j;
     }
   }
-  return i;
+  return i;  // may return r + 1
 }
 
 void HoareSortSimpleMergeSTL::QuickSortHoare(std::vector<int>& a, long long l, long long r) {
@@ -58,9 +58,15 @@ void HoareSortSimpleMergeSTL::QuickSortHoare(std::vector<int>& a, long long l, l
 
 void HoareSortSimpleMergeSTL::MergeTwo(const std::vector<int>& src, Segment left, Segment right,
                                        std::vector<int>& dst) {
-  std::merge(src.begin() + static_cast<long long>(left.begin), src.begin() + static_cast<long long>(left.end),
-             src.begin() + static_cast<long long>(right.begin), src.begin() + static_cast<long long>(right.end),
-             dst.begin());
+  if (dst.empty()) {
+    return;  // defensive: nothing to write
+  }
+  // Iterators (partition may yield empty half ranges; that's fine)
+  auto left_first = src.begin() + static_cast<long long>(left.begin);
+  auto left_last = src.begin() + static_cast<long long>(left.end);
+  auto right_first = src.begin() + static_cast<long long>(right.begin);
+  auto right_last = src.begin() + static_cast<long long>(right.end);
+  std::merge(left_first, left_last, right_first, right_last, dst.begin());
 }
 
 bool HoareSortSimpleMergeSTL::PreProcessingImpl() {
@@ -108,6 +114,15 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
   }
   if (mid < static_cast<long long>(n)) {
     QuickSortHoare(input_, mid, static_cast<long long>(n - 1));
+  }
+  if (output_.empty()) {
+    return true;  // defensive guard (static analyzer)
+  }
+  // Clamp mid into [0, n] just in case (Partition may return n)
+  if (mid < 0) {
+    mid = 0;
+  } else if (mid > static_cast<long long>(n)) {
+    mid = static_cast<long long>(n);
   }
   MergeTwo(input_, Segment{.begin = 0, .end = static_cast<std::size_t>(mid)},
            Segment{.begin = static_cast<std::size_t>(mid), .end = n}, output_);
