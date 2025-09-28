@@ -113,13 +113,13 @@ void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& labels
         if (max_label != root_max) {
 #pragma omp atomic write
           parent[max_label] = new_root;
-         }
-       }
-     }
-   }
+        }
+      }
+    }
+  }
 }
 
-void ConnectedComponentsOmp::ResolveLabels(std::vector<int> & labels, const std::vector<int>& parent) {
+void ConnectedComponentsOmp::ResolveLabels(std::vector<int>& labels, const std::vector<int>& parent) {
 #pragma omp parallel for schedule(static)
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
@@ -148,14 +148,14 @@ void ConnectedComponentsOmp::ResolveLabels(std::vector<int> & labels, const std:
 
     const size_t size = labels.size();
 #pragma omp parallel for schedule(static)
-  for (size_t i = 0; i < size; ++i) {
-    if (labels[i] > 0) {
-      output_labels_[i] = label_map[labels[i]];
-    } else {
-      output_labels_[i] = 0;
+    for (size_t i = 0; i < size; ++i) {
+      if (labels[i] > 0) {
+        output_labels_[i] = label_map[labels[i]];
+      } else {
+        output_labels_[i] = 0;
+      }
     }
   }
-}
 
   bool ConnectedComponentsOmp::RunImpl() {
     const size_t image_size = static_cast<size_t>(width_) * static_cast<size_t>(height_);
