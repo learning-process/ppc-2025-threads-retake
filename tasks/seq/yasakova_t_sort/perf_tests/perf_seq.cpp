@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
-#include "radix_double_seq.hpp"
+#include "seq/yasakova_t_sort/include/radix_double_seq.hpp"
 
 namespace {
 
