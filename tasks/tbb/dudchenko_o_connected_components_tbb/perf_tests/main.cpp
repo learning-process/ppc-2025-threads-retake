@@ -13,7 +13,7 @@
 using dudchenko_o_connected_components_tbb::ConnectedComponentsTbb;
 
 namespace {
-constexpr int size = 256;
+constexpr int kSmallSize = 256;
 
 std::vector<uint8_t> CreateTestImage(int size) {
   std::vector<uint8_t> img(size * size, 0);
@@ -45,10 +45,10 @@ std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
 }
 }  // namespace
 
-TEST(dudchenko_o_connected_components_tbb, test_pipeline) {
-  auto img = CreateTestImage(size);
+TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
+  auto img = CreateTestImage(kSmallSize);
   std::vector<int> out(img.size());
-  int w = size, h = size;
+  int w = kSmallSize, h = kSmallSize;
 
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
@@ -69,10 +69,10 @@ TEST(dudchenko_o_connected_components_tbb, test_pipeline) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(dudchenko_o_connected_components_tbb, test_task_run) {
-  auto img = CreateTestImage(size);
+TEST(dudchenko_o_connected_components_tbb, perf_task_run_small) {
+  auto img = CreateTestImage(kSmallSize);
   std::vector<int> out(img.size());
-  int w = size, h = size;
+  int w = kSmallSize, h = kSmallSize;
 
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
