@@ -9,9 +9,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/golovkin_sentence_count_omp/include/ops_omp.hpp"
+#include "omp/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
 
-TEST(golovkin_sentence_count_omp, test_pipeline_run) {
+TEST(golovkin_sentence_count_tbb, test_pipeline_run) {
   const int text_size = 1000000000;
   std::string text;
   text.reserve(text_size);
@@ -36,7 +36,7 @@ TEST(golovkin_sentence_count_omp, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data->outputs_count.emplace_back(1);
 
-  auto task = std::make_shared<golovkin_sentence_count_omp::SentenceCountParallel>(task_data);
+  auto task = std::make_shared<golovkin_sentence_count_tbb::SentenceCountParallel>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -54,7 +54,7 @@ TEST(golovkin_sentence_count_omp, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(golovkin_sentence_count_omp, test_task_run) {
+TEST(golovkin_sentence_count_tbb, test_task_run) {
   const int text_size = 1000000000;
   std::string text;
   text.reserve(text_size);
@@ -79,7 +79,7 @@ TEST(golovkin_sentence_count_omp, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data->outputs_count.emplace_back(1);
 
-  auto task = std::make_shared<golovkin_sentence_count_omp::SentenceCountParallel>(task_data);
+  auto task = std::make_shared<golovkin_sentence_count_tbb::SentenceCountParallel>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

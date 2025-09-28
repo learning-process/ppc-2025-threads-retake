@@ -1,4 +1,3 @@
-// Golovkins
 #pragma once
 
 #include <cstddef>
@@ -6,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace golovkin_sentence_count_omp {
+namespace golovkin_sentence_count_tbb {
 
 class SentenceCountParallel : public ppc::core::Task {
  public:
@@ -21,4 +20,4 @@ class SentenceCountParallel : public ppc::core::Task {
   std::string text_;
   int count_{};
 };
-}  // namespace golovkin_sentence_count_omp
+}  // namespace golovkin_sentence_count_tbb
