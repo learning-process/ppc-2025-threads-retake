@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
 #include <vector>
 
 bool dudchenko_o_connected_components::TestTaskSequential::PreProcessingImpl() {
@@ -55,16 +54,16 @@ bool dudchenko_o_connected_components::TestTaskSequential::PostProcessingImpl() 
 
 void dudchenko_o_connected_components::TestTaskSequential::LabelComponents() {
   size_t total_pixels = width_ * height_;
-  LabelVector labels(total_pixels, 0);
-  ParentVector parent(total_pixels + 1, 0);
+  ComponentLabels labels(total_pixels, 0);
+  ParentStructure parent(total_pixels + 1, 0);
 
   FirstPass(labels, parent);
   SecondPass(labels, parent);
   output_ = labels;
 }
 
-void dudchenko_o_connected_components::TestTaskSequential::FirstPass(LabelVector& component_labels,
-                                                                     ParentVector& parent_structure) {
+void dudchenko_o_connected_components::TestTaskSequential::FirstPass(ComponentLabels& component_labels,
+                                                                     ParentStructure& parent_structure) {
   int next_label = 1;
 
   for (int y = 0; y < height_; ++y) {
@@ -101,23 +100,23 @@ void dudchenko_o_connected_components::TestTaskSequential::FirstPass(LabelVector
   }
 }
 
-void dudchenko_o_connected_components::TestTaskSequential::SecondPass(LabelVector& component_labels,
-                                                                      const ParentVector& parent_structure) {
+void dudchenko_o_connected_components::TestTaskSequential::SecondPass(ComponentLabels& component_labels,
+                                                                      const ParentStructure& parent_structure) {
   for (size_t i = 0; i < component_labels.size(); ++i) {
     if (component_labels[i] != 0) {
-      component_labels[i] = FindRoot(const_cast<ParentVector&>(parent_structure), component_labels[i]);
+      component_labels[i] = FindRoot(const_cast<ParentStructure&>(parent_structure), component_labels[i]);
     }
   }
 }
 
-int dudchenko_o_connected_components::TestTaskSequential::FindRoot(ParentVector& parent, int x) {
+int dudchenko_o_connected_components::TestTaskSequential::FindRoot(ParentStructure& parent, int x) {
   if (parent[x] != x) {
     parent[x] = FindRoot(parent, parent[x]);
   }
   return parent[x];
 }
 
-void dudchenko_o_connected_components::TestTaskSequential::UnionSets(ParentVector& parent, int x, int y) {
+void dudchenko_o_connected_components::TestTaskSequential::UnionSets(ParentStructure& parent, int x, int y) {
   int root_x = FindRoot(parent, x);
   int root_y = FindRoot(parent, y);
 

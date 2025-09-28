@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -17,8 +18,8 @@ class TestTaskSequential : public ppc::core::Task {
 
  private:
   // Объявляем типы для устранения предупреждения о легко переставляемых параметрах
-  using LabelVector = std::vector<int>;
-  using ParentVector = std::vector<int32_t>;
+  using ComponentLabels = std::vector<int>;
+  using ParentStructure = std::vector<int32_t>;
 
   std::vector<int> input_;
   std::vector<int> output_;
@@ -26,10 +27,10 @@ class TestTaskSequential : public ppc::core::Task {
   int height_;
 
   void LabelComponents();
-  void FirstPass(LabelVector& component_labels, ParentVector& parent_structure);
-  static void SecondPass(LabelVector& component_labels, const ParentVector& parent_structure);
-  static int FindRoot(ParentVector& parent, int x);
-  static void UnionSets(ParentVector& parent, int x, int y);
+  void FirstPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
+  static void SecondPass(ComponentLabels& component_labels, const ParentStructure& parent_structure);
+  static int FindRoot(ParentStructure& parent, int x);
+  static void UnionSets(ParentStructure& parent, int x, int y);
 };
 
 }  // namespace dudchenko_o_connected_components
