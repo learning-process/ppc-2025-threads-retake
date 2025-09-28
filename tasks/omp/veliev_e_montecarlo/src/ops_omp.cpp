@@ -1,6 +1,7 @@
 #include "omp/veliev_e_montecarlo/include/ops_omp.hpp"
 
 #include <cmath>
+#include <exception>
 #include <iostream>
 #include <vector>
 
@@ -37,7 +38,7 @@ bool veliev_e_monte_carlo_omp::VelievEMonteCarloOmp::RunImpl() {
     }
     res_ = tmp_res * h1 * h2;
   } catch (const std::exception &e) {
-    std::cout << e.what() << std::endl;
+    std::cout << e.what() << '\n';
     return false;
   }
 
