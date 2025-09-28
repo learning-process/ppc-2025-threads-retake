@@ -63,7 +63,7 @@ TEST(shishkarev_a_radix_sort_tbb, test_task_run) {
   auto test_task_tbb = std::make_shared<shishkarev_a_radix_sort_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 100;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
