@@ -45,11 +45,11 @@ struct MergeRange {
   int end;
 };
 
-MergeRange make_merge_range(int start, int mid, int end) {
+MergeRange MakeMergeRange(int range_start, int range_mid, int range_end) {
   MergeRange range;
-  range.start = start;
-  range.mid = mid;
-  range.end = end;
+  range.start = range_start;
+  range.mid = range_mid;
+  range.end = range_end;
   return range;
 }
 
@@ -110,7 +110,7 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
   int j = static_cast<int>(j_iter - arr.begin());
 
   if (range.start <= i - 1 && j - 1 >= range.start && i - 1 >= range.start) {
-    MergeRange left_range = make_merge_range(range.start, i - 1, j - 1);
+    MergeRange left_range = MakeMergeRange(range.start, i - 1, j - 1);
     if (left_range.start <= left_range.mid && left_range.mid <= left_range.end) {
 #pragma omp task default(none) shared(arr) firstprivate(left_range)
       { ParallelMerge(arr, left_range); }
@@ -118,7 +118,7 @@ void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
   }
 
   if (i <= range.mid && range.end >= j && j <= range.end) {
-    MergeRange right_range = make_merge_range(i, range.mid, range.end);
+    MergeRange right_range = MakeMergeRange(i, range.mid, range.end);
     if (right_range.start <= right_range.mid && right_range.mid <= right_range.end) {
 #pragma omp task default(none) shared(arr) firstprivate(right_range)
       { ParallelMerge(arr, right_range); }
@@ -155,7 +155,7 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
 #pragma omp taskwait
 
     if (low <= pi && pi < high) {
-      MergeRange merge_range = make_merge_range(low, pi, high);
+      MergeRange merge_range = MakeMergeRange(low, pi, high);
       if (merge_range.start <= merge_range.mid && merge_range.mid < merge_range.end) {
         ParallelMerge(arr, merge_range);
       }
