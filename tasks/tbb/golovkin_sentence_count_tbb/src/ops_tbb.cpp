@@ -1,7 +1,7 @@
 #include "tbb/golovkin_sentence_count_tbb/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_reduce.h>
 #include <tbb/partitioner.h>
 
 #include <cctype>
@@ -78,7 +78,7 @@ bool golovkin_sentence_count_tbb::SentenceCountParallel::RunImpl() {
         }
         return local_count;
       },
-      std::plus<int>());
+      std::plus<>());
 
   return true;
 }
