@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <utility>
 #include <vector>
@@ -24,10 +26,10 @@ class ConnectedComponentsOmp : public ppc::core::Task {
   int components_count_ = 0;
 
   void ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label);
-  void CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label, size_t idx);
-  void HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find, size_t idx, 
+  static void CreateNewComponent(std::vector<int>& pixel_labels, std::vector<int>& union_find, int& next_label, size_t idx);
+  static void HandleBothNeighbors(std::vector<int>& pixel_labels, std::vector<int>& union_find, size_t idx, 
                           int left_label, int top_label);
-  static void UnionComponents(std::vector<int>& parent, int min_label, int max_label, int root_min, int root_max);
+  static void UnionComponents(std::vector<int>& union_find, int min_label, int max_label, int root_min, int root_max);
   void ResolveLabels(std::vector<int>& labels, const std::vector<int>& parent);
   void CompactLabels(const std::vector<int>& labels);
   [[nodiscard]] static int FindRoot(const std::vector<int>& parent, int x);

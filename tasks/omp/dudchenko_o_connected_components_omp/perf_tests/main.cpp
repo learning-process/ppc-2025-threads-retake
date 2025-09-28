@@ -18,24 +18,24 @@ namespace {
 constexpr int kLargeWidth = 1024;
 constexpr int kLargeHeight = 1024;
 
-std::vector<uint8_t> GenerateTestImage(int width, int height, double density) {
+std::vector<uint8_t> GenerateTestImage(int width, int height, double density_val) {
   std::vector<uint8_t> img(static_cast<std::size_t>(width) * static_cast<std::size_t>(height), 255);
   std::mt19937 rng(42);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
   for (int i = 0; i < width * height; ++i) {
-    if (dist(rng) < density) {
+    if (dist(rng) < density_val) {
       img[i] = 0;
     }
   }
   return img;
 }
 
-std::vector<uint8_t> GenerateGridImage(int width, int height, int grid_size) {
+std::vector<uint8_t> GenerateGridImage(int width, int height, int grid_step) {
   std::vector<uint8_t> img(static_cast<std::size_t>(width) * static_cast<std::size_t>(height), 255);
 
-  for (int y = 0; y < height; y += grid_size) {
-    for (int x = 0; x < width; x += grid_size) {
+  for (int y = 0; y < height; y += grid_step) {
+    for (int x = 0; x < width; x += grid_step) {
       if (x < width && y < height) {
         img[(static_cast<std::size_t>(y) * static_cast<std::size_t>(width)) + static_cast<std::size_t>(x)] = 0;
       }
@@ -53,7 +53,7 @@ inline double NowSec() {
 struct ImageSpec {
   int width;
   int height;
-  ImageSpec(int width_val, int height_val) : width(width_val), height(height_val) {}
+  ImageSpec(int width_value, int height_value) : width(width_value), height(height_value) {}
 };
 
 std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
