@@ -1,6 +1,7 @@
 #include "stl/muradov_k_histogram_stretch/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <thread>
 #include <vector>
 
