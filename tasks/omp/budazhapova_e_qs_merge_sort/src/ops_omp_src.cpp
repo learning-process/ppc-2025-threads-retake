@@ -45,6 +45,7 @@ struct MergeRange {
   int end;
 };
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 MergeRange MakeMergeRange(int range_start, int range_mid, int range_end) {
   MergeRange range;
   range.start = range_start;
@@ -83,6 +84,7 @@ void SequentialMerge(std::vector<int>& arr, const MergeRange& range) {
   }
 }
 
+// NOLINTBEGIN(modernize-use-designated-initializers)
 void ParallelMerge(std::vector<int>& arr, const MergeRange& range) {
   if (range.start >= range.end || range.mid < range.start || range.mid >= range.end) {
     return;
@@ -164,6 +166,7 @@ void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
     std::sort(arr.begin() + low, arr.begin() + high + 1);
   }
 }
+// NOLINTEND(modernize-use-designated-initializers)
 
 }  // namespace
 
