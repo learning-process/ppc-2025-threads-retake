@@ -69,7 +69,6 @@ bool ConnectedComponentsOmp::PreProcessingImpl() {
 
 void ConnectedComponentsOmp::ProcessPixel(int x, int y, std::vector<int>& pixel_labels, std::vector<int>& union_find,
                                           int& next_label) {
-
   if (input_image_[index] != kForeground) {
     return;
   }
