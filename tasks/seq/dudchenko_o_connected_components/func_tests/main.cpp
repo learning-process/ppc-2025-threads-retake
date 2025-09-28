@@ -1,23 +1,22 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/dudchenko_o_connected_components/include/ops_seq.hpp"
 
 TEST(dudchenko_o_connected_components_seq, test_small_image) {
   int width = 3;
   int height = 3;
-  std::vector<int> image_data = {1, 0, 1, 0, 1, 0, 1, 0, 1};
+  // Используем 0 для foreground (связных компонентов), 255 для background
+  std::vector<int> image_data = {0, 255, 0, 
+                                 255, 0, 255, 
+                                 0, 255, 0};
 
   std::vector<int> input_data;
   input_data.push_back(width);
@@ -38,16 +37,19 @@ TEST(dudchenko_o_connected_components_seq, test_small_image) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  EXPECT_NE(output_data[0], 0);
-  EXPECT_EQ(output_data[1], 0);
-  EXPECT_NE(output_data[2], 0);
-  EXPECT_EQ(output_data[3], 0);
-  EXPECT_NE(output_data[4], 0);
-  EXPECT_EQ(output_data[5], 0);
-  EXPECT_NE(output_data[6], 0);
-  EXPECT_EQ(output_data[7], 0);
-  EXPECT_NE(output_data[8], 0);
+  // Проверяем что foreground точки (0 в исходных данных) получили ненулевые метки
+  // а background точки (255) остались с 0
+  EXPECT_NE(output_data[0], 0);  // (0,0) - foreground
+  EXPECT_EQ(output_data[1], 0);  // (1,0) - background
+  EXPECT_NE(output_data[2], 0);  // (2,0) - foreground
+  EXPECT_EQ(output_data[3], 0);  // (0,1) - background
+  EXPECT_NE(output_data[4], 0);  // (1,1) - foreground
+  EXPECT_EQ(output_data[5], 0);  // (2,1) - background
+  EXPECT_NE(output_data[6], 0);  // (0,2) - foreground
+  EXPECT_EQ(output_data[7], 0);  // (1,2) - background
+  EXPECT_NE(output_data[8], 0);  // (2,2) - foreground
 
+  // Все foreground точки должны быть разными компонентами (диагональные точки не связаны)
   EXPECT_NE(output_data[0], output_data[2]);
   EXPECT_NE(output_data[0], output_data[4]);
   EXPECT_NE(output_data[0], output_data[6]);
@@ -63,7 +65,8 @@ TEST(dudchenko_o_connected_components_seq, test_small_image) {
 TEST(dudchenko_o_connected_components_seq, test_single_component) {
   int width = 4;
   int height = 4;
-  std::vector<int> image_data(width * height, 1);
+  // Все точки foreground (0)
+  std::vector<int> image_data(width * height, 0);
 
   std::vector<int> input_data;
   input_data.push_back(width);
@@ -94,7 +97,8 @@ TEST(dudchenko_o_connected_components_seq, test_single_component) {
 TEST(dudchenko_o_connected_components_seq, test_no_components) {
   int width = 4;
   int height = 4;
-  std::vector<int> image_data(width * height, 0);
+  // Все точки background (не 0)
+  std::vector<int> image_data(width * height, 255);
 
   std::vector<int> input_data;
   input_data.push_back(width);
@@ -123,7 +127,12 @@ TEST(dudchenko_o_connected_components_seq, test_no_components) {
 TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   int width = 5;
   int height = 5;
-  std::vector<int> image_data = {1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1};
+  // Два отдельных компонента из foreground точек (0)
+  std::vector<int> image_data = {0, 0, 255, 255, 255,
+                                 0, 0, 255, 255, 255, 
+                                 255, 255, 255, 255, 255, 
+                                 255, 255, 255, 0, 0, 
+                                 255, 255, 255, 0, 0};
 
   std::vector<int> input_data;
   input_data.push_back(width);
@@ -144,16 +153,19 @@ TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  int comp1 = output_data[0];
-  int comp2 = output_data[18];
+  int comp1 = output_data[0];  // левый верхний компонент
+  int comp2 = output_data[18]; // правый нижний компонент
 
   EXPECT_NE(comp1, 0);
   EXPECT_NE(comp2, 0);
   EXPECT_NE(comp1, comp2);
 
+  // Проверяем точки первого компонента
   EXPECT_EQ(output_data[1], comp1);
   EXPECT_EQ(output_data[5], comp1);
   EXPECT_EQ(output_data[6], comp1);
+
+  // Проверяем точки второго компонента
   EXPECT_EQ(output_data[19], comp2);
   EXPECT_EQ(output_data[23], comp2);
   EXPECT_EQ(output_data[24], comp2);

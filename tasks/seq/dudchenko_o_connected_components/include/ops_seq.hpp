@@ -22,10 +22,10 @@ class TestTaskSequential : public ppc::core::Task {
   int height_;
 
   void LabelComponents();
-  void FirstPass(std::vector<int>& labels, std::vector<int>& parent);
-  void SecondPass(std::vector<int>& labels, const std::vector<int>& parent);
-  int FindRoot(std::vector<int>& parent, int x);
-  void UnionSets(std::vector<int>& parent, int x, int y);
+  void FirstPass(std::vector<int>& component_labels, std::vector<int>& union_find_parent);
+  void SecondPass(std::vector<int>& component_labels, const std::vector<int>& union_find_parent);
+  static int FindRoot(std::vector<int>& parent, int x);
+  static void UnionSets(std::vector<int>& parent, int x, int y);
 };
 
 }  // namespace dudchenko_o_connected_components
