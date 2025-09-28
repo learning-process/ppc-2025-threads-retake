@@ -76,7 +76,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_task_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  // Create Tas
+  // Create Task
   auto sort_task_omp = std::make_shared<budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP>(task_data_omp);
 
   // Create Perf attributes
