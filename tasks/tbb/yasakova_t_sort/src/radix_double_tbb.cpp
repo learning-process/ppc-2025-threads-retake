@@ -4,6 +4,8 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <ranges>
+#include <utility>
 #include <vector>
 
 #include "oneapi/tbb/parallel_for.h"
@@ -13,16 +15,29 @@ namespace yasakova_t_sort_tbb {
 
 namespace {
 
+struct ParallelPlan {
+  size_t chunks;
+  size_t chunk_size;
+  size_t total;
+};
+
+ParallelPlan MakePlan(size_t total) {
+  auto chunks = std::max<size_t>(1, tbb::this_task_arena::max_concurrency());
+  chunks = std::min(chunks, total);
+  const size_t chunk_size = (total + chunks - 1) / chunks;
+  return ParallelPlan{chunks, chunk_size, total};
+}
+
 void ComputeLocalKeys(const std::vector<double>& nonnan, std::vector<uint64_t>& keys) {
   tbb::parallel_for(size_t(0), nonnan.size(), [&](size_t i) { keys[i] = ToKey(nonnan[i]); });
 }
 
 void ComputeLocalCounts(const std::vector<uint64_t>& keys, std::vector<std::array<size_t, 256>>& local_counts,
-                        size_t chunks, size_t chunk_size, size_t n, int shift) {
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, chunks), [&](const auto& range) {
+                        const ParallelPlan& plan, int shift) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, plan.chunks), [&](const auto& range) {
     for (size_t chunk = range.begin(); chunk != range.end(); ++chunk) {
-      const size_t begin = chunk * chunk_size;
-      const size_t end = std::min(n, begin + chunk_size);
+      const size_t begin = chunk * plan.chunk_size;
+      const size_t end = std::min(plan.total, begin + plan.chunk_size);
       auto& local = local_counts[chunk];
       local.fill(0);
       for (size_t i = begin; i < end; ++i) {
@@ -65,12 +80,11 @@ std::vector<std::array<size_t, 256>> PreparePositions(const std::vector<std::arr
 }
 
 void ScatterIntoBuffer(const std::vector<uint64_t>& keys, std::vector<uint64_t>& buffer,
-                       const std::vector<std::array<size_t, 256>>& positions, size_t chunks, size_t chunk_size,
-                       size_t n, int shift) {
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, chunks), [&](const auto& range) {
+                       const std::vector<std::array<size_t, 256>>& positions, const ParallelPlan& plan, int shift) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, plan.chunks), [&](const auto& range) {
     for (size_t chunk = range.begin(); chunk != range.end(); ++chunk) {
-      const size_t begin = chunk * chunk_size;
-      const size_t end = std::min(n, begin + chunk_size);
+      const size_t begin = chunk * plan.chunk_size;
+      const size_t end = std::min(plan.total, begin + plan.chunk_size);
       auto local_pos = positions[chunk];
       for (size_t i = begin; i < end; ++i) {
         const auto bucket = static_cast<uint8_t>(keys[i] >> shift);
@@ -138,25 +152,23 @@ void RadixSortDoubleTbb(std::vector<double>& data) {
     return;
   }
 
+  const auto plan = MakePlan(n);
+
   std::vector<uint64_t> keys(n);
   ComputeLocalKeys(nonnan, keys);
-
-  auto chunks = std::max<size_t>(1, tbb::this_task_arena::max_concurrency());
-  chunks = std::min(chunks, n);
-  const size_t chunk_size = (n + chunks - 1) / chunks;
 
   std::vector<uint64_t> buffer(n);
   for (int pass = 0; pass < 8; ++pass) {
     const int shift = pass * 8;
 
-    std::vector<std::array<size_t, 256>> local_counts(chunks);
-    ComputeLocalCounts(keys, local_counts, chunks, chunk_size, n, shift);
+    std::vector<std::array<size_t, 256>> local_counts(plan.chunks);
+    ComputeLocalCounts(keys, local_counts, plan, shift);
 
     auto global_counts = AggregateCounts(local_counts);
     PrefixSums(global_counts);
 
     const auto positions = PreparePositions(local_counts, global_counts);
-    ScatterIntoBuffer(keys, buffer, positions, chunks, chunk_size, n, shift);
+    ScatterIntoBuffer(keys, buffer, positions, plan, shift);
 
     keys.swap(buffer);
   }
