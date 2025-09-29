@@ -70,47 +70,39 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
                                                                      ParentStructure& parent_structure) {
   int next_label = 1;
 
-#pragma omp parallel
-  {
-    int thread_next_label;
+#pragma omp parallel for schedule(static)
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      int index = y * width_ + x;
+
+      if (input_[index] != 0) {
+        component_labels.labels[index] = 0;
+        continue;
+      }
+
+      int left_label = (x > 0) ? component_labels.labels[index - 1] : 0;
+      int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
+
+      if (left_label == 0 && top_label == 0) {
 #pragma omp critical
-    {
-      thread_next_label = next_label;
-      next_label += (width_ * height_) / omp_get_num_threads();
-    }
-
-#pragma omp for schedule(static)
-    for (int y = 0; y < height_; ++y) {
-      for (int x = 0; x < width_; ++x) {
-        int index = (y * width_) + x;
-
-        if (input_[index] != 0) {
-          component_labels.labels[index] = 0;
-          continue;
+        {
+          component_labels.labels[index] = next_label;
+          parent_structure.parents[next_label] = next_label;
+          next_label++;
         }
+      } else if (left_label != 0 && top_label == 0) {
+        component_labels.labels[index] = left_label;
+      } else if (left_label == 0 && top_label != 0) {
+        component_labels.labels[index] = top_label;
+      } else {
+        int root_left = FindRoot(parent_structure, left_label);
+        int root_top = FindRoot(parent_structure, top_label);
+        int min_root = std::min(root_left, root_top);
+        component_labels.labels[index] = min_root;
 
-        int left_label = (x > 0) ? component_labels.labels[index - 1] : 0;
-        int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
-
-        if (left_label == 0 && top_label == 0) {
-          component_labels.labels[index] = thread_next_label;
+        if (root_left != root_top) {
 #pragma omp critical
-          { parent_structure.parents[thread_next_label] = thread_next_label; }
-          thread_next_label++;
-        } else if (left_label != 0 && top_label == 0) {
-          component_labels.labels[index] = left_label;
-        } else if (left_label == 0 && top_label != 0) {
-          component_labels.labels[index] = top_label;
-        } else {
-          int root_left = FindRoot(parent_structure, left_label);
-          int root_top = FindRoot(parent_structure, top_label);
-          int min_root = std::min(root_left, root_top);
-          component_labels.labels[index] = min_root;
-
-          if (root_left != root_top) {
-#pragma omp critical
-            { UnionSets(parent_structure, root_left, root_top); }
-          }
+          { UnionSets(parent_structure, root_left, root_top); }
         }
       }
     }
@@ -128,6 +120,10 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentL
 }
 
 int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructure& parent, int x) {
+  if (x <= 0 || x >= static_cast<int>(parent.parents.size())) {
+    return x;
+  }
+
   int root = x;
   while (parent.parents[root] != root) {
     root = parent.parents[root];
