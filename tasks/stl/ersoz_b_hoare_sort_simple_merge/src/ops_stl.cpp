@@ -8,7 +8,6 @@
 
 #include "core/util/include/util.hpp"
 
-
 namespace ersoz_b_hoare_sort_simple_merge_stl {
 
 long long HoareSortSimpleMergeSTL::Partition(std::vector<int>& a, long long l, long long r) {
