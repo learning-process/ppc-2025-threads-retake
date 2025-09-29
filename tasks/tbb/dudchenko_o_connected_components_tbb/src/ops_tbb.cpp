@@ -39,7 +39,7 @@ class DisjointSetUnion {
 
     if (rank_[x] < rank_[y]) {
       parent_[x] = y;
-    } else if (rank[x] > rank_[y]) {
+    } else if (rank_[x] > rank_[y]) {
       parent_[y] = x;
     } else {
       parent_[y] = x;
@@ -66,7 +66,7 @@ void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, in
   std::vector<int> new_labels(max_label + 1, 0);
   int current_label = 1;
   for (int i = 1; i <= max_label; ++i) {
-    int root = dsu.find(i);
+    int root = dsu.Find(i);
     if (new_labels[root] == 0) {
       new_labels[root] = current_label++;
     }
@@ -74,10 +74,11 @@ void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, in
 
   for (size_t i = 0; i < labels.size(); ++i) {
     if (labels[i] != 0) {
-      labels[i] = new_labels[dsu.find(labels[i])];
+      labels[i] = new_labels[dsu.Find(labels[i])];
     }
   }
 }
+}  // namespace
 
 namespace dudchenko_o_connected_components_tbb {
 
@@ -198,5 +199,3 @@ bool ConnectedComponentsTbb::PostProcessingImpl() {
   return true;
 }
 }  // namespace dudchenko_o_connected_components_tbb
-
-}  // namespace
