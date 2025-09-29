@@ -1,3 +1,5 @@
+#include "stl/veliev_e_montecarlo/include/ops_stl.hpp"
+
 #include <cmath>
 #include <exception>
 #include <iostream>
@@ -5,7 +7,6 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "stl/veliev_e_montecarlo/include/ops_stl.hpp"
 
 using namespace std::chrono_literals;
 
@@ -25,7 +26,7 @@ bool veliev_e_monte_carlo_stl::VelievEMonteCarloStl::ValidationImpl() {
   return task_data->inputs_count[0] == 2 && task_data->inputs_count[1] == 2 && task_data->outputs_count[0] == 1;
 }
 
-bool veliev_e_monte_carlo_stl::VelievEMonteCarloStl::RunImpl() {  
+bool veliev_e_monte_carlo_stl::VelievEMonteCarloStl::RunImpl() {
   try {
     double h1 = (Int1_[1] - Int1_[0]) / N_;
     double h2 = (Int2_[1] - Int2_[0]) / N_;
@@ -59,7 +60,7 @@ bool veliev_e_monte_carlo_stl::VelievEMonteCarloStl::RunImpl() {
     std::cout << e.what() << std::endl;
     return false;
   }
-  
+
   return true;
 }
 

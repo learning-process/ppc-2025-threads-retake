@@ -1,6 +1,6 @@
-#include <cmath>
-
 #include "stl/veliev_e_montecarlo/include/my_funcs.hpp"
+
+#include <cmath>
 
 double veliev_func_stl::Flin(double x, double y) { return x + y; }
 double veliev_func_stl::FsinxPsiny(double x, double y) { return sin(x) + sin(y); }
