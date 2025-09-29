@@ -87,11 +87,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
     new_label = parent_structure.parents[0]++;
 
 #pragma omp critical
-    {
-        if (new_label >= static_cast<int>(parent_structure.parents.size())) {
-            parent_structure.parents.resize(new_label + 1, 0);
-        }
-    }
+      if (new_label >= static_cast<int>(parent_structure.parents.size())) {
+        parent_structure.parents.resize(new_label + 1, 0);
+      }
     parent_structure.parents[new_label] = new_label;
     component_labels.labels[index] = new_label;
     return;
