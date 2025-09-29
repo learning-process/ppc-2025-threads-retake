@@ -7,6 +7,14 @@
 
 std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication(const std::vector<double>& a,
                                                                                  const std::vector<double>& b, int n) {
+  if (n <= 0) {
+    return {};
+  }
+
+  if (a.empty() || b.empty()) {
+    return std::vector<double>(n * n, 0.0);
+  }
+
   int p = static_cast<int>(std::sqrt(n));
   if (p * p != n) {
     p = 2;
