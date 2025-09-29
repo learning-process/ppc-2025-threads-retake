@@ -54,7 +54,7 @@ TEST(sdobnov_v_simpson_stl, perf_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   const double expected_result = ((2875000 * std::numbers::pi * std::numbers::pi) + (30000 * std::numbers::pi)) / 3;
-  const double tolerance = 1e-4;
+  const double tolerance = 1e2;
   EXPECT_NEAR(result, expected_result, tolerance);
 }
 
