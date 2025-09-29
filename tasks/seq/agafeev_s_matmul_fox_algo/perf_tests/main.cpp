@@ -55,7 +55,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequental = std::make_shared<agafeev_s_strassen_alg_seq::MultiplMatrixSequental>(task_data);
+  auto test_task_sequental = std::make_shared<agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -93,7 +93,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequental = std::make_shared<agafeev_s_strassen_alg_seq::MultiplMatrixSequental>(task_data);
+  auto test_task_sequental = std::make_shared<agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
