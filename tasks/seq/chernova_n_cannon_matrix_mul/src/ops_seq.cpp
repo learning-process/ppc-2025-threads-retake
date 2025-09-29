@@ -122,6 +122,14 @@ bool chernova_n_cannon_matrix_mul_seq::TestTaskSequential::PreProcessingImpl() {
 }
 
 bool chernova_n_cannon_matrix_mul_seq::TestTaskSequential::ValidationImpl() {
+  if (task_data->inputs[0] == nullptr || task_data->inputs[1] == nullptr || task_data->inputs[2] == nullptr ||
+      task_data->outputs[0] == nullptr) {
+    return false;
+  }
+  int n = *reinterpret_cast<int*>(task_data->inputs[2]);
+  if (n <= 0) {
+    return false;
+  }
   return task_data->inputs_count[0] == task_data->inputs_count[1] &&
          task_data->inputs_count[0] == task_data->outputs_count[0] &&
          task_data->inputs_count[1] == task_data->outputs_count[0] && task_data->inputs_count[1] > 0 &&
@@ -142,7 +150,7 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::MultiplyMatrix(const std::
                                                                      const std::vector<double>& b, int n) {
   std::vector<double> matrixC(n * n, 0.0);
 
-  if (n == 00) {
+  if (n == 0) {
     return {};
   }
 

@@ -11,6 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 #include "seq/chernova_n_cannon_matrix_mul/include/ops_seq.hpp"
+namespace {
 
 bool compareMatrices(const std::vector<double> &matrix1, const std::vector<double> &matrix2, double tolerance = 1e-4) {
   if (matrix1.size() != matrix2.size()) {
@@ -41,7 +42,7 @@ std::vector<double> GetRandomMatrix(int n) {
 
   return matrix;
 }
-
+}  // namespace
 TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_2) {
   int n = 2;
 
