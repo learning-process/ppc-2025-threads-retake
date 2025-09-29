@@ -29,7 +29,7 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }  // namespace
 
 TEST(makadrai_g_histogram_linear_stretching_seq, test_pipeline_run) {
-  constexpr int kCount = 10000000;
+  constexpr int kCount = 50000000;
 
   // Create data
   std::vector<uint8_t> in = GetRandomImage(kCount);
@@ -76,7 +76,7 @@ TEST(makadrai_g_histogram_linear_stretching_seq, test_pipeline_run) {
 }
 
 TEST(makadrai_g_histogram_linear_stretching_seq, test_task_run) {
-  constexpr int kCount = 10000000;
+  constexpr int kCount = 50000000;
 
   // Create data
   std::vector<uint8_t> in = GetRandomImage(kCount);
