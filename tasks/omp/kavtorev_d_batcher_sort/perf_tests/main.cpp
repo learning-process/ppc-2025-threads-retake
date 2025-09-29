@@ -10,9 +10,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
+#include "omp/kavtorev_d_batcher_sort/include/ops_omp.hpp"
 
-using kavtorev_d_batcher_sort_tbb::RadixBatcherSortTBB;
+using kavtorev_d_batcher_sort_omp::RadixBatcherSortOpenMP;
 
 bool IsSorted(const std::vector<double>& arr) {
   for (size_t i = 1; i < arr.size(); ++i) {
@@ -39,7 +39,7 @@ bool SameElements(const std::vector<double>& a, const std::vector<double>& b) {
   return true;
 }
 
-TEST(kavtorev_d_batcher_sort_tbb, perf_pipeline_run) {
+TEST(kavtorev_d_batcher_sort_omp, perf_pipeline_run) {
   constexpr size_t kCount = 2000000;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
@@ -51,12 +51,12 @@ TEST(kavtorev_d_batcher_sort_tbb, perf_pipeline_run) {
 
   std::vector<double> original = in;
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
-  auto task = std::make_shared<RadixBatcherSortTBB>(task_data_tbb);
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task = std::make_shared<RadixBatcherSortOpenMP>(task_data_omp);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 5;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -86,7 +86,7 @@ TEST(kavtorev_d_batcher_sort_tbb, perf_pipeline_run) {
   EXPECT_TRUE(matches_std_sort);
 }
 
-TEST(kavtorev_d_batcher_sort_tbb, perf_task_run) {
+TEST(kavtorev_d_batcher_sort_omp, perf_task_run) {
   constexpr size_t kCount = 2000000;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
@@ -98,12 +98,12 @@ TEST(kavtorev_d_batcher_sort_tbb, perf_task_run) {
 
   std::vector<double> original = in;
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
-  auto task = std::make_shared<RadixBatcherSortTBB>(task_data_tbb);
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task = std::make_shared<RadixBatcherSortOpenMP>(task_data_omp);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 5;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -117,8 +117,8 @@ TEST(kavtorev_d_batcher_sort_tbb, perf_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_TRUE(IsSorted(out)) << "Array is not sorted correctly";
-  EXPECT_TRUE(SameElements(original, out)) << "Sorted array doesn't contain the same elements as input";
+  EXPECT_TRUE(IsSorted(out));
+  EXPECT_TRUE(SameElements(original, out));
 
   std::vector<double> std_sorted = original;
   std::sort(std_sorted.begin(), std_sorted.end());
@@ -130,5 +130,5 @@ TEST(kavtorev_d_batcher_sort_tbb, perf_task_run) {
       break;
     }
   }
-  EXPECT_TRUE(matches_std_sort) << "Result doesn't match std::sort";
+  EXPECT_TRUE(matches_std_sort);
 }
