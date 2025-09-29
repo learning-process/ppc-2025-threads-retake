@@ -12,9 +12,14 @@
 #include "tbb/somov_i_radix_sort_simple_merging/include/ops_tbb.hpp"
 
 namespace {
-std::vector<double> GenerateVector(std::size_t n, double min, double max) {
+struct MinMaxStruct {
+  double min;
+  double max;
+};
+
+std::vector<double> GenerateVector(std::size_t n, MinMaxStruct limits) {
   std::mt19937 gen(42);
-  std::uniform_real_distribution<double> dist(min, max);
+  std::uniform_real_distribution<double> dist(limits.min, limits.max);
   std::vector<double> data(n);
   for (double& d : data) {
     d = dist(gen);
@@ -85,7 +90,8 @@ TEST(somov_i_radix_sort_simple_merging_tbb, NegativeAndPositiveTest) {
 }
 
 TEST(somov_i_radix_sort_simple_merging_tbb, RandomVectorTest) {
-  std::vector<double> input = GenerateVector(100, -1000.0, 1000.0);
+  MinMaxStruct limits{.min = -1000.0, .max = 1000.0};
+  std::vector<double> input = GenerateVector(100, limits);
   std::vector<double> output(input.size(), 0.0);
   std::vector<double> expected = input;
   std::ranges::sort(expected);
