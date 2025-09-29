@@ -7,7 +7,7 @@
 
 namespace agafeev_s_matmul_fox_algo_seq {
 void BlockMultiply(const std::vector<double> &matr_a, const std::vector<double> &matr_b, std::vector<double> &matr_res,
-                   size_t row, size_t col, size_t block_index, size_t block_size, size_t n);
+                   unsigned long row, unsigned long col, int block_index, size_t block_size, size_t n);
 
 class MultiplMatrixSequental : public ppc::core::Task {
  public:
