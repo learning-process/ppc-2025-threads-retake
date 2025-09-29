@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 
+#include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/parallel_reduce.h"
 
 using namespace std::chrono_literals;
@@ -41,7 +42,7 @@ bool veliev_e_monte_carlo_tbb::VelievEMonteCarloTbb::RunImpl() {
           }
           return total;
         },
-        [](doable a, doable b) { return a + b; });
+        [](double a, double b) { return a + b; });
     res_ *= h1 * h2;
   } catch (const std::exception &e) {
     std::cout << e.what() << '\n';
