@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <future>
 #include <numeric>
 #include <thread>
@@ -156,7 +157,7 @@ double SimpsonIntegralStl::ParallelSimpsonAsync() {
   }
   double h = (b - a) / n;
 
-  unsigned int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = ppc::util::GetPPCNumThreads();
   if (num_threads == 0) {
     num_threads = 4;
   }
@@ -215,7 +216,7 @@ double SimpsonIntegralStl::ParallelSimpsonThreads() {
   }
   double h = (b - a) / n;
 
-  unsigned int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = ppc::util::GetPPCNumThreads();
   if (num_threads == 0) {
     num_threads = 4;
   }
