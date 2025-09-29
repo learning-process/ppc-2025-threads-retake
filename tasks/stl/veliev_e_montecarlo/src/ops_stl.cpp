@@ -57,7 +57,7 @@ bool veliev_e_monte_carlo_stl::VelievEMonteCarloStl::RunImpl() {
       res_ += res;
     }
   } catch (const std::exception &e) {
-    std::cout << e.what() << std::endl;
+    std::cout << e.what() << '\n';
     return false;
   }
 
