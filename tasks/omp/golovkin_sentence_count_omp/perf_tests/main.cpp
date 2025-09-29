@@ -61,16 +61,6 @@ bool IsValidSentenceEnd(const std::string& text, size_t i) {
   return true;
 }
 
-int CalculateExpectedCount(const std::string& text) {
-  int count = 0;
-  for (size_t i = 0; i < text.size(); ++i) {
-    if (IsValidSentenceEnd(text, i)) {
-      count++;
-    }
-  }
-  return count;
-}
-
 }  // namespace
 
 TEST(golovkin_sentence_count_omp, test_pipeline_run) {
@@ -126,7 +116,6 @@ TEST(golovkin_sentence_count_omp, test_task_run) {
   task->PreProcessing();
   task->Run();
   task->PostProcessing();
-
 
   EXPECT_GE(result, 0) << "Result should be non-negative";
   EXPECT_GT(result, 0) << "Result should be positive for generated text";
