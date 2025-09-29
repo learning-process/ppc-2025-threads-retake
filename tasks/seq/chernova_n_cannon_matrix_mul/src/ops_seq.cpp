@@ -7,19 +7,25 @@
 #include <vector>
 
 namespace {
-
+struct MatrixParams {
+  int matrix_size;
+  int param;
+  int block_size;
+};
 void InitialAlignment(const std::vector<double>& mat_a, const std::vector<double>& mat_b, std::vector<double>& a_temp,
-                      std::vector<double>& b_temp, int matrix_size, int param, int block_size) {
-  for (int i = 0; i < param; ++i) {
-    for (int j = 0; j < param; ++j) {
-      const int new_j_a = (j - i + param) % param;
-      const int new_i_b = (i - j + param) % param;
+                      std::vector<double>& b_temp, const MatrixParams& params) {
+  for (int i = 0; i < params.param; ++i) {
+    for (int j = 0; j < params.param; ++j) {
+      const int new_j_a = (j - i + params.param) % params.param;
+      const int new_i_b = (i - j + params.param) % params.param;
 
-      for (int ii = 0; ii < block_size; ++ii) {
-        for (int jj = 0; jj < block_size; ++jj) {
-          const int orig_idx = (((i * block_size) + ii) * matrix_size) + ((j * block_size) + jj);
-          const int new_idx_a = (((i * block_size) + ii) * matrix_size) + ((new_j_a * block_size) + jj);
-          const int new_idx_b = (((new_i_b * block_size) + ii) * matrix_size) + ((j * block_size) + jj);
+      for (int ii = 0; ii < params.block_size; ++ii) {
+        for (int jj = 0; jj < params.block_size; ++jj) {
+          const int orig_idx = (((i * params.block_size) + ii) * params.matrix_size) + ((j * params.block_size) + jj);
+          const int new_idx_a =
+              (((i * params.block_size) + ii) * params.matrix_size) + ((new_j_a * params.block_size) + jj);
+          const int new_idx_b =
+              (((new_i_b * params.block_size) + ii) * params.matrix_size) + ((j * params.block_size) + jj);
 
           a_temp[new_idx_a] = mat_a[orig_idx];
           b_temp[new_idx_b] = mat_b[orig_idx];
@@ -30,19 +36,20 @@ void InitialAlignment(const std::vector<double>& mat_a, const std::vector<double
 }
 
 void MultiplyBlocks(const std::vector<double>& a_temp, const std::vector<double>& b_temp, std::vector<double>& matrix_c,
-                    int matrix_size, int param, int block_size) {
-  for (int i = 0; i < param; ++i) {
-    for (int j = 0; j < param; ++j) {
-      for (int ii = 0; ii < block_size; ++ii) {
-        for (int jj = 0; jj < block_size; ++jj) {
-          for (int kk = 0; kk < block_size; ++kk) {
-            const int row_a = (i * block_size) + ii;
-            const int col_a = (j * block_size) + kk;
-            const int row_b = (i * block_size) + kk;
-            const int col_b = (j * block_size) + jj;
-            const int idx_c = (((i * block_size) + ii) * matrix_size) + ((j * block_size) + jj);
+                    const MatrixParams& params) {
+  for (int i = 0; i < params.param; ++i) {
+    for (int j = 0; j < params.param; ++j) {
+      for (int ii = 0; ii < params.block_size; ++ii) {
+        for (int jj = 0; jj < params.block_size; ++jj) {
+          for (int kk = 0; kk < params.block_size; ++kk) {
+            const int row_a = (i * params.block_size) + ii;
+            const int col_a = (j * params.block_size) + kk;
+            const int row_b = (i * params.block_size) + kk;
+            const int col_b = (j * params.block_size) + jj;
+            const int idx_c = (((i * params.block_size) + ii) * params.matrix_size) + ((j * params.block_size) + jj);
 
-            matrix_c[idx_c] += a_temp[(row_a * matrix_size) + col_a] * b_temp[(row_b * matrix_size) + col_b];
+            matrix_c[idx_c] +=
+                a_temp[(row_a * params.matrix_size) + col_a] * b_temp[(row_b * params.matrix_size) + col_b];
           }
         }
       }
@@ -50,30 +57,32 @@ void MultiplyBlocks(const std::vector<double>& a_temp, const std::vector<double>
   }
 }
 
-void ShiftBlocks(std::vector<double>& a_temp, std::vector<double>& b_temp, int matrix_size, int param, int block_size) {
-  std::vector<double> a_shifted(matrix_size * matrix_size);
-  std::vector<double> b_shifted(matrix_size * matrix_size);
+void ShiftBlocks(std::vector<double>& a_temp, std::vector<double>& b_temp, const MatrixParams& params) {
+  std::vector<double> a_shifted(params.matrix_size * params.matrix_size);
+  std::vector<double> b_shifted(params.matrix_size * params.matrix_size);
 
-  for (int i = 0; i < param; ++i) {
-    for (int j = 0; j < param; ++j) {
-      const int new_j = (j - 1 + param) % param;
-      for (int ii = 0; ii < block_size; ++ii) {
-        for (int jj = 0; jj < block_size; ++jj) {
-          const int orig_idx = (((i * block_size) + ii) * matrix_size) + ((j * block_size) + jj);
-          const int new_idx = (((i * block_size) + ii) * matrix_size) + ((new_j * block_size) + jj);
+  for (int i = 0; i < params.param; ++i) {
+    for (int j = 0; j < params.param; ++j) {
+      const int new_j = (j - 1 + params.param) % params.param;
+      for (int ii = 0; ii < params.block_size; ++ii) {
+        for (int jj = 0; jj < params.block_size; ++jj) {
+          const int orig_idx = (((i * params.block_size) + ii) * params.matrix_size) + ((j * params.block_size) + jj);
+          const int new_idx =
+              (((i * params.block_size) + ii) * params.matrix_size) + ((new_j * params.block_size) + jj);
           a_shifted[new_idx] = a_temp[orig_idx];
         }
       }
     }
   }
 
-  for (int i = 0; i < param; ++i) {
-    for (int j = 0; j < param; ++j) {
-      const int new_i = (i - 1 + param) % param;
-      for (int ii = 0; ii < block_size; ++ii) {
-        for (int jj = 0; jj < block_size; ++jj) {
-          const int orig_idx = (((i * block_size) + ii) * matrix_size) + ((j * block_size) + jj);
-          const int new_idx = (((new_i * block_size) + ii) * matrix_size) + ((j * block_size) + jj);
+  for (int i = 0; i < params.param; ++i) {
+    for (int j = 0; j < params.param; ++j) {
+      const int new_i = (i - 1 + params.param) % params.param;
+      for (int ii = 0; ii < params.block_size; ++ii) {
+        for (int jj = 0; jj < params.block_size; ++jj) {
+          const int orig_idx = (((i * params.block_size) + ii) * params.matrix_size) + ((j * params.block_size) + jj);
+          const int new_idx =
+              (((new_i * params.block_size) + ii) * params.matrix_size) + ((j * params.block_size) + jj);
           b_shifted[new_idx] = b_temp[orig_idx];
         }
       }
@@ -101,7 +110,7 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
     p = 2;
   }
   const int block_size = n / p;
-
+  MatrixParams params{n, p, block_size};
   std::vector<double> matrix_c(n * n, 0.0);
   std::vector<double> a_temp(n * n);
   std::vector<double> b_temp(n * n);
@@ -110,13 +119,13 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
     return std::vector<double>(n * n, 0.0);
   }
 
-  InitialAlignment(mat_a, mat_b, a_temp, b_temp, n, p, block_size);
+  InitialAlignment(mat_a, mat_b, a_temp, b_temp, params);
 
   for (int step = 0; step < p; ++step) {
-    MultiplyBlocks(a_temp, b_temp, matrix_c, n, p, block_size);
+    MultiplyBlocks(a_temp, b_temp, matrix_c, params);
 
     if (step < p - 1) {
-      ShiftBlocks(a_temp, b_temp, n, p, block_size);
+      ShiftBlocks(a_temp, b_temp, params);
       if (a_temp.empty() || b_temp.empty()) {
         return std::vector<double>(n * n, 0.0);
       }
