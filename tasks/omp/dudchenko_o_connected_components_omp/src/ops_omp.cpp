@@ -65,9 +65,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::LabelComponents() {
   output_ = labels.labels;
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, int y, 
-                                                                        ComponentLabels& component_labels,
-                                                                        ParentStructure& parent_structure, 
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, int y, ComponentLabels& component_labels,
+                                                                        ParentStructure& parent_structure,
                                                                         int& local_next_label) {
   int index = y * width_ + x;
 
@@ -82,9 +81,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
   if (left_label == 0 && top_label == 0) {
     component_labels.labels[index] = local_next_label;
 #pragma omp critical
-    {
-      parent_structure.parents[local_next_label] = local_next_label;
-    }
+    { parent_structure.parents[local_next_label] = local_next_label; }
     local_next_label++;
   } else if (left_label != 0 && top_label == 0) {
     component_labels.labels[index] = left_label;
@@ -106,9 +103,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessConnectedNeigh
 
   if (root_left != root_top) {
 #pragma omp critical
-    {
-      UnionSets(parent_structure, root_left, root_top);
-    }
+    { UnionSets(parent_structure, root_left, root_top); }
   }
 }
 
@@ -144,9 +139,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
 
         if (root_current != root_top) {
 #pragma omp critical
-          {
-            UnionSets(parent_structure, root_current, root_top);
-          }
+          { UnionSets(parent_structure, root_current, root_top); }
         }
       }
     }

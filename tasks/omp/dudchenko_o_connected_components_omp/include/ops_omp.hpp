@@ -34,14 +34,14 @@ class TestTaskOpenMP : public ppc::core::Task {
   void LabelComponents();
   void FirstPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
   void SecondPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
-  void ProcessPixel(int x, int y, ComponentLabels& component_labels,
-                    ParentStructure& parent_structure, int& local_next_label);
+  void ProcessPixel(int x, int y, ComponentLabels& component_labels, ParentStructure& parent_structure,
+                    int& local_next_label);
   void ProcessConnectedNeighbors(int left_label, int top_label, ComponentLabels& component_labels,
                                  ParentStructure& parent_structure, int index);
-  void ProcessBlock(int start_y, int end_y, ComponentLabels& component_labels,
-                    ParentStructure& parent_structure, int base_label);
+  void ProcessBlock(int start_y, int end_y, ComponentLabels& component_labels, ParentStructure& parent_structure,
+                    int base_label);
   void ResolveBlockBoundaries(ComponentLabels& component_labels, ParentStructure& parent_structure);
-  
+
   int FindRoot(ParentStructure& parent, int x);
   void UnionSets(ParentStructure& parent, int x, int y);
 };
