@@ -210,7 +210,7 @@ TEST(budazhapova_e_qs_merge_sort_omp, test_validation_fail) {
   std::vector<int> in(kCount, 1);
   std::vector<int> out(kCount + 5, 0);  // Different size!
 
-  // Create task_data
+  // Create task_dat
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_omp->inputs_count.emplace_back(in.size());
