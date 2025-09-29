@@ -105,12 +105,13 @@ TEST(dudchenko_o_connected_components_tbb, full_image) {
 }
 
 TEST(dudchenko_o_connected_components_tbb, cross_shape) {
-  const int w = 5, h = 5;
+  const int w = 5;
+  const int h = 5;
   std::vector<uint8_t> img(w * h, 0);
 
   for (int i = 0; i < 5; ++i) {
-    img[2 * w + i] = 1;
-    img[i * w + 2] = 1;
+    img[(2 * w) + i] = 1;
+    img[(i * w) + 2] = 1;
   }
 
   auto labels = RunConnectedComponents(img, w, h);
@@ -118,14 +119,15 @@ TEST(dudchenko_o_connected_components_tbb, cross_shape) {
 }
 
 TEST(dudchenko_o_connected_components_tbb, u_shape) {
-  const int w = 5, h = 5;
+  const int w = 5;
+  const int h = 5;
   std::vector<uint8_t> img(w * h, 0);
 
   for (int i = 0; i < 3; ++i) {
-    img[i * w + 0] = 1;
-    img[i * w + 2] = 1;
+    img[(i * w) + 0] = 1;
+    img[(i * w) + 2] = 1;
   }
-  img[2 * w + 1] = 1;
+  img[(2 * w) + 1] = 1;
 
   auto labels = RunConnectedComponents(img, w, h);
   EXPECT_EQ(CountUniqueComponents(labels), 1);

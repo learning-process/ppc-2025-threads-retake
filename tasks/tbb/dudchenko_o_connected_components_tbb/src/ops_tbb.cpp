@@ -30,7 +30,7 @@ class DisjointSetUnion {
     return parent_[x];
   }
 
-  void unite(int x, int y) {
+  void Unite(int x, int y) {
     x = Find(x);
     y = Find(y);
     if (x == y) {
@@ -50,16 +50,20 @@ class DisjointSetUnion {
 
 namespace {
 void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, int>>& equivalences) {
-  if (equivalences.empty()) return;
+  if (equivalences.empty()) {
+    return;
+  }
 
-  int max_label = *std::max_element(labels.begin(), labels.end());
-  if (max_label == 0) return;
+  int max_label = *std::ranges::max_element(labels);
+  if (max_label == 0) {
+    return;
+  }
 
   DisjointSetUnion dsu(max_label + 1);
 
   for (auto& eq : equivalences) {
     if (eq.first > 0 && eq.first <= max_label && eq.second > 0 && eq.second <= max_label) {
-      dsu.unite(eq.first, eq.second);
+      dsu.Unite(eq.first, eq.second);
     }
   }
 
@@ -83,21 +87,39 @@ void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, in
 namespace dudchenko_o_connected_components_tbb {
 
 bool ConnectedComponentsTbb::ValidationImpl() {
-  if (task_data == nullptr) return false;
-  if (task_data->inputs.size() < 3 || task_data->inputs_count.size() < 3) return false;
+  if (task_data == nullptr) {
+    return false;
+  }
+
+  if (task_data->inputs.size() < 3 || task_data->inputs_count.size() < 3) {
+    return false;
+  }
 
   const unsigned int n = task_data->inputs_count[0];
-  if (n > 0 && task_data->inputs[0] == nullptr) return false;
+  if (n > 0 && task_data->inputs[0] == nullptr) {
+    return false;
+  }
 
-  if (task_data->inputs_count[1] != 1 || task_data->inputs_count[2] != 1) return false;
-  if (task_data->inputs[1] == nullptr || task_data->inputs[2] == nullptr) return false;
+  if (task_data->inputs_count[1] != 1 || task_data->inputs_count[2] != 1) {
+    return false;
+  }
 
+  if (task_data->inputs[1] == nullptr || task_data->inputs[2] == nullptr) {
+    return false;
+  }
   const int w = *reinterpret_cast<const int*>(task_data->inputs[1]);
   const int h = *reinterpret_cast<const int*>(task_data->inputs[2]);
-  if (w <= 0 || h <= 0) return false;
-  if (static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h) != n) return false;
+  if (w <= 0 || h <= 0) {
+    return false;
+  }
 
-  if (task_data->outputs.empty() || task_data->outputs_count.empty()) return false;
+  if (static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h) != n) {
+    return false;
+  }
+
+  if (task_data->outputs.empty() || task_data->outputs_count.empty()) {
+    return false;
+  }
   const unsigned int cap = task_data->outputs_count[0];
   return (cap == 0) || (task_data->outputs[0] != nullptr);
 }
@@ -158,13 +180,13 @@ bool ConnectedComponentsTbb::RunImpl() {
 
   std::vector<int> unique_labels;
   for (int label : output_labels_) {
-    if (label != 0 && std::find(unique_labels.begin(), unique_labels.end(), label) == unique_labels.end()) {
+    if (label != 0 && std::ranges::find(unique_labels, label) == unique_labels.end()) {
       unique_labels.push_back(label);
     }
   }
-  std::sort(unique_labels.begin(), unique_labels.end());
+  std::ranges::sort(unique_labels);
 
-  std::vector<int> label_map(*std::max_element(output_labels_.begin(), output_labels_.end()) + 1, 0);
+  std::vector<int> label_map(*std::ranges::max_element(output_labels_) + 1, 0);
   for (size_t i = 0; i < unique_labels.size(); ++i) {
     label_map[unique_labels[i]] = static_cast<int>(i + 1);
   }
