@@ -121,8 +121,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
   ResolveBlockBoundaries(component_labels, parent_structure, block_height);
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(
-    ComponentLabels& component_labels, ParentStructure& parent_structure, int block_height) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels,
+                                                                                  ParentStructure& parent_structure,
+                                                                                  int block_height) {
   int num_blocks = (height_ + block_height - 1) / block_height;
 
   for (int block = 1; block < num_blocks; ++block) {
@@ -136,7 +137,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
       if (component_labels.labels[top_index] != 0 && component_labels.labels[current_index] != 0) {
         int root_top = FindRoot(parent_structure, component_labels.labels[top_index]);
         int root_current = FindRoot(parent_structure, component_labels.labels[current_index]);
-        
+
         if (root_top != root_current) {
           UnionSets(parent_structure, root_top, root_current);
         }
