@@ -135,7 +135,7 @@ bool ConnectedComponentsTbb::PreProcessingImpl() {
   return true;
 }
 
-bool ConnectedComponentsTbb::RunImpl() {
+bool ConnectedComponentsTbb::RunImpl() { // NOLINT(readability-function-cognitive-complexity)
   const size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   output_labels_.resize(total_pixels, 0);
 
@@ -149,7 +149,7 @@ bool ConnectedComponentsTbb::RunImpl() {
 
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
-      size_t idx = static_cast<size_t>(y) * static_cast<size_t>(width_) + static_cast<size_t>(x);
+      size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(width_)) + static_cast<size_t>(x);
 
       if (input_image_[idx] == 0) {
         output_labels_[idx] = 0;
@@ -170,7 +170,7 @@ bool ConnectedComponentsTbb::RunImpl() {
         int max_label = std::max(left_label, top_label);
         output_labels_[idx] = min_label;
         if (min_label != max_label) {
-          equivalences.push_back({max_label, min_label});
+          equivalences.emplace_back(max_label, min_label);
         }
       }
     }
