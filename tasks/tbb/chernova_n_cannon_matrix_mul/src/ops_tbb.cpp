@@ -1,13 +1,13 @@
 #include "tbb/chernova_n_cannon_matrix_mul/include/ops_tbb.hpp"
 
 #include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#include <tbb/task_arena.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
+
+#include "oneapi/tbb/parallel_for.h"
 
 std::vector<double> chernova_n_cannon_matrix_mul_tbb::CannonMatrixMultiplicationTBB(const std::vector<double> &mat_a,
                                                                                     const std::vector<double> &mat_b,
