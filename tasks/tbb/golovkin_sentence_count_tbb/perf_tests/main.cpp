@@ -61,16 +61,6 @@ bool IsValidSentenceEnd(const std::string& text, size_t i) {
   return true;
 }
 
-int CalculateExpectedCount(const std::string& text) {
-  int count = 0;
-  for (size_t i = 0; i < text.size(); ++i) {
-    if (IsValidSentenceEnd(text, i)) {
-      count++;
-    }
-  }
-  return count;
-}
-
 }  // namespace
 
 TEST(golovkin_sentence_count_tbb, test_pipeline_run) {
