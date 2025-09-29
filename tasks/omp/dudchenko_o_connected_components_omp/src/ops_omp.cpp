@@ -1,4 +1,4 @@
-#include "omp/dudchenko_o_connected_components/include/ops_omp.hpp"
+#include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
 #include <omp.h>
 
