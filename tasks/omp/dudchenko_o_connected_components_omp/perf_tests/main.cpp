@@ -12,8 +12,8 @@
 #include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
 TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
-  int width = 2000;
-  int height = 2000;
+  int width = 3000;
+  int height = 3000;
   std::vector<int> image_data(width * height);
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -61,8 +61,8 @@ TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
 }
 
 TEST(dudchenko_o_connected_components_omp, test_task_run) {
-  int width = 2000;
-  int height = 2000;
+  int width = 3000;
+  int height = 3000;
   std::vector<int> image_data(width * height);
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
