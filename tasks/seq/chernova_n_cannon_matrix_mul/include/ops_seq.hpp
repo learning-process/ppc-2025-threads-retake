@@ -23,6 +23,7 @@ class TestTaskSequential : public ppc::core::Task {
 };
 
 std::vector<double> MultiplyMatrix(const std::vector<double>& mat_a, const std::vector<double>& mat_b, int n);
-std::vector<double> CannonMatrixMultiplication(const std::vector<double>& mat_a, const std::vector<double>& mat_b, int n);
+std::vector<double> CannonMatrixMultiplication(const std::vector<double>& mat_a, const std::vector<double>& mat_b,
+                                               int n);
 
 }  // namespace chernova_n_cannon_matrix_mul_seq
