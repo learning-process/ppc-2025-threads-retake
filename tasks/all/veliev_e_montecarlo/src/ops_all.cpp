@@ -3,11 +3,10 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/mpi.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
 #include <cmath>
 #include <cstring>
 #include <exception>
-#include <functional>
 #include <iostream>
 #include <vector>
 
