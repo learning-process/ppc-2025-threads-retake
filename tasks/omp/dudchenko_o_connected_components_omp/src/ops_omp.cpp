@@ -135,8 +135,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
   ResolveBlockBoundaries(component_labels, parent_structure, block_height);
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels, ParentStructure& parent_structure,
-                                                                                  int block_height){
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels,
+                                                                                  ParentStructure& parent_structure,
+                                                                                  int block_height) {
   int num_blocks = (height_ + block_height - 1) / block_height;
 
   for (int block = 1; block < num_blocks; ++block) {
