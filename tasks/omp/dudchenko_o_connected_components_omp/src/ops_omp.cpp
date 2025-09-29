@@ -1,11 +1,11 @@
 #include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
-#include <algorithm>
-#include <cstddef>
 #include <omp.h>
-#include <vector>
 
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <vector>
 
 bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PreProcessingImpl() {
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
