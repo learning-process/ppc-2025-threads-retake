@@ -10,7 +10,7 @@ namespace Ivashchuk_V_sparse_matrix_seq {
 
 class SparseMatrixMultiplier : public ppc::core::Task {
  public:
-  explicit SparseMatrixMultiplier(std::shared_ptr<ppc::core::TaskData> taskData) : Task(std::move(taskData)) {}
+  explicit SparseMatrixMultiplier(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;

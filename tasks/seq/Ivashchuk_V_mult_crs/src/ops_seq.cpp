@@ -16,7 +16,7 @@ bool Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::PreProcessingImpl() 
   std::vector<std::complex<double>> dense_a(in_ptr_a, in_ptr_a + input_size_a);
   std::vector<std::complex<double>> dense_b(in_ptr_b, in_ptr_b + input_size_b);
 
-  const int size = static_cast<int>(std::sqrt(input_size_a));
+  const int size = static_cast<int>(std::sqrt(static_cast<double>(input_size_a)));
 
   ConvertToCRS(dense_a, size, size, &matrix_a_);
   ConvertToCRS(dense_b, size, size, &matrix_b_);
@@ -51,7 +51,7 @@ void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::ConvertToCRS(const s
   sparse->rows_ = rows;
   sparse->cols_ = cols;
   sparse->row_pointers_.clear();
-  sparse->row_pointers_.reserve(rows + 1);
+  sparse->row_pointers_.reserve(static_cast<size_t>(rows) + 1);
   sparse->values_.clear();
   sparse->col_indices_.clear();
 
@@ -59,7 +59,8 @@ void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::ConvertToCRS(const s
 
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < cols; ++j) {
-      const std::complex<double> value = dense[i * cols + j];
+      const std::complex<double> value =
+          dense[static_cast<size_t>(i) * static_cast<size_t>(cols) + static_cast<size_t>(j)];
       if (std::abs(value.real()) > 1e-10 || std::abs(value.imag()) > 1e-10) {
         sparse->values_.push_back(value);
         sparse->col_indices_.push_back(j);
@@ -75,12 +76,12 @@ void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::MultiplySparseMatric
   c->rows_ = a.rows_;
   c->cols_ = b.cols_;
   c->row_pointers_.clear();
-  c->row_pointers_.reserve(c->rows_ + 1);
+  c->row_pointers_.reserve(static_cast<size_t>(c->rows_) + 1);
   c->values_.clear();
   c->col_indices_.clear();
 
-  std::vector<std::complex<double>> temp(c->cols_, 0);
-  std::vector<bool> temp_used(c->cols_, false);
+  std::vector<std::complex<double>> temp(static_cast<size_t>(c->cols_), 0);
+  std::vector<bool> temp_used(static_cast<size_t>(c->cols_), false);
 
   c->row_pointers_.push_back(0);
 
@@ -95,14 +96,15 @@ void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::MultiplySparseMatric
       for (int b_idx = b.row_pointers_[k]; b_idx < b.row_pointers_[k + 1]; ++b_idx) {
         const int j = b.col_indices_[b_idx];
         const std::complex<double> b_val = b.values_[b_idx];
-        temp[j] += a_val * b_val;
-        temp_used[j] = true;
+        temp[static_cast<size_t>(j)] += a_val * b_val;
+        temp_used[static_cast<size_t>(j)] = true;
       }
     }
 
     for (int j = 0; j < c->cols_; ++j) {
-      if (temp_used[j] && (std::abs(temp[j].real()) > 1e-10 || std::abs(temp[j].imag()) > 1e-10)) {
-        c->values_.push_back(temp[j]);
+      if (temp_used[static_cast<size_t>(j)] && (std::abs(temp[static_cast<size_t>(j)].real()) > 1e-10 ||
+                                                std::abs(temp[static_cast<size_t>(j)].imag()) > 1e-10)) {
+        c->values_.push_back(temp[static_cast<size_t>(j)]);
         c->col_indices_.push_back(j);
       }
     }
@@ -113,12 +115,13 @@ void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::MultiplySparseMatric
 
 void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::ConvertFromCRS(const SparseMatrixCRS& sparse,
                                                                            std::vector<std::complex<double>>* dense) {
-  dense->assign(sparse.rows_ * sparse.cols_, 0);
+  dense->assign(static_cast<size_t>(sparse.rows_) * static_cast<size_t>(sparse.cols_), 0);
 
   for (int i = 0; i < sparse.rows_; ++i) {
     for (int idx = sparse.row_pointers_[i]; idx < sparse.row_pointers_[i + 1]; ++idx) {
       const int j = sparse.col_indices_[idx];
-      (*dense)[i * sparse.cols_ + j] = sparse.values_[idx];
+      (*dense)[static_cast<size_t>(i) * static_cast<size_t>(sparse.cols_) + static_cast<size_t>(j)] =
+          sparse.values_[idx];
     }
   }
 }
