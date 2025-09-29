@@ -12,20 +12,6 @@
 #include "seq/agafeev_s_matmul_fox_algo/include/ops_seq.hpp"
 
 namespace {
-std::vector<double> MatrixMultiply(const std::vector<double> &a, const std::vector<double> &b, int row_col_size) {
-  std::vector<double> c(row_col_size * row_col_size, 0);
-
-  for (int i = 0; i < row_col_size; ++i) {
-    for (int j = 0; j < row_col_size; ++j) {
-      for (int k = 0; k < row_col_size; ++k) {
-        c[(i * row_col_size) + j] += a[(i * row_col_size) + k] * b[(k * row_col_size) + j];
-      }
-    }
-  }
-
-  return c;
-}
-
 std::vector<double> CreateRandomMatrix(int size) {
   auto rand_gen = std::mt19937(time(nullptr));
   std::uniform_real_distribution<double> dist((double)-1e3, (double)1e3);
