@@ -1,11 +1,12 @@
 #include "stl/yasakova_t_sort/include/radix_double_stl.hpp"
 
+#include "core/util/include/util.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <thread>
-#include "core/util/include/util.hpp"
 #include <utility>
 #include <vector>
 
@@ -13,12 +14,10 @@ namespace yasakova_t_sort_stl {
 
 namespace {
 
-size_t ClampThreads(int requested, size_t total) {
-  if (requested <= 0) {
-    return std::min<size_t>(1, total);
-  }
-  const size_t positive_requested = static_cast<size_t>(requested);
-  return std::max<size_t>(size_t{1}, std::min(positive_requested, total));
+size_t ClampThreads(size_t requested, size_t total) {
+  const auto capped_total = std::max<size_t>(size_t{1}, total);
+  const auto sanitized_requested = std::max<size_t>(size_t{1}, requested);
+  return std::min(sanitized_requested, capped_total);
 }
 
 struct ParallelPlan {
@@ -28,7 +27,9 @@ struct ParallelPlan {
 };
 
 ParallelPlan MakePlan(size_t total) {
-  const size_t threads = ClampThreads(ppc::util::GetPPCNumThreads(), total);
+  const int raw_requested = ppc::util::GetPPCNumThreads();
+  const auto requested = raw_requested > 0 ? static_cast<size_t>(raw_requested) : size_t{0};
+  const size_t threads = ClampThreads(requested, total);
   const size_t chunk_size = (total + threads - 1) / threads;
   return ParallelPlan{.threads = threads, .chunk_size = chunk_size, .total = total};
 }
