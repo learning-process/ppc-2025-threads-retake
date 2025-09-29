@@ -135,11 +135,12 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
   ResolveBlockBoundaries(component_labels, parent_structure, block_height);
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels, ParentStructure& parent_structure, 
-                                                                     int block_height) const {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels,
+                                                                                  ParentStructure& parent_structure,
+                                                                                  int block_height) const {
   int num_blocks = (height_ + block_height - 1) / block_height;
 
-  for (int block = 1; block < num_blocks; ++block) { 
+  for (int block = 1; block < num_blocks; ++block) {
     int boundary_y = block * block_height;
     if (boundary_y >= height_) {
       continue;
@@ -165,7 +166,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
 }
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentLabels& component_labels,
-                                                                             ParentStructure& parent_structure) const {
+                                                                      ParentStructure& parent_structure) const {
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(component_labels.labels.size()); ++i) {
     if (component_labels.labels[i] != 0) {
