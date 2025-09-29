@@ -10,7 +10,7 @@ namespace ersoz_b_hoare_sort_simple_merge_omp {
 
 struct Segment {
   std::size_t begin{};
-  std::size_t end{};  // one past last
+  std::size_t end{};  // one past lastt
 };
 
 class HoareSortSimpleMergeOpenMP : public ppc::core::Task {
