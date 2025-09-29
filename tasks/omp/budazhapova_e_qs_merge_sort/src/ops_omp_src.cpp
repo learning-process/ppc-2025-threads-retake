@@ -3,12 +3,16 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iterator>
 #include <vector>
 
-#include "omp/budazhapova_e_qs_merge_sort/include/ops_omp_inc.hpp"
+#include "omp/budazhapova_e_qs_merge_sort/include/ops_omp.hpp"
 
 namespace budazhapova_e_qs_merge_sort_omp {
 namespace {
+// empty comment for clangggg
+const int kSequentialThreshold = 1000;
+const int kParallelMergeThreshold = 5000;
 
 bool IsValidRange(int low, int high, size_t size) {
   return low >= 0 && high >= low && static_cast<size_t>(high) < size;
@@ -39,17 +43,52 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
   }
 }
 
-void SequentialMerge(std::vector<int>& arr, int start, int mid, int end) {
-  if (start > end || mid < start || mid > end) {
+void SequentialQuickSort(std::vector<int>& arr, int low, int high) {
+  if (low >= high || low < 0 || static_cast<size_t>(high) >= arr.size()) {
     return;
   }
 
-  std::vector<int> temp(end - start + 1);
-  int i = start;
+  struct Range {
+    int low;
+    int high;
+  };
+  std::vector<Range> stack;
+  stack.push_back({low, high});
+
+  while (!stack.empty()) {
+    Range current = stack.back();
+    stack.pop_back();
+
+    int low_val = current.low;
+    int high_val = current.high;
+
+    if (low_val >= high_val) {
+      continue;
+    }
+
+    int pi = PartitionHoare(arr, low_val, high_val);
+
+    if (pi - low_val > high_val - pi) {
+      stack.push_back({low_val, pi});
+      stack.push_back({pi + 1, high_val});
+    } else {
+      stack.push_back({pi + 1, high_val});
+      stack.push_back({low_val, pi});
+    }
+  }
+}
+
+void SequentialMerge(std::vector<int>& arr, int left, int mid, int right) {
+  if (left >= right || mid < left || mid >= right) {
+    return;
+  }
+
+  std::vector<int> temp(right - left + 1);
+  int i = left;
   int j = mid + 1;
   int k = 0;
 
-  while (i <= mid && j <= end) {
+  while (i <= mid && j <= right) {
     if (arr[i] <= arr[j]) {
       temp[k++] = arr[i++];
     } else {
@@ -60,86 +99,74 @@ void SequentialMerge(std::vector<int>& arr, int start, int mid, int end) {
   while (i <= mid) {
     temp[k++] = arr[i++];
   }
-  while (j <= end) {
+  while (j <= right) {
     temp[k++] = arr[j++];
   }
 
-  for (i = start, k = 0; i <= end; i++, k++) {
+  for (i = left, k = 0; i <= right; i++, k++) {
     arr[i] = temp[k];
   }
 }
 
-void ParallelMerge(std::vector<int>& arr, int start, int mid, int end) {
-  if (start >= end || mid < start || mid >= end) {
+void ParallelMerge(std::vector<int>& arr, int left, int mid, int right) {
+  if (left >= right || mid < left || mid >= right) {
     return;
   }
 
-  const int merge_threshold = 500;
-  if (end - start + 1 <= merge_threshold) {
-    SequentialMerge(arr, start, mid, end);
+  if (right - left + 1 <= kParallelMergeThreshold) {
+    SequentialMerge(arr, left, mid, right);
     return;
   }
 
-  int i = start + ((mid - start) / 2);
-  if (i < start || i > mid) {
-    i = start;
-  }
+  int left_mid = left + ((mid - left) / 2);
 
-  auto start_it = arr.begin() + (mid + 1);
-  auto end_it = arr.begin() + end + 1;
-  if (start_it >= arr.end() || end_it > arr.end()) {
-    SequentialMerge(arr, start, mid, end);
-    return;
-  }
+  auto it = std::lower_bound(arr.begin() + mid + 1, arr.begin() + right + 1, arr[left_mid]);
+  auto right_pos = std::distance(arr.begin(), it);
 
-  auto j_iter = std::lower_bound(start_it, end_it, arr[i]);
-  int j = static_cast<int>(j_iter - arr.begin());
+#pragma omp parallel sections
+  {
+#pragma omp section
+    {
+      if (left <= left_mid - 1 && right_pos - 1 >= left) {
+        ParallelMerge(arr, left, left_mid - 1, static_cast<int>(right_pos - 1));
+      }
+    }
 
-  if (start <= i - 1 && j - 1 >= start && i - 1 >= start) {
-    ParallelMerge(arr, start, i - 1, j - 1);
-  }
-
-  if (i <= mid && end >= j && j <= end) {
-    ParallelMerge(arr, i, mid, end);
+#pragma omp section
+    {
+      if (left_mid <= mid && right >= right_pos) {
+        ParallelMerge(arr, left_mid, mid, right);
+      }
+    }
   }
 }
 
-void QuickSortMergeParallel(std::vector<int>& arr, int low, int high) {
+void HybridSort(std::vector<int>& arr, int low, int high, bool parallel = true) {
   if (low >= high || low < 0 || static_cast<size_t>(high) >= arr.size()) {
     return;
   }
 
-  const int min_size = 1000;
+  if (high - low + 1 <= kSequentialThreshold) {
+    SequentialQuickSort(arr, low, high);
+    return;
+  }
 
-  if (high - low + 1 > min_size) {
-    int pi = PartitionHoare(arr, low, high);
+  int pi = PartitionHoare(arr, low, high);
 
-    if (pi < low || pi > high) {
-      pi = low + ((high - low) / 2);
-    }
-
-    if (low < pi && pi + 1 < high) {
+  if (parallel) {
 #pragma omp parallel sections
-      {
+    {
 #pragma omp section
-        { QuickSortMergeParallel(arr, low, pi); }
+      { HybridSort(arr, low, pi, true); }
 
 #pragma omp section
-        { QuickSortMergeParallel(arr, pi + 1, high); }
-      }
-      if (low < pi) {
-        QuickSortMergeParallel(arr, low, pi);
-      }
-      if (pi + 1 < high) {
-        QuickSortMergeParallel(arr, pi + 1, high);
-      }
+      { HybridSort(arr, pi + 1, high, true); }
     }
-
-    if (low <= pi && pi < high) {
-      ParallelMerge(arr, low, pi, high);
-    }
+    ParallelMerge(arr, low, pi, high);
   } else {
-    std::sort(arr.begin() + low, arr.begin() + high + 1);
+    HybridSort(arr, low, pi, false);
+    HybridSort(arr, pi + 1, high, false);
+    SequentialMerge(arr, low, pi, high);
   }
 }
 
@@ -164,7 +191,11 @@ bool budazhapova_e_qs_merge_sort_omp::QSMergeSortOpenMP::RunImpl() {
   output_ = input_;
 
   if (!output_.empty() && output_.size() > 1) {
-    QuickSortMergeParallel(output_, 0, static_cast<int>(output_.size()) - 1);
+    if (output_.size() <= kSequentialThreshold) {
+      std::ranges::sort(output_);
+    } else {
+      HybridSort(output_, 0, static_cast<int>(output_.size()) - 1, true);
+    }
   }
 
   return true;
