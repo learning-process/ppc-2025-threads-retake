@@ -52,8 +52,15 @@ TEST(makhov_m_jarvis_algorithm_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Cleanup
+  // Restore result from task_data
+  std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
+      makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
+                                                                       task_data_seq->outputs_count[0]);
 
+  ASSERT_EQ(reference.size(), restored_points.size());
+
+  // Cleanup
+  delete[] task_data_seq->outputs[0];
   delete[] buffer;
 }
 
@@ -98,7 +105,14 @@ TEST(makhov_m_jarvis_algorithm_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Cleanup
+  // Restore result from task_data
+  std::vector<makhov_m_jarvis_algorithm_omp::Point> restored_points =
+      makhov_m_jarvis_algorithm_omp::TaskOmp::ConvertByteArrayToPoints(task_data_seq->outputs[0],
+                                                                       task_data_seq->outputs_count[0]);
 
+  ASSERT_EQ(reference.size(), restored_points.size());
+
+  // Cleanup
+  delete[] task_data_seq->outputs[0];
   delete[] buffer;
 }
