@@ -157,8 +157,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
       int top_index = ((boundary_y - 1) * width_) + x;
       int current_index = (boundary_y * width_) + x;
 
-      if (top_index < 0 || top_index >= static_cast<int>(component_labels.labels.size()) ||
-          current_index < 0 || current_index >= static_cast<int>(component_labels.labels.size())) {
+      if (top_index < 0 || top_index >= static_cast<int>(component_labels.labels.size()) || current_index < 0 ||
+          current_index >= static_cast<int>(component_labels.labels.size())) {
         continue;
       }
 
@@ -196,15 +196,15 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
   int iterations = 0;
   const int max_iterations = parent.parents.size();
 
-  while (root > 0 && root < static_cast<int>(parent.parents.size()) && 
-         parent.parents[root] != root && iterations < max_iterations) {
+  while (root > 0 && root < static_cast<int>(parent.parents.size()) && parent.parents[root] != root &&
+         iterations < max_iterations) {
     root = parent.parents[root];
     iterations++;
   }
 
   int current = x;
   iterations = 0;
-  while (current != root && current > 0 && current < static_cast<int>(parent.parents.size()) && 
+  while (current != root && current > 0 && current < static_cast<int>(parent.parents.size()) &&
          iterations < max_iterations) {
     int next = parent.parents[current];
     parent.parents[current] = root;
