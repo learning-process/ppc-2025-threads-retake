@@ -93,6 +93,38 @@ TEST(dudchenko_o_connected_components_omp, test_small_image) {
   CheckAllLabelsUnique(output, Indices{{0, 2, 4, 6, 8}});
 }
 
+TEST(dudchenko_o_connected_components_omp, test_single_component) {
+  int width = 4;
+  int height = 4;
+  // Все точки foreground (0)
+  std::vector<int> image_data(width * height, 0);
+
+  std::vector<int> input_data;
+  input_data.push_back(width);
+  input_data.push_back(height);
+  input_data.insert(input_data.end(), image_data.begin(), image_data.end());
+
+  std::vector<int> output_data(width * height);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_omp->inputs_count.emplace_back(input_data.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_omp->outputs_count.emplace_back(output_data.size());
+
+  dudchenko_o_connected_components_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  int first_label = output_data[0];
+  EXPECT_NE(first_label, 0);
+  for (size_t i = 1; i < output_data.size(); ++i) {
+    EXPECT_EQ(output_data[i], first_label);
+  }
+}
+
 TEST(dudchenko_o_connected_components_omp, test_no_components) {
   int width = 4;
   int height = 4;
