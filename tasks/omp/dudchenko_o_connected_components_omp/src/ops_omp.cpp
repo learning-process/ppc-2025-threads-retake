@@ -88,7 +88,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
     {
       new_label = parent_structure.parents[0];
       parent_structure.parents[0]++;
-      
+
       if (new_label >= static_cast<int>(parent_structure.parents.size())) {
         parent_structure.parents.resize(new_label + 100, 0);
       }
@@ -109,7 +109,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
 
   int root_left = FindRoot(parent_structure, left_label);
   int root_top = FindRoot(parent_structure, top_label);
-  
+
   if (root_left == root_top) {
     component_labels.labels[index] = root_left;
   } else {
@@ -193,8 +193,7 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
 
   int root = x;
 
-  while (root > 0 && root < static_cast<int>(parent.parents.size()) && 
-         parent.parents[root] != root) {
+  while (root > 0 && root < static_cast<int>(parent.parents.size()) && parent.parents[root] != root) {
     root = parent.parents[root];
   }
 
@@ -231,7 +230,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStruc
   {
     int current_root_max = FindRoot(parent, max_root);
     int current_root_min = FindRoot(parent, min_root);
-    
+
     if (current_root_max != current_root_min) {
       parent.parents[current_root_max] = current_root_min;
     }
