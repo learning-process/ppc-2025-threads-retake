@@ -41,8 +41,8 @@ void TestTaskOMP::CountDigits(const std::vector<uint64_t>& bits, int shift, std:
 }
 
 void TestTaskOMP::ComputeOffsets(const std::vector<std::vector<size_t>>& thread_counts,
-                                 std::vector<std::vector<size_t>>& thread_offsets, std::vector<size_t>& count,
-                                 int num_threads, int radix) {
+                                 std::vector<std::vector<size_t>>& thread_offsets, int num_threads,
+                                 std::vector<size_t>& count, int radix) {
   for (int i = 1; i < radix; i++) {
     count[i] += count[i - 1];
   }
@@ -156,7 +156,7 @@ bool somov_i_radix_sort_simple_merging_omp::TestTaskOMP::RunImpl() {
       }
     }
 
-    ComputeOffsets(thread_counts, thread_offsets, count, num_threads, radix);
+    ComputeOffsets(thread_counts, thread_offsets, num_threads, count, radix);
 
 #pragma omp parallel
     {
