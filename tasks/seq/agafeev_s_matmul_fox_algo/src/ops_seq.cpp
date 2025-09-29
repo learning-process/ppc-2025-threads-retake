@@ -31,12 +31,14 @@ void agafeev_s_matmul_fox_algo_seq::BlockMultiply(const std::vector<double> &mat
 bool agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental::PreProcessingImpl() {
   first_input_.clear();
   second_input_.clear();
+  result_.clear();
   size_ = static_cast<int>(task_data->inputs_count[0]);
   auto *temp_ptr1 = reinterpret_cast<double *>(task_data->inputs[0]);
   first_input_.insert(first_input_.begin(), temp_ptr1, temp_ptr1 + (size_ * size_));
   auto *temp_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
   second_input_.insert(second_input_.begin(), temp_ptr2, temp_ptr2 + (size_ * size_));
   block_size_ = task_data->inputs_count[1];
+  result_.resize(size_*size_, 0.0);
 
   return true;
 }
