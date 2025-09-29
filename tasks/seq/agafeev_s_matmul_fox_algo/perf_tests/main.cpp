@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <ctime>
 #include <memory>
 #include <random>
 #include <vector>
@@ -14,7 +15,7 @@
 namespace {
 std::vector<double> CreateRandomMatrix(int size) {
   auto rand_gen = std::mt19937(time(nullptr));
-  std::uniform_real_distribution<double> dist((double)-1e3, (double)1e3);
+  std::uniform_real_distribution<double> dist(-1e3, 1e3);
   std::vector<double> matrix(size);
   for (unsigned int i = 0; i < matrix.size(); i++) {
     matrix[i] = dist(rand_gen);
