@@ -76,7 +76,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
     int block_height = height_ / num_threads;
     int start_y = thread_id * block_height;
     int end_y = (thread_id == num_threads - 1) ? height_ : start_y + block_height;
-    
+
     int local_next_label = (thread_id + 1) * (total_pixels / num_threads) + 1;
     local_next_labels[thread_id] = local_next_label;
 
@@ -95,9 +95,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
         if (left_label == 0 && top_label == 0) {
           component_labels.labels[index] = local_next_label;
 #pragma omp critical
-          {
-            parent_structure.parents[local_next_label] = local_next_label;
-          }
+          { parent_structure.parents[local_next_label] = local_next_label; }
           local_next_label++;
         } else if (left_label != 0 && top_label == 0) {
           component_labels.labels[index] = left_label;
@@ -111,9 +109,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
 
           if (root_left != root_top) {
 #pragma omp critical
-            {
-              UnionSets(parent_structure, root_left, root_top);
-            }
+            { UnionSets(parent_structure, root_left, root_top); }
           }
         }
       }
@@ -124,22 +120,20 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
   for (int y = 1; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
       int index = y * width_ + x;
-      
+
       if (component_labels.labels[index] == 0) {
         continue;
       }
 
       int top_label = component_labels.labels[index - width_];
-      
+
       if (top_label != 0 && component_labels.labels[index] != 0) {
         int root_current = FindRoot(parent_structure, component_labels.labels[index]);
         int root_top = FindRoot(parent_structure, top_label);
-        
+
         if (root_current != root_top) {
 #pragma omp critical
-          {
-            UnionSets(parent_structure, root_current, root_top);
-          }
+          { UnionSets(parent_structure, root_current, root_top); }
         }
       }
     }
