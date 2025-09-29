@@ -34,33 +34,6 @@ std::string GenerateTestText(int text_size) {
   return text;
 }
 
-bool IsValidSentenceEnd(const std::string& text, size_t i) {
-  const char current_char = text[i];
-  if (current_char != '.' && current_char != '?' && current_char != '!') {
-    return false;
-  }
-
-  if (i + 1 < text.size()) {
-    const char next_char = text[i + 1];
-    if (next_char == '.' || next_char == '?' || next_char == '!') {
-      return false;
-    }
-  }
-
-  if (current_char == '.') {
-    if (i > 0 && i + 1 < text.size()) {
-      const char prev = text[i - 1];
-      const char next = text[i + 1];
-      if ((std::isdigit(prev) != 0 && std::isdigit(next) != 0) ||
-          (std::isalpha(prev) != 0 && std::isalpha(next) != 0) || (prev != ' ' && next != ' ')) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
 }  // namespace
 
 TEST(golovkin_sentence_count_tbb, test_pipeline_run) {
