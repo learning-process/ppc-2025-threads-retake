@@ -10,7 +10,7 @@ namespace Ivashchuk_V_sparse_matrix_seq {
 
 class SparseMatrixMultiplier : public ppc::core::Task {
  public:
-  explicit SparseMatrixMultiplier(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit SparseMatrixMultiplier(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -25,11 +25,11 @@ class SparseMatrixMultiplier : public ppc::core::Task {
     int cols = 0;
   };
 
-  SparseMatrixCRS matrixA, matrixB, resultMatrix;
+  SparseMatrixCRS matrixA_, matrixB_, resultMatrix_;
 
-  void ConvertToCRS(const std::vector<std::complex<double>>& dense, int rows, int cols, SparseMatrixCRS& sparse);
-  void MultiplySparseMatrices(const SparseMatrixCRS& A, const SparseMatrixCRS& B, SparseMatrixCRS& C);
-  void ConvertFromCRS(const SparseMatrixCRS& sparse, std::vector<std::complex<double>>& dense);
+  static void ConvertToCRS(const std::vector<std::complex<double>>& dense, int rows, int cols, SparseMatrixCRS* sparse);
+  static void MultiplySparseMatrices(const SparseMatrixCRS& A, const SparseMatrixCRS& B, SparseMatrixCRS* C);
+  static void ConvertFromCRS(const SparseMatrixCRS& sparse, std::vector<std::complex<double>>* dense);
 };
 
 }  // namespace Ivashchuk_V_sparse_matrix_seq
