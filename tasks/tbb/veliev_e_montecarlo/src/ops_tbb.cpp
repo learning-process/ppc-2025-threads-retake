@@ -42,7 +42,7 @@ bool veliev_e_monte_carlo_tbb::VelievEMonteCarloTbb::RunImpl() {
           }
           return total;
         },
-        std::plus<>());
+        [](doable a, doable b){ return a + b; });
     res_ *= h1 * h2;
   } catch (const std::exception &e) {
     std::cout << e.what() << '\n';
