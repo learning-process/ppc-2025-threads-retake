@@ -17,6 +17,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  // Сохраняем структуры как в sequential версии
   struct ComponentLabels {
     std::vector<int> labels;
   };
@@ -27,12 +28,20 @@ class TestTaskOpenMP : public ppc::core::Task {
 
   std::vector<int> input_;
   std::vector<int> output_;
-  int width_;
-  int height_;
+  int width_{};
+  int height_{};
 
   void LabelComponents();
   void FirstPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
   void SecondPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
+  void ProcessPixel(int x, int y, ComponentLabels& component_labels,
+                    ParentStructure& parent_structure, int& local_next_label);
+  void ProcessConnectedNeighbors(int left_label, int top_label, ComponentLabels& component_labels,
+                                 ParentStructure& parent_structure, int index);
+  void ProcessBlock(int start_y, int end_y, ComponentLabels& component_labels,
+                    ParentStructure& parent_structure, int base_label);
+  void ResolveBlockBoundaries(ComponentLabels& component_labels, ParentStructure& parent_structure);
+  
   int FindRoot(ParentStructure& parent, int x);
   void UnionSets(ParentStructure& parent, int x, int y);
 };
