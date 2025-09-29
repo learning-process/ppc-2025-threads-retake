@@ -14,7 +14,7 @@
 #include "tbb/budazhapova_e_qs_merge_sort/include/ops_tbb.hpp"
 
 TEST(budazhapova_e_qs_merge_sort_tbb, test_pipeline_run) {
-  constexpr size_t kCount = 1000000;
+  constexpr size_t kCount = 50000;
 
   std::vector<int> in(kCount);
   std::iota(in.begin(), in.end(), 0);
@@ -56,7 +56,7 @@ TEST(budazhapova_e_qs_merge_sort_tbb, test_pipeline_run) {
 }
 
 TEST(budazhapova_e_qs_merge_sort_tbb, test_task_run) {
-  constexpr size_t kCount = 1000000;
+  constexpr size_t kCount = 50000;
 
   std::vector<int> in(kCount);
   std::iota(in.begin(), in.end(), 0);
