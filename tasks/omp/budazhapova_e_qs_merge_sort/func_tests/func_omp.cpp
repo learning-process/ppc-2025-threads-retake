@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/budazhapova_e_qs_merge_sort/include/ops_omp_inc.hpp"
+#include "omp/budazhapova_e_qs_merge_sort/include/ops_omp.hpp"
 
 TEST(budazhapova_e_qs_merge_sort_omp, test_sort_small_array) {
   constexpr size_t kCount = 10;
