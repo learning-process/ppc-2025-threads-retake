@@ -1,12 +1,13 @@
+// NOLINTBEGIN(misc-include-cleaner)
+
 #include "tbb/kavtorev_d_batcher_sort/include/ops_tbb.hpp"
 
 #include <tbb/blocked_range.h>
 #include <tbb/combinable.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
-#include <tbb/partitioner.h>
-#include <tbb/task_arena.h>
-#include <tbb/task_group.h>
+#include <tbb/parallel_reduce.h>
+#include <tbb/parallel_scan.h>
 
 #include <algorithm>
 #include <atomic>
@@ -202,3 +203,5 @@ bool RadixBatcherSortTBB::PostProcessingImpl() {
 }
 
 }  // namespace kavtorev_d_batcher_sort_tbb
+
+// NOLINTEND(misc-include-cleaner)
