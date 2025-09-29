@@ -6,6 +6,7 @@
 #include <boost/mpi/collectives/reduce.hpp>
 #include <cmath>
 #include <cstring>
+#inculde <functional>
 #include <exception>
 #include <iostream>
 #include <vector>
@@ -115,7 +116,7 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::RunImpl() {
     double local_res_sum = local_res * (h1 * h2);
 
     double global_res = 0.0;
-    boost::mpi::reduce(world_, local_res_sum, global_res, std::plus<double>(), 0);
+    boost::mpi::reduce(world_, local_res_sum, global_res, std::plus<>(), 0);
 
     if (rank == 0) {
       res_ = global_res;
