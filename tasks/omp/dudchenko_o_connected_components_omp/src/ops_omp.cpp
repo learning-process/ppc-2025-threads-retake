@@ -110,10 +110,12 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
 
   int root_left = FindRoot(parent_structure, left_label);
   int root_top = FindRoot(parent_structure, top_label);
-  int min_root = std::min(root_left, root_top);
-  component_labels.labels[index] = min_root;
 
-  if (root_left != root_top) {
+  if (root_left == root_top) {
+    component_labels.labels[index] = root_left;
+  } else {
+    int min_root = std::min(root_left, root_top);
+    component_labels.labels[index] = min_root;
     UnionSets(parent_structure, root_left, root_top);
   }
 }
@@ -155,15 +157,20 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
       int top_index = ((boundary_y - 1) * width_) + x;
       int current_index = (boundary_y * width_) + x;
 
-      if (component_labels.labels[top_index] != 0 && component_labels.labels[current_index] != 0) {
-        int root_top = 0;
-        int root_current = 0;
-        root_top = FindRoot(parent_structure, component_labels.labels[top_index]);
-        root_current = FindRoot(parent_structure, component_labels.labels[current_index]);
+      if (top_index < 0 || top_index >= static_cast<int>(component_labels.labels.size()) ||
+          current_index < 0 || current_index >= static_cast<int>(component_labels.labels.size())) {
+        continue;
+      }
+
+      int top_label = component_labels.labels[top_index];
+      int current_label = component_labels.labels[current_index];
+
+      if (top_label != 0 && current_label != 0) {
+        int root_top = FindRoot(parent_structure, top_label);
+        int root_current = FindRoot(parent_structure, current_label);
 
         if (root_top != root_current) {
-#pragma omp critical
-          { UnionSets(parent_structure, root_top, root_current); }
+          UnionSets(parent_structure, root_top, root_current);
         }
       }
     }
@@ -186,15 +193,23 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
   }
 
   int root = x;
-  while (root > 0 && root < static_cast<int>(parent.parents.size()) && parent.parents[root] != root) {
+  int iterations = 0;
+  const int max_iterations = parent.parents.size();
+
+  while (root > 0 && root < static_cast<int>(parent.parents.size()) && 
+         parent.parents[root] != root && iterations < max_iterations) {
     root = parent.parents[root];
+    iterations++;
   }
 
-  int temp = x;
-  while (temp != root && temp > 0 && temp < static_cast<int>(parent.parents.size())) {
-    int next = parent.parents[temp];
-    parent.parents[temp] = root;
-    temp = next;
+  int current = x;
+  iterations = 0;
+  while (current != root && current > 0 && current < static_cast<int>(parent.parents.size()) && 
+         iterations < max_iterations) {
+    int next = parent.parents[current];
+    parent.parents[current] = root;
+    current = next;
+    iterations++;
   }
 
   return root;
@@ -211,7 +226,6 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStruc
   int min_root = 0;
   int max_root = 0;
 
-  int min_root, max_root;
   if (root_x < root_y) {
     min_root = root_x;
     max_root = root_y;
