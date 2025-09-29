@@ -95,9 +95,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
         if (left_label == 0 && top_label == 0) {
           component_labels.labels[index] = thread_next_label;
 #pragma omp critical
-          {
-            parent_structure.parents[thread_next_label] = thread_next_label;
-          }
+          { parent_structure.parents[thread_next_label] = thread_next_label; }
           thread_next_label++;
         } else if (left_label != 0 && top_label == 0) {
           component_labels.labels[index] = left_label;
