@@ -7,11 +7,11 @@
 #include <vector>
 
 bool Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::PreProcessingImpl() {
-  const size_t input_size_a = taskData->inputs_count[0];
-  const size_t input_size_b = taskData->inputs_count[1];
+  const size_t input_size_a = task_data->inputs_count[0];
+  const size_t input_size_b = task_data->inputs_count[1];
 
-  auto* in_ptr_a = reinterpret_cast<std::complex<double>*>(taskData->inputs[0]);
-  auto* in_ptr_b = reinterpret_cast<std::complex<double>*>(taskData->inputs[1]);
+  auto* in_ptr_a = reinterpret_cast<std::complex<double>*>(task_data->inputs[0]);
+  auto* in_ptr_b = reinterpret_cast<std::complex<double>*>(task_data->inputs[1]);
 
   std::vector<std::complex<double>> dense_a(in_ptr_a, in_ptr_a + input_size_a);
   std::vector<std::complex<double>> dense_b(in_ptr_b, in_ptr_b + input_size_b);
@@ -25,8 +25,8 @@ bool Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::PreProcessingImpl() 
 }
 
 bool Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::ValidationImpl() {
-  return taskData->inputs_count.size() >= 2 && taskData->outputs_count.size() >= 1 &&
-         taskData->inputs_count[0] == taskData->inputs_count[1];
+  return task_data->inputs_count.size() >= 2 && task_data->outputs_count.size() >= 1 &&
+         task_data->inputs_count[0] == task_data->inputs_count[1];
 }
 
 bool Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::RunImpl() {
@@ -38,8 +38,8 @@ bool Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::PostProcessingImpl()
   std::vector<std::complex<double>> dense_result;
   ConvertFromCRS(result_matrix_, &dense_result);
 
-  for (size_t i = 0; i < dense_result.size() && i < taskData->outputs_count[0]; ++i) {
-    reinterpret_cast<std::complex<double>*>(taskData->outputs[0])[i] = dense_result[i];
+  for (size_t i = 0; i < dense_result.size() && i < task_data->outputs_count[0]; ++i) {
+    reinterpret_cast<std::complex<double>*>(task_data->outputs[0])[i] = dense_result[i];
   }
 
   return true;
