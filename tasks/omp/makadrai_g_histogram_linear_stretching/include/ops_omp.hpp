@@ -6,7 +6,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace makadrai_g_histogram_linear_stretching_seq {
+namespace makadrai_g_histogram_linear_stretching_omp {
 
 class TestTaskSequential : public ppc::core::Task {
  public:
@@ -20,4 +20,4 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<uint8_t> img_, res_;
 };
 
-}  // namespace makadrai_g_histogram_linear_stretching_seq
+}  // namespace makadrai_g_histogram_linear_stretching_omp

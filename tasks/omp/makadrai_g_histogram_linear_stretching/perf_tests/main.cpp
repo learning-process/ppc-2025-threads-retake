@@ -1,3 +1,4 @@
+
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -11,7 +12,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/makadrai_g_histogram_linear_stretching/include/ops_seq.hpp"
+#include "omp/makadrai_g_histogram_linear_stretching/include/ops_omp.hpp"
 
 namespace {
 std::vector<uint8_t> GetRandomImage(int sz) {
@@ -28,8 +29,8 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }
 }  // namespace
 
-TEST(makadrai_g_histogram_linear_stretching_seq, test_pipeline_run) {
-  constexpr int kCount = 100000000;
+TEST(makadrai_g_histogram_linear_stretching_omp, test_pipeline_run) {
+  constexpr int kCount = 500000000;
 
   // Create data
   std::vector<uint8_t> in = GetRandomImage(kCount);
@@ -45,15 +46,15 @@ TEST(makadrai_g_histogram_linear_stretching_seq, test_pipeline_run) {
   }
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<makadrai_g_histogram_linear_stretching_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_ompuential =
+      std::make_shared<makadrai_g_histogram_linear_stretching_omp::TestTaskSequential>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -69,14 +70,14 @@ TEST(makadrai_g_histogram_linear_stretching_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(expected_out, out);
 }
 
-TEST(makadrai_g_histogram_linear_stretching_seq, test_task_run) {
-  constexpr int kCount = 100000000;
+TEST(makadrai_g_histogram_linear_stretching_omp, test_task_run) {
+  constexpr int kCount = 500000000;
 
   // Create data
   std::vector<uint8_t> in = GetRandomImage(kCount);
@@ -92,15 +93,15 @@ TEST(makadrai_g_histogram_linear_stretching_seq, test_task_run) {
   }
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<makadrai_g_histogram_linear_stretching_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_ompuential =
+      std::make_shared<makadrai_g_histogram_linear_stretching_omp::TestTaskSequential>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -116,7 +117,7 @@ TEST(makadrai_g_histogram_linear_stretching_seq, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(expected_out, out);
