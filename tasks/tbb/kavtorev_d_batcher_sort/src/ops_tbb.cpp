@@ -4,6 +4,9 @@
 #include <tbb/combinable.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
+#include <tbb/task_group.h>
+#include <tbb/partitioner.h>
+#include <tbb/task_arena.h>
 
 #include <algorithm>
 #include <atomic>
