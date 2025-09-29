@@ -45,50 +45,75 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::RunImpl() {
       buf[2] = Int2_[0];
       buf[3] = Int2_[1];
     }
-
     boost::mpi::broadcast(world_, buf, 4, 0);
     boost::mpi::broadcast(world_, N_, 0);
 
-    Int1_[0] = buf[0];
-    Int1_[1] = buf[1];
-    Int2_[0] = buf[2];
-    Int2_[1] = buf[3];
+    const double x0 = buf[0];
+    const double x1 = buf[1];
+    const double y0 = buf[2];
+    const double y1 = buf[3];
+    const int N = N_;
 
-    const double x0 = Int1_[0];
-    const double h1 = (Int1_[1] - Int1_[0]) / N_;
-    const double y0 = Int2_[0];
-    const double h2 = (Int2_[1] - Int2_[0]) / N_;
+    const double h1 = (x1 - x0) / N;
+    const double h2 = (y1 - y0) / N;
 
     int size = world_.size();
     int rank = world_.rank();
-
-    int base = N_ / size;
-    int rem = N_ % size;
+    int base = N / size;
+    int rem = N % size;
     int j_start = rank * base + std::min(rank, rem);
     int j_count = base + (rank < rem ? 1 : 0);
     int j_end = j_start + j_count;
 
+    auto func = function_;
+
     double local_res = 0.0;
 
-#pragma omp parallel for reduction(+ : local_res) schedule(static)
-    for (int j = j_start; j < j_end; ++j) {
-      double y = y0 + (h2 * static_cast<double>(j));
-      double sum_i = 0.0;
+    const int recompute_period = 1024;
 
-      double x = x0;
+#pragma omp parallel
+    {
+      double thread_res = 0.0;
 
-      for (int i = 0; i < N_; ++i) {
-        sum_i += function_(x, y);
-        x += h1;
+#pragma omp for schedule(static)
+      for (int j = j_start; j < j_end; ++j) {
+        double y = y0 + (h2 * j);
+
+        double x = x0;
+        int i = 0;
+
+        int limit = N - (N % 4);
+        for (; i < limit; i += 4) {
+          if ((i & (recompute_period - 1)) == 0) {
+            x = x0 + (h1 * i);
+          }
+          thread_res += func(x, y);
+          x += h1;
+          thread_res += func(x, y);
+          x += h1;
+          thread_res += func(x, y);
+          x += h1;
+          thread_res += func(x, y);
+          x += h1;
+        }
+
+        for (; i < N; ++i) {
+          if ((i & (recompute_period - 1)) == 0) {
+            x = x0 + (h1 * i);
+          }
+          thread_res += func(x, y);
+          x += h1;
+        }
       }
 
-      local_res += sum_i;
-    }
+#pragma omp atomic
+      local_res += thread_res;
+    }  // omp parallel
 
-    local_res *= (h1 * h2);
+    double local_res_sum = local_res * (h1 * h2);
 
     double global_res = 0.0;
-    boost::mpi::reduce(world_, local_res, global_res, std::plus<double>(), 0);
+    boost::mpi::reduce(world_, local_res_sum, global_res, std::plus<double>(), 0);
 
     if (rank == 0) {
       res_ = global_res;
@@ -97,7 +122,6 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::RunImpl() {
     std::cerr << e.what() << '\n';
     return false;
   }
-
   return true;
 }
 
