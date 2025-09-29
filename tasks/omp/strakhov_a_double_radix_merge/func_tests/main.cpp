@@ -82,7 +82,7 @@ TEST(strakhov_a_double_radix_merge, test_random1) {
   }
   auto out = RunMyTask(in);
   auto expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(out, expected);
 }
 TEST(strakhov_a_double_radix_merge, test_random2) {
@@ -95,7 +95,7 @@ TEST(strakhov_a_double_radix_merge, test_random2) {
   }
   auto out = RunMyTask(in);
   auto expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(out, expected);
 }
 TEST(strakhov_a_double_radix_merge, test_random3) {
@@ -108,6 +108,6 @@ TEST(strakhov_a_double_radix_merge, test_random3) {
   }
   auto out = RunMyTask(in);
   auto expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(out, expected);
 }
