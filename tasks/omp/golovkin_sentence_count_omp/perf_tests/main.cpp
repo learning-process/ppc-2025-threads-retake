@@ -50,8 +50,57 @@ TEST(golovkin_sentence_count_omp, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
+
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  int expected_count = 0;
+  for (size_t i = 0; i < text.size(); ++i) {
+    const char current_char = text[i];
+    if (current_char == '.' || current_char == '?' || current_char == '!') {
+      if (i + 1 < text.size()) {
+        const char next_char = text[i + 1];
+        if (next_char != '.' && next_char != '?' && next_char != '!') {
+          if (current_char == '.') {
+            if (i > 0 && i + 1 < text.size()) {
+              const char prev = text[i - 1];
+              const char next = text[i + 1];
+              if (!((std::isdigit(prev) && std::isdigit(next)) || (std::isalpha(prev) && std::isalpha(next)) ||
+                    (prev != ' ' && next != ' '))) {
+                expected_count++;
+              }
+            } else {
+              expected_count++;
+            }
+          } else {
+            expected_count++;
+          }
+        }
+      } else {
+        if (current_char == '.') {
+          if (i > 0) {
+            const char prev = text[i - 1];
+            if (!std::isdigit(prev) && !std::isalpha(prev)) {
+              expected_count++;
+            }
+          } else {
+            expected_count++;
+          }
+        } else {
+          expected_count++;
+        }
+      }
+    }
+  }
+
+  ASSERT_EQ(expected_count, result) << "Count validation failed: expected " << expected_count << ", got " << result;
+
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  ASSERT_GE(result, 0) << "Result should be non-negative";
+  ASSERT_LE(result, text_size) << "Result should not exceed text size";
 }
 
 TEST(golovkin_sentence_count_omp, test_task_run) {
@@ -93,6 +142,19 @@ TEST(golovkin_sentence_count_omp, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
-  perf_analyzer->PipelineRun(perf_attr, perf_results);
+
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  ASSERT_GE(result, 0) << "Result should be non-negative";
+
+  ASSERT_GT(result, 0) << "Result should be positive for generated text";
+
+  // «апускаем производительностный тест
+  perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  int max_expected = text_size / 25;
+  ASSERT_LE(result, max_expected) << "Result seems too large";
 }
