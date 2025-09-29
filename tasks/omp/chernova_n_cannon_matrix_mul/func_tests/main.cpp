@@ -8,11 +8,11 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
+// #include "core/util/include/util.hpp"
 #include "omp/chernova_n_cannon_matrix_mul/include/ops_omp.hpp"
 
 namespace {
-bool СompareMatricesOMP(const std::vector<double> &matrix1, const std::vector<double> &matrix2,
+bool MatricesCompOMP(const std::vector<double> &matrix1, const std::vector<double> &matrix2,
                         double tolerance = 1e-4) {
   if (matrix1.size() != matrix2.size()) {
     return false;
@@ -70,7 +70,7 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_2) {
   test_task_omp.RunImpl();
   test_task_omp.PostProcessingImpl();
 
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_4) {
   int n = 4;
@@ -97,7 +97,7 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_4) {
   test_task_omp.PreProcessingImpl();
   test_task_omp.RunImpl();
   test_task_omp.PostProcessingImpl();
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_16) {
   int n = 16;
@@ -124,7 +124,7 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_16) {
   test_task_omp.PreProcessingImpl();
   test_task_omp.RunImpl();
   test_task_omp.PostProcessingImpl();
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_100) {
   int n = 100;
@@ -151,7 +151,7 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_100) {
   test_task_omp.PreProcessingImpl();
   test_task_omp.RunImpl();
   test_task_omp.PostProcessingImpl();
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_1000) {
   int n = 1000;
@@ -178,7 +178,7 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_1000) {
   test_task_omp.PreProcessingImpl();
   test_task_omp.RunImpl();
   test_task_omp.PostProcessingImpl();
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_1600) {
   int n = 1600;
@@ -205,5 +205,5 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_matmul_1600) {
   test_task_omp.PreProcessingImpl();
   test_task_omp.RunImpl();
   test_task_omp.PostProcessingImpl();
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }

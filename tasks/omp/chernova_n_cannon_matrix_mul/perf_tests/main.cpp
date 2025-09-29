@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -12,7 +13,7 @@
 #include "omp/chernova_n_cannon_matrix_mul/include/ops_omp.hpp"
 
 namespace {
-bool СompareMatricesOMP(const std::vector<double> &matrix1, const std::vector<double> &matrix2,
+bool MatricesCompOMP(const std::vector<double> &matrix1, const std::vector<double> &matrix2,
                         double tolerance = 1e-4) {
   if (matrix1.size() != matrix2.size()) {
     return false;
@@ -79,7 +80,7 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }
 
 TEST(chernova_n_cannon_matrix_mul_omp, test_task_run) {
@@ -117,5 +118,5 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(СompareMatricesOMP(res, out, 1e-4));
+  ASSERT_TRUE(MatricesCompOMP(res, out, 1e-4));
 }

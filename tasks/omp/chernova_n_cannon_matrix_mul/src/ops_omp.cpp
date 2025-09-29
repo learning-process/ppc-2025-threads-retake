@@ -117,6 +117,6 @@ bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::RunImpl() {
 }
 
 bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::PostProcessingImpl() {
-  std::ranges::copy(res, reinterpret_cast<double*>(task_data->outputs[0]));
+  std::ranges::copy(res_, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
 }
