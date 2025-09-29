@@ -39,8 +39,8 @@ bool veliev_e_monte_carlo_stl::VelievEMonteCarloStl::RunImpl() {
     for (int j = 0; j < num_threads; ++j) {
       threads[j] = std::thread([&, j]() {
         double local_res = 0.0;
-        for (int i = j; j < N_; i += num_threads) {
-          double lmb = Int2_[0] + (h2 * j);
+        for (int i = j; i < N_; i += num_threads) {
+          double lmb = Int2_[0] + (h2 * i);
           for (int t = 0; t < N_; ++t) {
             local_res += function_(Int1_[0] + (h1 * t), lmb);
           }
