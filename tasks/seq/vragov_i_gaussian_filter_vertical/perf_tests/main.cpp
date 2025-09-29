@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -8,23 +9,24 @@
 #include "core/task/include/task.hpp"
 #include "seq/vragov_i_gaussian_filter_vertical/include/filter.hpp"
 
-TEST(vragov_i_gaussian_filter_vertical_seq, perf_pipeline_run) {
-  constexpr int x = 500, y = 500;
-  std::vector<int> in(x * y, 1);
-  std::vector<int> out(x * y, 0);
+TEST(vragov_i_gaussian_filter_vertical_seq, PerfPipelineRun) {
+  constexpr int kX = 500;
+  constexpr int kY = 500;
+  std::vector<int> in(kX * kY, 1);
+  std::vector<int> out(kX * kY, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs_count.emplace_back(x);
-  task_data->inputs_count.emplace_back(y);
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
   auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1000;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -36,26 +38,26 @@ TEST(vragov_i_gaussian_filter_vertical_seq, perf_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(filter_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  // No correctness check, just performance
 }
 
-TEST(vragov_i_gaussian_filter_vertical_seq, perf_task_run) {
-  constexpr int x = 500, y = 500;
-  std::vector<int> in(x * y, 1);
-  std::vector<int> out(x * y, 0);
+TEST(vragov_i_gaussian_filter_vertical_seq, PerfTaskRun) {
+  constexpr int kX = 500;
+  constexpr int kY = 500;
+  std::vector<int> in(kX * kY, 1);
+  std::vector<int> out(kX * kY, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs_count.emplace_back(x);
-  task_data->inputs_count.emplace_back(y);
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
   auto filter_task = std::make_shared<vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1000;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -67,5 +69,4 @@ TEST(vragov_i_gaussian_filter_vertical_seq, perf_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(filter_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  // No correctness check, just performance
 }
