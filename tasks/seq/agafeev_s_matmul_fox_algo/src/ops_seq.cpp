@@ -38,7 +38,7 @@ bool agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental::PreProcessingImpl() 
   auto *temp_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
   second_input_.insert(second_input_.begin(), temp_ptr2, temp_ptr2 + (size_ * size_));
   block_size_ = task_data->inputs_count[1];
-  result_.resize(size_*size_, 0.0);
+  result_.resize(size_ * size_, 0.0);
 
   return true;
 }
