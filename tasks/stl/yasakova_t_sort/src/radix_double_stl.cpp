@@ -202,4 +202,3 @@ void RadixSortDoubleStl(std::vector<double>& data) {
 }
 
 }  // namespace yasakova_t_sort_stl
-
