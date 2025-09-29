@@ -12,7 +12,7 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
     return {};
   }
 
-  if (a.empty() || b.empty()) {
+  if (mat_a.empty() || mat_b.empty()) {
     return std::vector<double>(n * n, 0.0);
   }
 
@@ -128,12 +128,12 @@ bool chernova_n_cannon_matrix_mul_seq::TestTaskSequential::PreProcessingImpl() {
 
   auto* tmp_ptr_a = reinterpret_cast<double*>(task_data->inputs[0]);
   for (size_t i = 0; i < task_data->inputs_count[0]; i++) {
-    matrixA[i] = tmp_ptr_a[i];
+    matrixA_[i] = tmp_ptr_a[i];
   }
 
   auto* tmp_ptr_b = reinterpret_cast<double*>(task_data->inputs[1]);
   for (size_t i = 0; i < task_data->inputs_count[1]; i++) {
-    matrixB[i] = tmp_ptr_b[i];
+    matrixB_[i] = tmp_ptr_b[i];
   }
   return true;
 }
