@@ -94,9 +94,9 @@ TEST(dudchenko_o_connected_components_omp, test_small_image) {
 }
 
 TEST(dudchenko_o_connected_components_omp, test_single_component) {
+  testing::GTEST_FLAG(timeout) = 5;
   int width = 4;
   int height = 4;
-  // Все точки foreground (0)
   std::vector<int> image_data(width * height, 0);
 
   std::vector<int> input_data;
@@ -128,7 +128,6 @@ TEST(dudchenko_o_connected_components_omp, test_single_component) {
 TEST(dudchenko_o_connected_components_omp, test_no_components) {
   int width = 4;
   int height = 4;
-  // Все точки background (не 0)
   std::vector<int> image_data(width * height, 255);
 
   std::vector<int> input_data;
@@ -156,6 +155,7 @@ TEST(dudchenko_o_connected_components_omp, test_no_components) {
 }
 
 TEST(dudchenko_o_connected_components_omp, test_two_separate_components) {
+  testing::GTEST_FLAG(timeout) = 5;
   int width = 5;
   int height = 5;
   std::vector<int> image_data = {0,   0,   255, 255, 255, 0, 0, 255, 255, 255, 255, 255, 255,
@@ -180,7 +180,6 @@ TEST(dudchenko_o_connected_components_omp, test_two_separate_components) {
   test_task_omp.Run();
   test_task_omp.PostProcessing();
 
-  // Проверяем два компонента
   int comp1 = output_data[0];
   int comp2 = output_data[18];
 
@@ -188,7 +187,6 @@ TEST(dudchenko_o_connected_components_omp, test_two_separate_components) {
   EXPECT_NE(comp2, 0);
   EXPECT_NE(comp1, comp2);
 
-  // Проверяем точки компонентов
   OutputData output{output_data};
   CheckComponentPoints(output, comp1, Indices{{0, 1, 5, 6}});
   CheckComponentPoints(output, comp2, Indices{{18, 19, 23, 24}});

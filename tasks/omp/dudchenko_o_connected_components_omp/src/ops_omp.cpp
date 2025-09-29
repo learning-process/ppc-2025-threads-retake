@@ -83,14 +83,14 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
 
   if (left_label == 0 && top_label == 0) {
     int new_label = 0;
-#pragma omp atomic capture
-    new_label = parent_structure.parents[0]++;
-
 #pragma omp critical
-    if (new_label >= static_cast<int>(parent_structure.parents.size())) {
-      parent_structure.parents.resize(new_label + 1, 0);
+    {
+      new_label = parent_structure.parents[0]++;
+      if (new_label >= static_cast<int>(parent_structure.parents.size())) {
+        parent_structure.parents.resize(new_label + 1, 0);
+      }
+      parent_structure.parents[new_label] = new_label;
     }
-    parent_structure.parents[new_label] = new_label;
     component_labels.labels[index] = new_label;
     return;
   }
@@ -108,8 +108,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
   component_labels.labels[index] = min_root;
 
   if (root_left != root_top) {
-#pragma omp critical
-    { UnionSets(parent_structure, root_left, root_top); }
+    UnionSets(parent_structure, root_left, root_top);
   }
 }
 
@@ -183,9 +182,7 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
   int root = x;
   while (parent.parents[root] != root) {
     root = parent.parents[root];
-    if (root <= 0) {
-      break;
-    }
+    if (root <= 0) break;
   }
 
   int temp = x;
@@ -206,17 +203,11 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStruc
     return;
   }
 
-#pragma omp critical
-  {
-    int current_root_x = FindRoot(parent, root_x);
-    int current_root_y = FindRoot(parent, root_y);
-
-    if (current_root_x != current_root_y) {
-      if (current_root_x < current_root_y) {
-        parent.parents[current_root_y] = current_root_x;
-      } else {
-        parent.parents[current_root_x] = current_root_y;
-      }
-    }
+  if (root_x < root_y) {
+#pragma omp atomic write
+    parent.parents[root_y] = root_x;
+  } else {
+#pragma omp atomic write
+    parent.parents[root_x] = root_y;
   }
 }
