@@ -7,16 +7,22 @@
 #include <cstddef>
 #include <vector>
 
-std::vector<double> chernova_n_cannon_matrix_mul_omp::CannonMatrixMultiplicationOMP(const std::vector<double>& a,
-                                                                                    const std::vector<double>& b,
+std::vector<double> chernova_n_cannon_matrix_mul_omp::CannonMatrixMultiplicationOMP(const std::vector<double>& mat_a,
+                                                                                    const std::vector<double>& mat_b,
                                                                                     int n) {
-  if (n <= 0) return {};
+  if (n <= 0) {
+    return {};
+  }
 
   int block_size = 32;
-  if (n < 32) block_size = 8;
-  if (n < 8) block_size = 2;
+  if (n < 32) {
+    block_size = 8;
+  }
+  if (n < 8) {
+    block_size = 2;
+  }
 
-  std::vector<double> matrixC(n * n, 0.0);
+  std::vector<double> matrix_c(n * n, 0.0);
 
   int num_blocks = (n + block_size - 1) / block_size;
 
@@ -33,9 +39,9 @@ std::vector<double> chernova_n_cannon_matrix_mul_omp::CannonMatrixMultiplication
 
         for (int i = i_start; i < i_end; i++) {
           for (int k = k_start; k < k_end; k++) {
-            double a_val = a[i * n + k];
+            double a_val = mat_a[(i * n) + k];
             for (int j = j_start; j < j_end; j++) {
-              matrixC[i * n + j] += a_val * b[k * n + j];
+              matrix_c[(i * n) + j] += a_val * mat_b[(k * n) + j];
             }
           }
         }
@@ -43,11 +49,11 @@ std::vector<double> chernova_n_cannon_matrix_mul_omp::CannonMatrixMultiplication
     }
   }
 
-  return matrixC;
+  return matrix_c;
 }
-std::vector<double> chernova_n_cannon_matrix_mul_omp::MultiplyMatrixOMP(const std::vector<double>& a,
-                                                                        const std::vector<double>& b, int n) {
-  std::vector<double> matrixC(n * n, 0.0);
+std::vector<double> chernova_n_cannon_matrix_mul_omp::MultiplyMatrixOMP(const std::vector<double>& mat_a,
+                                                                        const std::vector<double>& mat_b, int n) {
+  std::vector<double> matrix_c(n * n, 0.0);
 
   if (n == 0) {
     return {};
@@ -58,12 +64,12 @@ std::vector<double> chernova_n_cannon_matrix_mul_omp::MultiplyMatrixOMP(const st
     for (int j = 0; j < n; ++j) {
       double sum = 0.0;
       for (int k = 0; k < n; ++k) {
-        sum += a[(i * n) + k] * b[(k * n) + j];
+        sum += mat_a[(i * n) + k] * mat_b[(k * n) + j];
       }
-      matrixC[(i * n) + j] = sum;
+      matrix_c[(i * n) + j] = sum;
     }
   }
-  return matrixC;
+  return matrix_c;
 }
 bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::PreProcessingImpl() {
   n_ = *reinterpret_cast<int*>(task_data->inputs[2]);
@@ -71,25 +77,25 @@ bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::PreProcessingImpl() {
   size_t matrix_size = n_ * n_;
 
   if (matrix_size == 0) {
-    matrixA.clear();
-    matrixB.clear();
+    matrixA_.clear();
+    matrixB_.clear();
     return true;
   }
 
-  matrixA.resize(matrix_size);
-  matrixB.resize(matrix_size);
+  matrixA_.resize(matrix_size);
+  matrixB_.resize(matrix_size);
 
   auto* tmp_ptr_a = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* tmp_ptr_b = reinterpret_cast<double*>(task_data->inputs[1]);
 
-  std::copy(tmp_ptr_a, tmp_ptr_a + matrix_size, matrixA.begin());
-  std::copy(tmp_ptr_b, tmp_ptr_b + matrix_size, matrixB.begin());
+  std::copy(tmp_ptr_a, tmp_ptr_a + matrix_size, matrixA_.begin());
+  std::copy(tmp_ptr_b, tmp_ptr_b + matrix_size, matrixB_.begin());
 
   return true;
 }
 
 bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::ValidationImpl() {
-  if (task_data->inputs.size() < 3 || task_data->outputs.size() < 1) {
+  if (task_data->inputs.size() < 3 || task_data->outputs.empty()) {
     return false;
   }
 
@@ -106,11 +112,11 @@ bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::RunImpl() {
-  res = CannonMatrixMultiplicationOMP(matrixA, matrixB, n_);
+  res_ = CannonMatrixMultiplicationOMP(matrixA_, matrixB_, n_);
   return true;
 }
 
 bool chernova_n_cannon_matrix_mul_omp::TestTaskOpenMP::PostProcessingImpl() {
-  std::copy(res.begin(), res.end(), reinterpret_cast<double*>(task_data->outputs[0]));
+  std::ranges::copy(res, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
 }
