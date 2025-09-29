@@ -1,6 +1,7 @@
 #include "tbb/vragov_i_gaussian_filter_vertical/include/filter.hpp"
 
 #include <tbb/parallel_for.h>
+#include <tbb/tbb.h>
 
 #include <cmath>
 #include <cstddef>
