@@ -122,7 +122,7 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
     mid = static_cast<long long>(n);
   }
 
-  const std::size_t left_size = static_cast<std::size_t>(mid);
+  const auto left_size = static_cast<std::size_t>(mid);
   const std::size_t right_size = n - left_size;
 
   // Decide whether to sort halves in parallel
