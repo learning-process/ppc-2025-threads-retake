@@ -15,7 +15,7 @@ void veliev_e_monte_carlo_all::VelievEMonteCarloAll::SetFunc(const veliev_func_a
 bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::PreProcessingImpl() {
   if (world_.rank() == 0) {
     double *in1 = reinterpret_cast<double *>(task_data->inputs[0]);
-    double *in1 = reinterpret_cast<double *>(task_data->inputs[1]);
+    double *in2 = reinterpret_cast<double *>(task_data->inputs[1]);
 
     Int1_[0] = in1[0];
     Int1_[1] = in1[1];
