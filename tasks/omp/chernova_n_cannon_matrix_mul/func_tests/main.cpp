@@ -10,7 +10,7 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "omp/example/include/ops_omp.hpp"
+#include "omp/chernova_n_cannon_matrix_mul/include/ops_omp.hpp"
 
 bool compareMatrices(const std::vector<double> &matrix1, const std::vector<double> &matrix2, double tolerance = 1e-4) {
   if (matrix1.size() != matrix2.size()) {

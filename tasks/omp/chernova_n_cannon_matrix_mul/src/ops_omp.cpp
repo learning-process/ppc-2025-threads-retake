@@ -1,4 +1,4 @@
-#include "omp/example/include/ops_omp.hpp"
+#include "omp/chernova_n_cannon_matrix_mul/include/ops_omp.hpp"
 
 #include <omp.h>
 
