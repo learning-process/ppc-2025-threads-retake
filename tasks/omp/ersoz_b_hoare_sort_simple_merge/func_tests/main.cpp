@@ -30,7 +30,7 @@ void RunOnce(const std::vector<int>& input) {
 
 }  // namespace
 
-TEST(ersoz_b_hoare_sort_simple_merge_omp, already_sorted) {
+TEST(ersoz_b_hoare_sort_simple_merge_omp, already_sorted) {  // test
   std::vector<int> v(100);
   for (int i = 0; i < 100; ++i) {
     v[static_cast<std::size_t>(i)] = i;
