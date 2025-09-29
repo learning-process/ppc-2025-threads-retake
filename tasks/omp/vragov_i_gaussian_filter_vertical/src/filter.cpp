@@ -7,8 +7,8 @@
 bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::PreProcessingImpl() {
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
-  x_ = task_data->inputs_count[1];
-  y_ = task_data->inputs_count[2];
+  x_ = static_cast<int>(task_data->inputs_count[1]);
+  y_ = static_cast<int>(task_data->inputs_count[2]);
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
@@ -42,10 +42,10 @@ bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::RunImpl() {
         } else if (idx >= y_) {
           idx = y_ - 1;
         }
-        sum += input_[i * y_ + idx] * kernel[k + 1];
+        sum += input_[(i * y_) + idx] * kernel[k + 1];
       }
       sum /= (sqrt(2.0 * pi) * 0.5);
-      output_[i * y_ + j] = static_cast<int>(std::round(sum));
+      output_[(i * y_) + j] = static_cast<int>(std::round(sum));
     }
   }
   return true;
