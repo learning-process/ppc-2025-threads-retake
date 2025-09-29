@@ -2,7 +2,6 @@
 
 #include <omp.h>
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -56,13 +55,13 @@ bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PostProcessingImpl() 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::LabelComponents() {
   size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   output_.resize(total_pixels, 0);
-  
+
   int num_threads = omp_get_max_threads();
   std::vector<std::vector<int>> local_labels(num_threads, std::vector<int>(total_pixels, 0));
   std::vector<ParentStructure> local_parents(num_threads);
-  
+
   InitializeLocalParents(local_parents, total_pixels);
-  
+
   std::vector<BlockRange> blocks(num_threads);
   CalculateBlockBoundaries(blocks, num_threads);
 
@@ -77,8 +76,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::InitializeLocalParent
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::CalculateBlockBoundaries(
-    std::vector<BlockRange>& blocks, int num_threads) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::CalculateBlockBoundaries(std::vector<BlockRange>& blocks,
+                                                                                    int num_threads) {
   for (int i = 0; i < num_threads; ++i) {
     int block_height = height_ / num_threads;
     blocks[i].start_y = i * block_height;
@@ -87,10 +86,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::CalculateBlockBoundar
 }
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessBlocksInParallel(
-    std::vector<std::vector<int>>& local_labels,
-    std::vector<ParentStructure>& local_parents,
-    const std::vector<BlockRange>& blocks,
-    size_t total_pixels, int num_threads) {
+    std::vector<std::vector<int>>& local_labels, std::vector<ParentStructure>& local_parents,
+    const std::vector<BlockRange>& blocks, size_t total_pixels, int num_threads) {
 #pragma omp parallel for
   for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
     int base_label = (thread_id * (static_cast<int>(total_pixels) / num_threads)) + 1;
@@ -124,9 +121,10 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessConnectedNeighbors(
-    int left_label, int top_label, std::vector<int>& labels,
-    ParentStructure& parent_structure, int index) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessConnectedNeighbors(int left_label, int top_label,
+                                                                                     std::vector<int>& labels,
+                                                                                     ParentStructure& parent_structure,
+                                                                                     int index) {
   int root_left = FindRoot(parent_structure, left_label);
   int root_top = FindRoot(parent_structure, top_label);
   int min_root = (root_left < root_top) ? root_left : root_top;
@@ -152,8 +150,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessBlock(const Bl
   NormalizeBlockLabels(block, labels, parent_structure);
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::NormalizeBlockLabels(
-    const BlockRange& block, std::vector<int>& labels, ParentStructure& parent_structure) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::NormalizeBlockLabels(const BlockRange& block,
+                                                                                std::vector<int>& labels,
+                                                                                ParentStructure& parent_structure) {
   for (int y = block.start_y; y < block.end_y; ++y) {
     for (int x = 0; x < width_; ++x) {
       int index = (y * width_) + x;
@@ -165,13 +164,11 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::NormalizeBlockLabels(
 }
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::MergeBlocks(
-    const std::vector<std::vector<int>>& local_labels,
-    const std::vector<ParentStructure>& local_parents,
+    const std::vector<std::vector<int>>& local_labels, const std::vector<ParentStructure>& local_parents,
     const std::vector<BlockRange>& blocks, size_t total_pixels) {
-  
   ParentStructure global_parent;
   global_parent.parents.resize(total_pixels + 1, 0);
-  
+
   InitializeGlobalParent(global_parent);
   CopyLocalLabelsToOutput(local_labels, blocks);
   ResolveBlockBoundaries(global_parent, blocks);
@@ -182,13 +179,13 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::MergeBlocks(
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::InitializeGlobalParent(ParentStructure& global_parent) {
   for (size_t i = 1; i < global_parent.parents.size(); ++i) {
-    global_parent.parents[i] = i;
+    global_parent.parents[i] = static_cast<int>(i);
   }
 }
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::CopyLocalLabelsToOutput(
     const std::vector<std::vector<int>>& local_labels, const std::vector<BlockRange>& blocks) {
-  int num_threads = blocks.size();
+  int num_threads = static_cast<int>(blocks.size());
   for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
     const BlockRange& block = blocks[thread_id];
     for (int y = block.start_y; y < block.end_y; ++y) {
@@ -202,24 +199,25 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::CopyLocalLabelsToOutp
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(
     ParentStructure& global_parent, const std::vector<BlockRange>& blocks) {
-  int num_threads = blocks.size();
+  int num_threads = static_cast<int>(blocks.size());
   for (int block_idx = 1; block_idx < num_threads; ++block_idx) {
     ResolveSingleBoundary(global_parent, blocks, block_idx);
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveSingleBoundary(
-    ParentStructure& global_parent, const std::vector<BlockRange>& blocks, int block_idx) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveSingleBoundary(ParentStructure& global_parent,
+                                                                                 const std::vector<BlockRange>& blocks,
+                                                                                 int block_idx) {
   int boundary_y = blocks[block_idx].start_y;
   if (boundary_y > 0) {
     for (int x = 0; x < width_; ++x) {
       int top_index = ((boundary_y - 1) * width_) + x;
       int current_index = (boundary_y * width_) + x;
-      
+
       if (output_[top_index] != 0 && output_[current_index] != 0) {
         int root_top = FindRoot(global_parent, output_[top_index]);
         int root_current = FindRoot(global_parent, output_[current_index]);
-        
+
         if (root_top != root_current) {
           UnionSets(global_parent, root_top, root_current);
         }
@@ -228,7 +226,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveSingleBoundary
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveHorizontalConnections(ParentStructure& global_parent) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveHorizontalConnections(
+    ParentStructure& global_parent) {
   for (int y = 0; y < height_; ++y) {
     ResolveHorizontalConnectionsInRow(global_parent, y);
   }
@@ -239,11 +238,11 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveHorizontalConn
   for (int x = 1; x < width_; ++x) {
     int left_index = (y * width_) + (x - 1);
     int current_index = (y * width_) + x;
-    
+
     if (output_[left_index] != 0 && output_[current_index] != 0) {
       int root_left = FindRoot(global_parent, output_[left_index]);
       int root_current = FindRoot(global_parent, output_[current_index]);
-      
+
       if (root_left != root_current) {
         UnionSets(global_parent, root_left, root_current);
       }
@@ -262,7 +261,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FinalNormalization(Pa
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::RemapLabels() {
   std::vector<int> label_map(output_.size() + 1, 0);
   int next_label = 1;
-  
+
   BuildLabelMap(label_map, next_label);
   ApplyLabelMap(label_map);
 }
@@ -285,7 +284,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ApplyLabelMap(const s
   }
 }
 
-int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(const ParentStructure& parent, int x) const {
+[[nodiscard]] int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(const ParentStructure& parent, int x) const {
   if (x <= 0 || static_cast<size_t>(x) >= parent.parents.size()) {
     return x;
   }
@@ -293,8 +292,7 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(const ParentS
   while (parent.parents[root] != root) {
     root = parent.parents[root];
   }
-  
-  // Path compression
+
   int temp = x;
   while (temp != root) {
     int next = parent.parents[temp];
@@ -308,7 +306,7 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(const ParentS
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStructure& parent, int x, int y) {
   int root_x = FindRoot(parent, x);
   int root_y = FindRoot(parent, y);
-  
+
   if (root_x != root_y) {
     if (root_x < root_y) {
       parent.parents[root_y] = root_x;

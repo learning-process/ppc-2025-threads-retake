@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -32,36 +33,35 @@ class TestTaskOpenMP : public ppc::core::Task {
   int height_{};
 
   void LabelComponents();
-  
-  void InitializeLocalParents(std::vector<ParentStructure>& local_parents, size_t total_pixels);
-  void CalculateBlockBoundaries(std::vector<BlockRange>& blocks, int num_threads);
-  void ProcessBlocksInParallel(std::vector<std::vector<int>>& local_labels,
-                              std::vector<ParentStructure>& local_parents,
-                              const std::vector<BlockRange>& blocks,
-                              size_t total_pixels, int num_threads);
-  
+
+  static void InitializeLocalParents(std::vector<ParentStructure>& local_parents, size_t total_pixels);
+  static void CalculateBlockBoundaries(std::vector<BlockRange>& blocks, int num_threads);
+  void ProcessBlocksInParallel(std::vector<std::vector<int>>& local_labels, std::vector<ParentStructure>& local_parents,
+                               const std::vector<BlockRange>& blocks, size_t total_pixels, int num_threads);
+
   void ProcessPixel(int x, int y, std::vector<int>& labels, ParentStructure& parent_structure, int& local_next_label);
   void ProcessConnectedNeighbors(int left_label, int top_label, std::vector<int>& labels,
-                                ParentStructure& parent_structure, int index);
-  void ProcessBlock(const BlockRange& block, std::vector<int>& labels, ParentStructure& parent_structure, int base_label);
+                                 ParentStructure& parent_structure, int index);
+  void ProcessBlock(const BlockRange& block, std::vector<int>& labels, ParentStructure& parent_structure,
+                    int base_label);
   void NormalizeBlockLabels(const BlockRange& block, std::vector<int>& labels, ParentStructure& parent_structure);
-  
-  void MergeBlocks(const std::vector<std::vector<int>>& local_labels,
-                   const std::vector<ParentStructure>& local_parents,
+
+  void MergeBlocks(const std::vector<std::vector<int>>& local_labels, const std::vector<ParentStructure>& local_parents,
                    const std::vector<BlockRange>& blocks, size_t total_pixels);
-  void InitializeGlobalParent(ParentStructure& global_parent);
-  void CopyLocalLabelsToOutput(const std::vector<std::vector<int>>& local_labels, const std::vector<BlockRange>& blocks);
+  static void InitializeGlobalParent(ParentStructure& global_parent);
+  void CopyLocalLabelsToOutput(const std::vector<std::vector<int>>& local_labels,
+                               const std::vector<BlockRange>& blocks);;
   void ResolveBlockBoundaries(ParentStructure& global_parent, const std::vector<BlockRange>& blocks);
   void ResolveSingleBoundary(ParentStructure& global_parent, const std::vector<BlockRange>& blocks, int block_idx);
   void ResolveHorizontalConnections(ParentStructure& global_parent);
   void ResolveHorizontalConnectionsInRow(ParentStructure& global_parent, int y);
   void FinalNormalization(ParentStructure& global_parent);
-  
+
   void RemapLabels();
   void BuildLabelMap(std::vector<int>& label_map, int& next_label);
   void ApplyLabelMap(const std::vector<int>& label_map);
-  
-  int FindRoot(const ParentStructure& parent, int x) const;
+
+  [[nodiscard]] static int FindRoot(const ParentStructure& parent, int x) const;
   void UnionSets(ParentStructure& parent, int x, int y);
 };
 
