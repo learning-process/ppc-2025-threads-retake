@@ -10,14 +10,14 @@
 #include "../include/ops_seq.hpp"
 #include "core/task/include/task.hpp"
 
-TEST(Ivashchuk_V_sparse_matrix_seq, test_identity_matrix) {
+TEST(Ivashchuk_V_sparse_matrix_seq, TestIdentityMatrix) {
   constexpr size_t kCount = 50;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
   std::vector<std::complex<double>> out(kCount * kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
+  for (size_t i = 0; i < kCount; ++i) {
     in1[(i * kCount) + i] = std::complex<double>(1.0, 0.0);
     in2[(i * kCount) + i] = std::complex<double>(1.0, 0.0);
   }
@@ -37,8 +37,8 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_identity_matrix) {
   test_task_sequential->Run();
   test_task_sequential->PostProcessing();
 
-  for (size_t i = 0; i < kCount; i++) {
-    for (size_t j = 0; j < kCount; j++) {
+  for (size_t i = 0; i < kCount; ++i) {
+    for (size_t j = 0; j < kCount; ++j) {
       if (i == j) {
         EXPECT_NEAR(out[i * kCount + j].real(), 1.0, 1e-10);
         EXPECT_NEAR(out[i * kCount + j].imag(), 0.0, 1e-10);
@@ -50,14 +50,14 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_identity_matrix) {
   }
 }
 
-TEST(Ivashchuk_V_sparse_matrix_seq, test_complex_multiplication) {
+TEST(Ivashchuk_V_sparse_matrix_seq, TestComplexMultiplication) {
   constexpr size_t kCount = 30;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
   std::vector<std::complex<double>> out(kCount * kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
+  for (size_t i = 0; i < kCount; ++i) {
     in1[(i * kCount) + i] = std::complex<double>(2.0, 1.0);
     in2[(i * kCount) + i] = std::complex<double>(3.0, -1.0);
   }
@@ -77,8 +77,8 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_complex_multiplication) {
   test_task_sequential->Run();
   test_task_sequential->PostProcessing();
 
-  for (size_t i = 0; i < kCount; i++) {
-    for (size_t j = 0; j < kCount; j++) {
+  for (size_t i = 0; i < kCount; ++i) {
+    for (size_t j = 0; j < kCount; ++j) {
       if (i == j) {
         EXPECT_NEAR(out[i * kCount + j].real(), 7.0, 1e-10);
         EXPECT_NEAR(out[i * kCount + j].imag(), 1.0, 1e-10);
@@ -90,7 +90,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_complex_multiplication) {
   }
 }
 
-TEST(Ivashchuk_V_sparse_matrix_seq, test_zero_matrix) {
+TEST(Ivashchuk_V_sparse_matrix_seq, TestZeroMatrix) {
   constexpr size_t kCount = 20;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
@@ -112,22 +112,23 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_zero_matrix) {
   test_task_sequential->Run();
   test_task_sequential->PostProcessing();
 
-  for (size_t i = 0; i < kCount * kCount; i++) {
+  for (size_t i = 0; i < kCount * kCount; ++i) {
     EXPECT_NEAR(out[i].real(), 0.0, 1e-10);
     EXPECT_NEAR(out[i].imag(), 0.0, 1e-10);
   }
 }
 
-TEST(Ivashchuk_V_sparse_matrix_seq, test_diagonal_matrices) {
+TEST(Ivashchuk_V_sparse_matrix_seq, TestDiagonalMatrices) {
   constexpr size_t kCount = 25;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
   std::vector<std::complex<double>> out(kCount * kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in1[(i * kCount) + i] = std::complex<double>(i + 1, 0.5 * i);
-    in2[(i * kCount) + i] = std::complex<double>(kCount - i, -0.3 * i);
+  for (size_t i = 0; i < kCount; ++i) {
+    in1[(i * kCount) + i] = std::complex<double>(static_cast<double>(i) + 1.0, 0.5 * static_cast<double>(i));
+    in2[(i * kCount) + i] =
+        std::complex<double>(static_cast<double>(kCount) - static_cast<double>(i), -0.3 * static_cast<double>(i));
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -145,8 +146,8 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_diagonal_matrices) {
   test_task_sequential->Run();
   test_task_sequential->PostProcessing();
 
-  for (size_t i = 0; i < kCount; i++) {
-    for (size_t j = 0; j < kCount; j++) {
+  for (size_t i = 0; i < kCount; ++i) {
+    for (size_t j = 0; j < kCount; ++j) {
       if (i == j) {
         std::complex<double> expected = in1[i * kCount + i] * in2[i * kCount + i];
         EXPECT_NEAR(out[i * kCount + j].real(), expected.real(), 1e-10);
@@ -159,7 +160,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_diagonal_matrices) {
   }
 }
 
-TEST(Ivashchuk_V_sparse_matrix_seq, test_sparse_random_matrices) {
+TEST(Ivashchuk_V_sparse_matrix_seq, TestSparseRandomMatrices) {
   constexpr size_t kCount = 15;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
@@ -171,7 +172,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_sparse_random_matrices) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(-2.0, 2.0);
 
-  for (size_t i = 0; i < kCount; i++) {
+  for (size_t i = 0; i < kCount; ++i) {
     in1[i * kCount + i] = std::complex<double>(dis(gen), dis(gen));
     in2[i * kCount + i] = std::complex<double>(dis(gen), dis(gen));
 
@@ -181,9 +182,9 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_sparse_random_matrices) {
     }
   }
 
-  for (size_t i = 0; i < kCount; i++) {
-    for (size_t j = 0; j < kCount; j++) {
-      for (size_t k = 0; k < kCount; k++) {
+  for (size_t i = 0; i < kCount; ++i) {
+    for (size_t j = 0; j < kCount; ++j) {
+      for (size_t k = 0; k < kCount; ++k) {
         expected[i * kCount + j] += in1[i * kCount + k] * in2[k * kCount + j];
       }
     }
@@ -204,13 +205,13 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_sparse_random_matrices) {
   test_task_sequential->Run();
   test_task_sequential->PostProcessing();
 
-  for (size_t i = 0; i < kCount * kCount; i++) {
+  for (size_t i = 0; i < kCount * kCount; ++i) {
     EXPECT_NEAR(out[i].real(), expected[i].real(), 1e-10);
     EXPECT_NEAR(out[i].imag(), expected[i].imag(), 1e-10);
   }
 }
 
-TEST(Ivashchuk_V_sparse_matrix_seq, test_single_element_matrices) {
+TEST(Ivashchuk_V_sparse_matrix_seq, TestSingleElementMatrices) {
   constexpr size_t kCount = 2;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
@@ -240,13 +241,13 @@ TEST(Ivashchuk_V_sparse_matrix_seq, test_single_element_matrices) {
   EXPECT_NEAR(out[0].real(), expected.real(), 1e-10);
   EXPECT_NEAR(out[0].imag(), expected.imag(), 1e-10);
 
-  for (size_t i = 1; i < kCount * kCount; i++) {
+  for (size_t i = 1; i < kCount * kCount; ++i) {
     EXPECT_NEAR(out[i].real(), 0.0, 1e-10);
     EXPECT_NEAR(out[i].imag(), 0.0, 1e-10);
   }
 }
 
-TEST(Ivashchuk_V_sparse_matrix_seq, test_validation_failure) {
+TEST(Ivashchuk_V_sparse_matrix_seq, TestValidationFailure) {
   constexpr size_t kCount1 = 10;
   constexpr size_t kCount2 = 15;
 
