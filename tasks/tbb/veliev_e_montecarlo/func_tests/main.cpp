@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/veliev_e_montecarlo/include/ops_tbb.hpp"
 #include "tbb/veliev_e_montecarlo/include/ops_seq.hpp"
+#include "tbb/veliev_e_montecarlo/include/ops_tbb.hpp"
 
 constexpr double kESTIMATE = 1e-1;
 

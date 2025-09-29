@@ -23,4 +23,4 @@ class VelievEMonteCarloSeq : public ppc::core::Task {
   double res_{};
 };
 
-}  // namespace veliev_e_omp_test
+}  // namespace veliev_e_tbb_test

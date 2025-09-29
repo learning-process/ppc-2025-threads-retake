@@ -1,12 +1,13 @@
+#include "tbb/veliev_e_montecarlo/include/ops_tbb.hpp"
+
 #include <cmath>
-#include <iostream>
 #include <exception>
+#include <iostream>
 #include <thread>
 #include <vector>
 
 #include "oneapi/tbb.h"
 #include "oneapi/tbb/parallel_reduce.h"
-#include "tbb/veliev_e_montecarlo/include/ops_tbb.hpp"
 
 using namespace std::chrono_literals;
 
@@ -26,7 +27,7 @@ bool veliev_e_monte_carlo_tbb::VelievEMonteCarloTbb::ValidationImpl() {
   return task_data->inputs_count[0] == 2 && task_data->inputs_count[1] == 2 && task_data->outputs_count[0] == 1;
 }
 
-bool veliev_e_monte_carlo_tbb::VelievEMonteCarloTbb::RunImpl() {  
+bool veliev_e_monte_carlo_tbb::VelievEMonteCarloTbb::RunImpl() {
   try {
     double h1 = (Int1_[1] - Int1_[0]) / N_;
     double h2 = (Int2_[1] - Int2_[0]) / N_;
@@ -48,7 +49,7 @@ bool veliev_e_monte_carlo_tbb::VelievEMonteCarloTbb::RunImpl() {
     std::cout << e.what() << '\n';
     return false;
   }
-  
+
   return true;
 }
 
