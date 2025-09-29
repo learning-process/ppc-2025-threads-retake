@@ -1,4 +1,4 @@
-#include "seq/makadrai_g_histogram_linear_stretching_seq/include/ops_seq.hpp"
+#include "seq/makadrai_g_histogram_linear_stretching/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>

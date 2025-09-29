@@ -13,7 +13,7 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "seq/makadrai_g_histogram_linear_stretching_seq/include/ops_seq.hpp"
+#include "seq/makadrai_g_histogram_linear_stretching/include/ops_seq.hpp"
 
 namespace {
 std::vector<uint8_t> GetRandomImage(int sz) {
@@ -33,14 +33,14 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 TEST(makadrai_g_histogram_linear_stretching_seq, test_opencv_image_validation) {
   // loading template orginal img
   cv::Mat input_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_orig.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_orig.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   ASSERT_FALSE(input_image.empty());
 
   // loading template modified img
   cv::Mat reference_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_mod.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_mod.jpg"),
                  cv::IMREAD_GRAYSCALE);
   ASSERT_FALSE(reference_image.empty());
 
@@ -52,12 +52,12 @@ TEST(makadrai_g_histogram_linear_stretching_seq, test_opencv_image_validation) {
 TEST(makadrai_g_histogram_linear_stretching_seq, test_opencv_manual_64x64) {
   // loading template orginal img
   cv::Mat input_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_orig.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_orig.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   // loading template modified img
   cv::Mat reference_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching_seq/data/cobble_mod.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("seq/makadrai_g_histogram_linear_stretching/data/cobble_mod.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   std::vector<uint8_t> input_vector(input_image.total());
