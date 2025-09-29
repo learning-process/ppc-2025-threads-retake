@@ -55,13 +55,13 @@ bool agafeev_s_matmul_fox_algo_omp::MultiplMatrixOpenMP::ValidationImpl() {
 }
 
 bool agafeev_s_matmul_fox_algo_omp::MultiplMatrixOpenMP::RunImpl() {
-  size_t num_blocks = (size_ + block_size_ - 1) / block_size_;
+  int num_blocks = static_cast<int>((size_ + block_size_ - 1) / block_size_);
 #pragma omp parallel
   for (int step = 0; step < num_blocks; step++) {
 #pragma omp for schedule(static) nowait
     for (int i = 0; i < num_blocks; i++) {
-      size_t block_index = (i + step) % num_blocks;
       for (int j = 0; j < num_blocks; j++) {
+        int block_index = (i + step) % num_blocks;
         BlockMultiply(first_input_, i, second_input_, j, result_, block_index, block_size_, size_);
       }
     }
