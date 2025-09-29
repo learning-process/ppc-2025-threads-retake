@@ -2,8 +2,12 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <thread>
 #include <utility>
 #include <vector>
+
+#include "core/util/include/util.hpp"
+
 
 namespace ersoz_b_hoare_sort_simple_merge_stl {
 
@@ -112,19 +116,41 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
     return true;
   }
   long long mid = Partition(input_, 0, static_cast<long long>(n - 1));
-  if (mid > 0) {
-    QuickSortHoare(input_, 0, mid - 1);
-  }
-  if (mid < static_cast<long long>(n)) {
-    QuickSortHoare(input_, mid, static_cast<long long>(n - 1));
-  }
+  // Clamp mid defensively
   if (mid < 0) {
     mid = 0;
   } else if (mid > static_cast<long long>(n)) {
     mid = static_cast<long long>(n);
   }
-  MergeTwo(input_, Segment{.begin = 0, .end = static_cast<std::size_t>(mid)},
-           Segment{.begin = static_cast<std::size_t>(mid), .end = n}, output_);
+
+  const std::size_t left_size = static_cast<std::size_t>(mid);
+  const std::size_t right_size = n - left_size;
+
+  // Decide whether to sort halves in parallel
+  int available_threads = 1;
+  try {
+    available_threads = ppc::util::GetPPCNumThreads();
+  } catch (...) {
+    available_threads = 1;  // Fallback: sequential
+  }
+  // Simple threshold to avoid thread overhead on tiny ranges
+  constexpr std::size_t kParallelThreshold = 2048;
+
+  if (available_threads > 1 && left_size > 1 && right_size > 1 &&
+      (left_size >= kParallelThreshold || right_size >= kParallelThreshold)) {
+    std::thread left_thread([&]() { QuickSortHoare(input_, 0, static_cast<long long>(left_size) - 1); });
+    QuickSortHoare(input_, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
+    left_thread.join();
+  } else {
+    if (left_size > 1) {
+      QuickSortHoare(input_, 0, static_cast<long long>(left_size) - 1);
+    }
+    if (right_size > 1) {
+      QuickSortHoare(input_, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
+    }
+  }
+
+  MergeTwo(input_, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
   return true;
 }
 
