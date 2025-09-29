@@ -33,7 +33,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   void LabelComponents();
   void FirstPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
   void SecondPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
-  int FindRoot(ParentStructure& parent, int x);
+  static int FindRoot(ParentStructure& parent, int x);
   void UnionSets(ParentStructure& parent, int x, int y);
 };
 

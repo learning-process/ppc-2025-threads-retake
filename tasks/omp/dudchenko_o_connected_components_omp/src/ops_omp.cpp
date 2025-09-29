@@ -68,41 +68,52 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::LabelComponents() {
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLabels& component_labels,
                                                                      ParentStructure& parent_structure) {
-  int next_label = 1;
+  int num_threads = omp_get_max_threads();
+  std::vector<int> thread_labels(num_threads);
 
-#pragma omp parallel for schedule(static)
-  for (int y = 0; y < height_; ++y) {
-    for (int x = 0; x < width_; ++x) {
-      int index = y * width_ + x;
+  for (int i = 0; i < num_threads; ++i) {
+    thread_labels[i] = (i * (width_ * height_ / num_threads)) + 1;
+  }
 
-      if (input_[index] != 0) {
-        component_labels.labels[index] = 0;
-        continue;
-      }
+#pragma omp parallel
+  {
+    int thread_id = omp_get_thread_num();
+    int local_next_label = thread_labels[thread_id];
 
-      int left_label = (x > 0) ? component_labels.labels[index - 1] : 0;
-      int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
+#pragma omp for schedule(static)
+    for (int y = 0; y < height_; ++y) {
+      for (int x = 0; x < width_; ++x) {
+        int index = (y * width_) + x;
 
-      if (left_label == 0 && top_label == 0) {
-#pragma omp critical
-        {
-          component_labels.labels[index] = next_label;
-          parent_structure.parents[next_label] = next_label;
-          next_label++;
+        if (input_[index] != 0) {
+          component_labels.labels[index] = 0;
+          continue;
         }
-      } else if (left_label != 0 && top_label == 0) {
-        component_labels.labels[index] = left_label;
-      } else if (left_label == 0 && top_label != 0) {
-        component_labels.labels[index] = top_label;
-      } else {
-        int root_left = FindRoot(parent_structure, left_label);
-        int root_top = FindRoot(parent_structure, top_label);
-        int min_root = std::min(root_left, root_top);
-        component_labels.labels[index] = min_root;
 
-        if (root_left != root_top) {
+        int left_label = (x > 0) ? component_labels.labels[index - 1] : 0;
+        int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
+
+        if (left_label == 0 && top_label == 0) {
+          component_labels.labels[index] = local_next_label;
 #pragma omp critical
-          { UnionSets(parent_structure, root_left, root_top); }
+          {
+            parent_structure.parents[local_next_label] = local_next_label;
+          }
+          local_next_label++;
+        } else if (left_label != 0 && top_label == 0) {
+          component_labels.labels[index] = left_label;
+        } else if (left_label == 0 && top_label != 0) {
+          component_labels.labels[index] = top_label;
+        } else {
+          int root_left = FindRoot(parent_structure, left_label);
+          int root_top = FindRoot(parent_structure, top_label);
+          int min_root = std::min(root_left, root_top);
+          component_labels.labels[index] = min_root;
+
+          if (root_left != root_top) {
+#pragma omp critical
+            { UnionSets(parent_structure, root_left, root_top); }
+          }
         }
       }
     }
