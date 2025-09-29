@@ -11,23 +11,25 @@ void agafeev_s_matmul_fox_algo_omp::BlockMultiply(const std::vector<double> &mat
                                                   size_t n) {
   size_t block_h = std::min(block_size, n - (row * block_size));
   size_t block_w = std::min(block_size, n - (col * block_size));
+  size_t block_k = std::min(block_size, n - (block_index * block_size));
+
+  double *matr_res_ptr = &matr_res[((row * block_size) * n) + (col * block_size)];
+  const double *matr_a_ptr = &matr_a[((row * block_size) * n) + (block_index * block_size)];
+  const double *matr_b_ptr = &matr_b[((block_index * block_size) * n) + (col * block_size)];
+
   for (size_t ii = 0; ii < block_h; ii++) {
     for (size_t jj = 0; jj < block_w; jj++) {
       double sum = 0.0;
-      for (size_t kk = 0; kk < std::min(block_size, n - (block_index * block_size)); kk++) {
-        size_t row_a = (row * block_size) + ii;
-        size_t col_a = (block_index * block_size) + kk;
-        size_t row_b = (block_index * block_size) + kk;
-        size_t col_b = (col * block_size) + jj;
-        if (row_a < n && col_a < n && row_b < n && col_b < n) {
-          sum += matr_a[(row_a * n) + col_a] * matr_b[(row_b * n) + col_b];
-        }
+      const double *matr_a_row = matr_a_ptr + (ii * n);
+      const double *matr_b_col = matr_b_ptr + jj;
+      for (size_t kk = 0; kk < block_k - 1; kk += 2) {
+        sum += matr_a_row[kk] * matr_b_col[kk * n] + matr_a_row[kk + 1] * matr_b_col[(kk + 1) * n];
       }
-      size_t row_c = (row * block_size) + ii;
-      size_t col_c = (col * block_size) + jj;
-      if (row_c < n && col_c < n) {
-        matr_res[(row_c * n) + col_c] += sum;
+      if (block_k % 2 != 0) {
+        sum += matr_a_row[block_k - 1] * matr_b_col[(block_k - 1) * n];
       }
+
+      matr_res_ptr[(ii * n) + jj] += sum;
     }
   }
 }
@@ -54,7 +56,9 @@ bool agafeev_s_matmul_fox_algo_omp::MultiplMatrixOpenMP::ValidationImpl() {
 
 bool agafeev_s_matmul_fox_algo_omp::MultiplMatrixOpenMP::RunImpl() {
   size_t num_blocks = (size_ + block_size_ - 1) / block_size_;
+#pragma omp parallel
   for (size_t step = 0; step < num_blocks; step++) {
+#pragma omp for schedule(static) nowait
     for (size_t i = 0; i < num_blocks; i++) {
       size_t block_index = (i + step) % num_blocks;
       for (size_t j = 0; j < num_blocks; ++j) {
