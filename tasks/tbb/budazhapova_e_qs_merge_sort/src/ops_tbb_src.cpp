@@ -12,7 +12,7 @@
 
 namespace budazhapova_e_qs_merge_sort_tbb {
 namespace {
-
+//empty comment for clangggg
 const int kSequentialThreshold = 1000;
 const int kParallelMergeThreshold = 5000;
 
