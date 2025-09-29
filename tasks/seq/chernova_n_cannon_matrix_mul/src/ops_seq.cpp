@@ -5,113 +5,110 @@
 #include <cstddef>
 #include <vector>
 
-std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication(const std::vector<double>& mat_a,
-                                                                                 const std::vector<double>& mat_b,
-                                                                                 int n) {
-  if (n <= 0) {
-    return {};
+namespace {
+
+void InitialAlignment(const std::vector<double>& mat_a, const std::vector<double>& mat_b, std::vector<double>& a_temp,
+                      std::vector<double>& b_temp, int n, int p, int block_size) {
+  for (int i = 0; i < p; ++i) {
+    for (int j = 0; j < p; ++j) {
+      const int new_j_a = (j - i + p) % p;
+      const int new_i_b = (i - j + p) % p;
+
+      for (int ii = 0; ii < block_size; ++ii) {
+        for (int jj = 0; jj < block_size; ++jj) {
+          const int orig_idx = (((i * block_size) + ii) * n) + ((j * block_size) + jj);
+          const int new_idx_a = (((i * block_size) + ii) * n) + ((new_j_a * block_size) + jj);
+          const int new_idx_b = (((new_i_b * block_size) + ii) * n) + ((j * block_size) + jj);
+
+          a_temp[new_idx_a] = mat_a[orig_idx];
+          b_temp[new_idx_b] = mat_b[orig_idx];
+        }
+      }
+    }
   }
+}
 
-  if (mat_a.empty() || mat_b.empty()) {
-    return std::vector<double>(n * n, 0.0);
+void MultiplyBlocks(const std::vector<double>& a_temp, const std::vector<double>& b_temp, std::vector<double>& matrix_c,
+                    int n, int p, int block_size) {
+  for (int i = 0; i < p; ++i) {
+    for (int j = 0; j < p; ++j) {
+      for (int ii = 0; ii < block_size; ++ii) {
+        for (int jj = 0; jj < block_size; ++jj) {
+          for (int kk = 0; kk < block_size; ++kk) {
+            const int row_a = i * block_size + ii;
+            const int col_a = j * block_size + kk;
+            const int row_b = i * block_size + kk;
+            const int col_b = j * block_size + jj;
+            const int idx_c = (((i * block_size) + ii) * n) + ((j * block_size) + jj);
+
+            matrix_c[idx_c] += a_temp[(row_a * n) + col_a] * b_temp[(row_b * n) + col_b];
+          }
+        }
+      }
+    }
   }
+}
 
-  int p = static_cast<int>(std::sqrt(n));
-  if (p * p != n) {
-    p = 2;
-  }
+void ShiftBlocks(std::vector<double>& a_temp, std::vector<double>& b_temp, int n, int p, int block_size) {
+  std::vector<double> a_shifted(n * n);
+  std::vector<double> b_shifted(n * n);
 
-  int block_size = n / p;
-
-  std::vector<double> matrix_c(n * n, 0.0);
-
-  std::vector<double> a_temp = mat_a;
-  std::vector<double> b_temp = mat_b;
-  if (a_temp.empty() || b_temp.empty()) {
-    return std::vector<double>(n * n, 0.0);
+  for (int i = 0; i < p; ++i) {
+    for (int j = 0; j < p; ++j) {
+      const int new_j = (j - 1 + p) % p;
+      for (int ii = 0; ii < block_size; ++ii) {
+        for (int jj = 0; jj < block_size; ++jj) {
+          const int orig_idx = ((i * block_size) + ii) * n + ((j * block_size) + jj);
+          const int new_idx = ((i * block_size) + ii) * n + ((new_j * block_size) + jj);
+          a_shifted[new_idx] = a_temp[orig_idx];
+        }
+      }
+    }
   }
 
   for (int i = 0; i < p; ++i) {
     for (int j = 0; j < p; ++j) {
-      int new_j_a = (j - i + p) % p;
-      int new_i_b = (i - j + p) % p;
-
+      const int new_i = (i - 1 + p) % p;
       for (int ii = 0; ii < block_size; ++ii) {
         for (int jj = 0; jj < block_size; ++jj) {
-          int orig_row = i * block_size + ii;
-          int orig_col = j * block_size + jj;
-          int new_row_a = i * block_size + ii;
-          int new_col_a = new_j_a * block_size + jj;
-          int new_row_b = new_i_b * block_size + ii;
-          int new_col_b = j * block_size + jj;
-
-          a_temp[(new_row_a * n) + new_col_a] = mat_a[(orig_row * n) + orig_col];
-          b_temp[(new_row_b * n) + new_col_b] = mat_b[(orig_row * n) + orig_col];
+          const int orig_idx = ((i * block_size) + ii) * n + ((j * block_size) + jj);
+          const int new_idx = ((new_i * block_size) + ii) * n + ((j * block_size) + jj);
+          b_shifted[new_idx] = b_temp[orig_idx];
         }
       }
     }
   }
 
-  for (int step = 0; step < p; ++step) {
-    for (int i = 0; i < p; ++i) {
-      for (int j = 0; j < p; ++j) {
-        for (int ii = 0; ii < block_size; ++ii) {
-          for (int jj = 0; jj < block_size; ++jj) {
-            for (int kk = 0; kk < block_size; ++kk) {
-              int row_a = i * block_size + ii;
-              int col_a = j * block_size + kk;
-              int row_b = i * block_size + kk;
-              int col_b = j * block_size + jj;
-              int row_c = i * block_size + ii;
-              int col_c = j * block_size + jj;
+  a_temp = std::move(a_shifted);
+  b_temp = std::move(b_shifted);
+}
 
-              matrix_c[(row_c * n) + col_c] += a_temp[(row_a * n) + col_a] * b_temp[(row_b * n) + col_b];
-            }
-          }
-        }
-      }
-    }
+}  // namespace
+
+std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication(const std::vector<double>& mat_a,
+                                                                                 const std::vector<double>& mat_b,
+                                                                                 int n) {
+  if (n <= 0) return {};
+  if (mat_a.empty() || mat_b.empty()) return std::vector<double>(n * n, 0.0);
+
+  int p = static_cast<int>(std::sqrt(n));
+  if (p * p != n) p = 2;
+  const int block_size = n / p;
+
+  std::vector<double> matrix_c(n * n, 0.0);
+  std::vector<double> a_temp(n * n);
+  std::vector<double> b_temp(n * n);
+
+  if (a_temp.empty() || b_temp.empty()) return std::vector<double>(n * n, 0.0);
+
+  InitialAlignment(mat_a, mat_b, a_temp, b_temp, n, p, block_size);
+
+  for (int step = 0; step < p; ++step) {
+    MultiplyBlocks(a_temp, b_temp, matrix_c, n, p, block_size);
 
     if (step < p - 1) {
-      std::vector<double> a_shifted = a_temp;
-      std::vector<double> b_shifted = b_temp;
-
-      for (int i = 0; i < p; ++i) {
-        for (int j = 0; j < p; ++j) {
-          int new_j = (j - 1 + p) % p;
-          for (int ii = 0; ii < block_size; ++ii) {
-            for (int jj = 0; jj < block_size; ++jj) {
-              int orig_row = i * block_size + ii;
-              int orig_col = j * block_size + jj;
-              int new_row = i * block_size + ii;
-              int new_col = new_j * block_size + jj;
-
-              a_shifted[(new_row * n) + new_col] = a_temp[(orig_row * n) + orig_col];
-            }
-          }
-        }
-      }
-
-      for (int i = 0; i < p; ++i) {
-        for (int j = 0; j < p; ++j) {
-          int new_i = (i - 1 + p) % p;
-          for (int ii = 0; ii < block_size; ++ii) {
-            for (int jj = 0; jj < block_size; ++jj) {
-              int orig_row = i * block_size + ii;
-              int orig_col = j * block_size + jj;
-              int new_row = new_i * block_size + ii;
-              int new_col = j * block_size + jj;
-
-              b_shifted[(new_row * n) + new_col] = b_temp[(orig_row * n) + orig_col];
-            }
-          }
-        }
-      }
-      if (a_temp.empty() || b_temp.empty() || a_shifted.empty() || b_shifted.empty()) {
-        return std::vector<double>(n * n, 0.0);
-      }
-      a_temp = a_shifted;
-      b_temp = b_shifted;
+      ShiftBlocks(a_temp, b_temp, n, p, block_size);
+      if (a_temp.empty() || b_temp.empty()) return std::vector<double>(n * n, 0.0);
     }
   }
 
