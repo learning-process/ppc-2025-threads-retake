@@ -44,7 +44,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, test_pipeline_run) {
   // Create data
   std::vector<double> in_matrix1 = CreateRandomMatrix(n * n);
   std::vector<double> in_matrix2 = CreateRandomMatrix(n * n);
-  std::vector<double> out(rows * columns, 0.0);
+  std::vector<double> out(n * n, 0.0);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -82,7 +82,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, test_task_run) {
   // Create data
   std::vector<double> in_matrix1 = CreateRandomMatrix(n * n);
   std::vector<double> in_matrix2 = CreateRandomMatrix(n * n);
-  std::vector<double> out(rows * columns, 0.0);
+  std::vector<double> out(n * n, 0.0);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();

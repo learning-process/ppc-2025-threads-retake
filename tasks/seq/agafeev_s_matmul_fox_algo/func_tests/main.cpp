@@ -43,7 +43,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, matmul_9x9) {
   // Create data
   std::vector<double> in_matrix1 = CreateRandomMatrix(n * n);
   std::vector<double> in_matrix2 = CreateRandomMatrix(n * n);
-  std::vector<double> out(rows * columns, 0.0);
+  std::vector<double> out(n * n, 0.0);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -61,7 +61,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, matmul_9x9) {
   test_task.PreProcessingImpl();
   test_task.RunImpl();
   test_task.PostProcessingImpl();
-  auto right_answer = MatrixMultiply(in_matrix1, in_matrix2, rows);
+  auto right_answer = MatrixMultiply(in_matrix1, in_matrix2, n);
 
   for (size_t i = 0; i < out.size(); i++) {
     ASSERT_FLOAT_EQ(right_answer[i], out[i]);
@@ -74,7 +74,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, matmul_3x3) {
   // Create data
   std::vector<double> in_matrix1 = CreateRandomMatrix(n * n);
   std::vector<double> in_matrix2 = CreateRandomMatrix(n * n);
-  std::vector<double> out(rows * columns, 0.0);
+  std::vector<double> out(n * n, 0.0);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -92,7 +92,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, matmul_3x3) {
   test_task.PreProcessingImpl();
   test_task.RunImpl();
   test_task.PostProcessingImpl();
-  auto right_answer = MatrixMultiply(in_matrix1, in_matrix2, rows);
+  auto right_answer = MatrixMultiply(in_matrix1, in_matrix2, n);
 
   for (size_t i = 0; i < out.size(); i++) {
     ASSERT_FLOAT_EQ(right_answer[i], out[i]);
@@ -105,7 +105,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, matmul_16x16) {
   // Create data
   std::vector<double> in_matrix1 = CreateRandomMatrix(n * n);
   std::vector<double> in_matrix2 = CreateRandomMatrix(n * n);
-  std::vector<double> out(rows * columns, 0.0);
+  std::vector<double> out(n * n, 0.0);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -123,7 +123,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, matmul_16x16) {
   test_task.PreProcessingImpl();
   test_task.RunImpl();
   test_task.PostProcessingImpl();
-  auto right_answer = MatrixMultiply(in_matrix1, in_matrix2, rows);
+  auto right_answer = MatrixMultiply(in_matrix1, in_matrix2, n);
 
   for (size_t i = 0; i < out.size(); i++) {
     ASSERT_FLOAT_EQ(right_answer[i], out[i]);
@@ -136,7 +136,7 @@ TEST(agafeev_s_matmul_fox_algo_seq, wrong_input) {
   // Create data
   std::vector<double> in_matrix1 = CreateRandomMatrix(n * n);
   std::vector<double> in_matrix2 = CreateRandomMatrix(n * n);
-  std::vector<double> out(rows * columns, 0.0);
+  std::vector<double> out(n * n, 0.0);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
