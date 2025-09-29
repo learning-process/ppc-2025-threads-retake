@@ -6,9 +6,11 @@
 #include <vector>
 
 void agafeev_s_matmul_fox_algo_seq::BlockMultiply(const std::vector<double> &matr_a, const std::vector<double> &matr_b,
-                                                  std::vector<double> &matr_res, unsigned long row_block,
-                                                  unsigned long col_block, int block_index, size_t block_size,
-                                                  size_t n) {
+                                                  std::vector<double> &matr_res,
+                                                  unsigned long row_block,  // i
+                                                  unsigned long col_block,  // j
+                                                  size_t block_index,       // block_index
+                                                  size_t block_size, size_t n) {
   size_t block_h = std::min(block_size, n - (row_block * block_size));
   size_t block_w = std::min(block_size, n - (col_block * block_size));
   for (size_t ii = 0; ii < block_h; ii++) {
