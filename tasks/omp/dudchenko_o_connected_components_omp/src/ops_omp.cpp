@@ -55,13 +55,13 @@ bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PostProcessingImpl() 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::LabelComponents() {
   size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   output_.resize(total_pixels, 0);
-  
+
   int num_threads = omp_get_max_threads();
   std::vector<std::vector<int>> local_labels(num_threads, std::vector<int>(total_pixels, 0));
   std::vector<ParentStructure> local_parents(num_threads);
-  
+
   InitializeLocalParents(local_parents, total_pixels);
-  
+
   std::vector<BlockRange> blocks(num_threads);
   CalculateBlockBoundaries(blocks, num_threads, height_);  // Передаем height_ как параметр
 
@@ -76,8 +76,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::InitializeLocalParent
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::CalculateBlockBoundaries(
-    std::vector<BlockRange>& blocks, int num_threads, int height) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::CalculateBlockBoundaries(std::vector<BlockRange>& blocks,
+                                                                                    int num_threads, int height) {
   for (int i = 0; i < num_threads; ++i) {
     int block_height = height / num_threads;
     blocks[i].start_y = i * block_height;
@@ -306,7 +306,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ApplyLabelMap(const s
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStructure& parent, int x, int y) {
   int root_x = FindRoot(parent, x);
   int root_y = FindRoot(parent, y);
-  
+
   if (root_x != root_y) {
     if (root_x < root_y) {
       parent.parents[root_y] = root_x;
