@@ -71,7 +71,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::LabelComponents() {
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, int y, int& local_next_label,
                                                                         ComponentLabels& component_labels,
                                                                         ParentStructure& parent_structure) {
-  int index = y * width_ + x;
+  int index = (y * width_) + x;
 
   if (input_[index] != 0) {
     component_labels.labels[index] = 0;
@@ -82,7 +82,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
   int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
 
   if (left_label == 0 && top_label == 0) {
-    int new_label;
+    int new_label = 0;
 #pragma omp critical
     {
       new_label = parent_structure.parents[0]++;
@@ -93,25 +93,27 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
     }
     component_labels.labels[index] = new_label;
     return;
-  } else if (left_label != 0 && top_label == 0) {
+  } 
+  if (left_label != 0 && top_label == 0) {
     component_labels.labels[index] = left_label;
     return;
-  } else if (left_label == 0 && top_label != 0) {
+  } 
+  if (left_label == 0 && top_label != 0) {
     component_labels.labels[index] = top_label;
     return;
-  } else {
-    int root_left = FindRoot(parent_structure, left_label);
-    int root_top = FindRoot(parent_structure, top_label);
-    int min_root = std::min(root_left, root_top);
-    component_labels.labels[index] = min_root;
+  }
+  int root_left = FindRoot(parent_structure, left_label);
+  int root_top = FindRoot(parent_structure, top_label);
+  int min_root = std::min(root_left, root_top);
+  component_labels.labels[index] = min_root;
 
-    if (root_left != root_top) {
+  if (root_left != root_top) {
 #pragma omp critical
       { UnionSets(parent_structure, root_left, root_top); }
-    }
-    return;
   }
+  return;
 }
+
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLabels& component_labels,
                                                                      ParentStructure& parent_structure) {
@@ -142,15 +144,17 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
 
   for (int block = 1; block < num_blocks; ++block) {
     int boundary_y = block * block_height;
-    if (boundary_y >= height_) continue;
+    if (boundary_y >= height_) {
+      continue;
+    }
 
     for (int x = 0; x < width_; ++x) {
-      int top_index = (boundary_y - 1) * width_ + x;
-      int current_index = boundary_y * width_ + x;
+      int top_index = ((boundary_y - 1) * width_) + x;
+      int current_index = (boundary_y * width_) + x;
 
       if (component_labels.labels[top_index] != 0 && component_labels.labels[current_index] != 0) {
-        int root_top;
-        int root_current;
+        int root_top = 0;
+        int root_current = 0;
         root_top = FindRoot(parent_structure, component_labels.labels[top_index]);
         root_current = FindRoot(parent_structure, component_labels.labels[current_index]);
 
@@ -163,7 +167,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentLabels& component_labels,
+static void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentLabels& component_labels,
                                                                       ParentStructure& parent_structure) {
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(component_labels.labels.size()); ++i) {
@@ -181,7 +185,9 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
   int root = x;
   while (parent.parents[root] != root) {
     root = parent.parents[root];
-    if (root <= 0) break;
+    if (root <= 0) {
+      break;
+    }
   }
 
   int temp = x;
@@ -194,7 +200,7 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
   return root;
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStructure& parent, int x, int y) {
+static void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStructure& parent, int x, int y) {
   int root_x = FindRoot(parent, x);
   int root_y = FindRoot(parent, y);
 
