@@ -63,7 +63,7 @@ TEST(ersoz_b_hoare_sort_simple_merge_omp, test_pipeline_run) {
 }
 
 TEST(ersoz_b_hoare_sort_simple_merge_omp, test_task_run) {
-  const size_t n = 5git ls - tree upstream / master 3rdparty / onetbb git ls - tree HEAD 3rdparty / onetbb000000;
+  const size_t n = 5000000;
   std::vector<int> in(n);
   std::mt19937 gen(4242);
   std::uniform_int_distribution<int> dist(-1000000, 1000000);
