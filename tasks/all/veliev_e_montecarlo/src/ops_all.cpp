@@ -22,7 +22,7 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::PreProcessingImpl() {
     Int2_[0] = in2[0];
     Int2_[1] = in2[1];
 
-    std:memcpy(&N_, task_data->inputs[2], sizeof(N_));
+    std::memcpy(&N_, task_data->inputs[2], sizeof(N_));
     res_ = 0.0;
   }
   return true;
