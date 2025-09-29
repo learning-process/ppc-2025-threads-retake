@@ -32,7 +32,7 @@ bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::RunImpl() {
     return true;
   }
 #pragma omp parallel for
-  for (size_t i = 0; i < x_; i++) {
+  for (int i = 0; i < static_cast<int>(x_); i++) {
     for (size_t j = 0; j < y_; j++) {
       double sum = 0.0;
       for (int k = -1; k <= 1; k++) {
@@ -42,10 +42,10 @@ bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::RunImpl() {
         } else if (idx >= static_cast<int>(y_)) {
           idx = static_cast<int>(y_) - 1;
         }
-        sum += input_[(i * y_) + static_cast<size_t>(idx)] * kernel[k + 1];
+        sum += input_[(static_cast<size_t>(i) * y_) + static_cast<size_t>(idx)] * kernel[k + 1];
       }
       sum /= (sqrt(2.0 * pi) * 0.5);
-      output_[(i * y_) + j] = static_cast<int>(std::round(sum));
+      output_[(static_cast<size_t>(i) * y_) + j] = static_cast<int>(std::round(sum));
     }
   }
   return true;
