@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iterator>
 #include <vector>
 
 #include "tbb/budazhapova_e_qs_merge_sort/include/ops_tbb.hpp"
