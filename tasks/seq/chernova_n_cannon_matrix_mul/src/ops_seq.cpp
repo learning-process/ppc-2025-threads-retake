@@ -110,7 +110,7 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
     p = 2;
   }
   const int block_size = n / p;
-  MatrixParams params{n, p, block_size};
+  MatrixParams params{.matrix_size = n, .param = p, .block_size = block_size};
   std::vector<double> matrix_c(n * n, 0.0);
   std::vector<double> a_temp(n * n);
   std::vector<double> b_temp(n * n);
@@ -121,10 +121,10 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
 
   InitialAlignment(mat_a, mat_b, a_temp, b_temp, params);
 
-  for (int step = 0; step < p; ++step) {
+  for (int step = 0; step < params.param; ++step) {
     MultiplyBlocks(a_temp, b_temp, matrix_c, params);
 
-    if (step < p - 1) {
+    if (step < params.param - 1) {
       ShiftBlocks(a_temp, b_temp, params);
       if (a_temp.empty() || b_temp.empty()) {
         return std::vector<double>(n * n, 0.0);
