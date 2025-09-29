@@ -42,8 +42,8 @@ bool agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental::PreProcessingImpl() 
 }
 
 bool agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental::ValidationImpl() {
-  return (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1] &&
-          task_data->inputs_count[0] * task_data->inputs_count[1] % task_data->inputs_count[4] == 0);
+  return (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[0] &&
+          task_data->inputs_count[0] * task_data->inputs_count[0] % task_data->inputs_count[1] == 0);
 }
 
 bool agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental::RunImpl() {
