@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
@@ -8,25 +9,30 @@
 #include "core/task/include/task.hpp"
 #include "tbb/vragov_i_gaussian_filter_vertical/include/filter.hpp"
 
-// Helper to create a simple vertical test image
+namespace {
 template <typename T>
-std::vector<T> make_vertical_gradient(int x, int y) {
+std::vector<T> MakeVerticalGradient(int x, int y) {
   std::vector<T> img(x * y);
-  for (int i = 0; i < x; ++i)
-    for (int j = 0; j < y; ++j) img[i * y + j] = j * 10;
+  for (int i = 0; i < x; ++i) {
+    for (int j = 0; j < y; ++j) {
+      img[(i * y) + j] = j * 10;
+    }
+  }
   return img;
 }
+}  // namespace
 
-TEST(vragov_i_gaussian_filter_vertical_tbb, identity_on_constant_image) {
-  constexpr int x = 5, y = 5;
-  std::vector<int> in(x * y, 42);
-  std::vector<int> out(x * y, 0);
+TEST(vragov_i_gaussian_filter_vertical_tbb, IdentityOnConstantImage) {
+  constexpr int kX = 5;
+  constexpr int kY = 5;
+  std::vector<int> in(kX * kY, 42);
+  std::vector<int> out(kX * kY, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs_count.emplace_back(x);
-  task_data->inputs_count.emplace_back(y);
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
@@ -41,16 +47,17 @@ TEST(vragov_i_gaussian_filter_vertical_tbb, identity_on_constant_image) {
   }
 }
 
-TEST(vragov_i_gaussian_filter_vertical_tbb, vertical_gradient_blur) {
-  constexpr int x = 3, y = 7;
-  auto in = make_vertical_gradient<int>(x, y);
-  std::vector<int> out(x * y, 0);
+TEST(vragov_i_gaussian_filter_vertical_tbb, VerticalGradientBlur) {
+  constexpr int kX = 3;
+  constexpr int kY = 7;
+  auto in = MakeVerticalGradient<int>(kX, kY);
+  std::vector<int> out(kX * kY, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs_count.emplace_back(x);
-  task_data->inputs_count.emplace_back(y);
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
@@ -60,10 +67,9 @@ TEST(vragov_i_gaussian_filter_vertical_tbb, vertical_gradient_blur) {
   task.Run();
   task.PostProcessing();
 
-  // Check that the output is blurred vertically (middle pixel is average of neighbors)
-  for (int i = 0; i < x; ++i) {
-    for (int j = 1; j < y - 1; ++j) {
-      int idx = i * y + j;
+  for (int i = 0; i < kX; ++i) {
+    for (int j = 1; j < kY - 1; ++j) {
+      int idx = (i * kY) + j;
       int expected = static_cast<int>(std::round((in[idx - 1] * 0.015 + in[idx] * 0.8 + in[idx + 1] * 0.015) /
                                                  (std::sqrt(2.0 * std::acos(-1.0)) * 0.5)));
       EXPECT_NEAR(out[idx], expected, 2);
@@ -71,7 +77,7 @@ TEST(vragov_i_gaussian_filter_vertical_tbb, vertical_gradient_blur) {
   }
 }
 
-TEST(vragov_i_gaussian_filter_vertical_tbb, handles_empty_image) {
+TEST(vragov_i_gaussian_filter_vertical_tbb, HandlesEmptyImage) {
   std::vector<int> in;
   std::vector<int> out;
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -90,17 +96,17 @@ TEST(vragov_i_gaussian_filter_vertical_tbb, handles_empty_image) {
   EXPECT_TRUE(out.empty());
 }
 
-TEST(vragov_i_gaussian_filter_vertical_tbb, invalid_dimensions_fail_validation) {
-  constexpr int x = 4, y = 5;
-  // Only 10 elements, but x*y = 20
-  std::vector<int> in(10, 1);
-  std::vector<int> out(x * y, 0);
+TEST(vragov_i_gaussian_filter_vertical_tbb, InvalidDimensionsFailValidation) {
+  constexpr int kX = 4;
+  constexpr int kY = 5;
+  std::vector<int> in(10, 1);  // Only 10 elements, but kX*kY = 20
+  std::vector<int> out(kX * kY, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs_count.emplace_back(x);
-  task_data->inputs_count.emplace_back(y);
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
@@ -108,16 +114,17 @@ TEST(vragov_i_gaussian_filter_vertical_tbb, invalid_dimensions_fail_validation) 
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(vragov_i_gaussian_filter_vertical_tbb, single_element_image) {
-  constexpr int x = 1, y = 1;
+TEST(vragov_i_gaussian_filter_vertical_tbb, SingleElementImage) {
+  constexpr int kX = 1;
+  constexpr int kY = 1;
   std::vector<int> in = {123};
   std::vector<int> out(1, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs_count.emplace_back(x);
-  task_data->inputs_count.emplace_back(y);
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
@@ -129,21 +136,23 @@ TEST(vragov_i_gaussian_filter_vertical_tbb, single_element_image) {
   EXPECT_NEAR(out[0], 79, 2);
 }
 
-TEST(vragov_i_gaussian_filter_vertical_tbb, random_image_blur_average) {
-  constexpr int x = 20, y = 20;
-  std::vector<int> in(x * y);
-  std::vector<int> out(x * y, 0);
+TEST(vragov_i_gaussian_filter_vertical_tbb, RandomImageBlurAverage) {
+  constexpr int kX = 20;
+  constexpr int kY = 20;
+  std::vector<int> in(kX * kY);
+  std::vector<int> out(kX * kY, 0);
 
-  // Fill with random values in [0, 255]
   std::mt19937 gen(42);
   std::uniform_int_distribution<int> dist(0, 255);
-  for (auto& v : in) v = dist(gen);
+  for (auto& v : in) {
+    v = dist(gen);
+  }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs_count.emplace_back(x);
-  task_data->inputs_count.emplace_back(y);
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
@@ -153,13 +162,16 @@ TEST(vragov_i_gaussian_filter_vertical_tbb, random_image_blur_average) {
   task.Run();
   task.PostProcessing();
 
-  // Ctbbute average of input and output
-  double avg_in = 0.0, avg_out = 0.0;
-  for (int v : in) avg_in += v;
-  for (int v : out) avg_out += v;
-  avg_in /= in.size();
-  avg_out /= out.size();
+  double avg_in = 0.0;
+  double avg_out = 0.0;
+  for (int v : in) {
+    avg_in += static_cast<double>(v);
+  }
+  for (int v : out) {
+    avg_out += static_cast<double>(v);
+  }
+  avg_in /= static_cast<double>(in.size());
+  avg_out /= static_cast<double>(out.size());
 
-  // Output average should be about 0.64 of input average (+-0.05 margin)
   EXPECT_NEAR(avg_out, avg_in * 0.64, avg_in * 0.05);
 }
