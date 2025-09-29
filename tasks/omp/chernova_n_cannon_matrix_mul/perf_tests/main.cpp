@@ -10,7 +10,10 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/chernova_n_cannon_matrix_mul/include/ops_omp.hpp"
-bool compareMatrices(const std::vector<double> &matrix1, const std::vector<double> &matrix2, double tolerance = 1e-4) {
+
+namespace {
+bool compareMatricesOMP(const std::vector<double> &matrix1, const std::vector<double> &matrix2,
+                        double tolerance = 1e-4) {
   if (matrix1.size() != matrix2.size()) {
     return false;
   }
@@ -23,7 +26,7 @@ bool compareMatrices(const std::vector<double> &matrix1, const std::vector<doubl
 
   return true;
 }
-std::vector<double> GetRandomMatrix(int n) {
+std::vector<double> GetRandomMatrixOMP(int n) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_real_distribution<double> dis(-100.0, 100.0);
@@ -38,11 +41,13 @@ std::vector<double> GetRandomMatrix(int n) {
 
   return matrix;
 }
+}  // namespace
+
 TEST(chernova_n_cannon_matrix_mul_omp, test_pipeline_run) {
   int n = 1000;
 
-  std::vector<double> in_mtrx_a = GetRandomMatrix(n);
-  std::vector<double> in_mtrx_b = GetRandomMatrix(n);
+  std::vector<double> in_mtrx_a = GetRandomMatrixOMP(n);
+  std::vector<double> in_mtrx_b = GetRandomMatrixOMP(n);
   std::vector<double> out(n * n);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -74,14 +79,14 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(compareMatricesOMP(res, out, 1e-4));
 }
 
 TEST(chernova_n_cannon_matrix_mul_omp, test_task_run) {
   int n = 1000;
 
-  std::vector<double> in_mtrx_a = GetRandomMatrix(n);
-  std::vector<double> in_mtrx_b = GetRandomMatrix(n);
+  std::vector<double> in_mtrx_a = GetRandomMatrixOMP(n);
+  std::vector<double> in_mtrx_b = GetRandomMatrixOMP(n);
   std::vector<double> out(n * n);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -112,5 +117,5 @@ TEST(chernova_n_cannon_matrix_mul_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(compareMatricesOMP(res, out, 1e-4));
 }
