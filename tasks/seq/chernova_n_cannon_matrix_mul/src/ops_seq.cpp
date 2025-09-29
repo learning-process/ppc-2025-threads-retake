@@ -26,6 +26,9 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
 
   std::vector<double> a_temp = a;
   std::vector<double> b_temp = b;
+  if (a_temp.empty() || b_temp.empty()) {
+    return std::vector<double>(n * n, 0.0);
+  }
 
   for (int i = 0; i < p; ++i) {
     for (int j = 0; j < p; ++j) {
