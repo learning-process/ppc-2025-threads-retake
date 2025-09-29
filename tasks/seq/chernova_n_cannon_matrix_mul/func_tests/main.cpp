@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
@@ -9,11 +10,11 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
+// #include "core/util/include/util.hpp"
 #include "seq/chernova_n_cannon_matrix_mul/include/ops_seq.hpp"
 namespace {
 
-bool compareMatrices(const std::vector<double> &matrix1, const std::vector<double> &matrix2, double tolerance = 1e-4) {
+bool MatricesComp(const std::vector<double> &matrix1, const std::vector<double> &matrix2, double tolerance = 1e-4) {
   if (matrix1.size() != matrix2.size()) {
     return false;
   }
@@ -69,7 +70,7 @@ TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_2) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
 
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(MatricesComp(res, out, 1e-4));
 }
 
 TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_4) {
@@ -98,7 +99,7 @@ TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_4) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
 
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(MatricesComp(res, out, 1e-4));
 }
 
 TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_8) {
@@ -126,7 +127,7 @@ TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_8) {
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(MatricesComp(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_100) {
   int n = 100;
@@ -154,7 +155,7 @@ TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_100) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
 
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(MatricesComp(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_1000) {
   int n = 1000;
@@ -182,7 +183,7 @@ TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_1000) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
 
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(MatricesComp(res, out, 1e-4));
 }
 TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_1600) {
   int n = 1600;
@@ -210,5 +211,5 @@ TEST(chernova_n_cannon_matrix_mul_seq, test_matmul_1600) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
 
-  ASSERT_TRUE(compareMatrices(res, out, 1e-4));
+  ASSERT_TRUE(MatricesComp(res, out, 1e-4));
 }

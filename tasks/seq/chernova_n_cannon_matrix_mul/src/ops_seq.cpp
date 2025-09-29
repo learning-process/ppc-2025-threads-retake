@@ -5,8 +5,9 @@
 #include <cstddef>
 #include <vector>
 
-std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication(const std::vector<double>& a,
-                                                                                 const std::vector<double>& b, int n) {
+std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication(const std::vector<double>& mat_a,
+                                                                                 const std::vector<double>& mat_b,
+                                                                                 int n) {
   if (n <= 0) {
     return {};
   }
@@ -22,10 +23,10 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
 
   int block_size = n / p;
 
-  std::vector<double> matrixC(n * n, 0.0);
+  std::vector<double> matrix_c(n * n, 0.0);
 
-  std::vector<double> a_temp = a;
-  std::vector<double> b_temp = b;
+  std::vector<double> a_temp = mat_a;
+  std::vector<double> b_temp = mat_b;
   if (a_temp.empty() || b_temp.empty()) {
     return std::vector<double>(n * n, 0.0);
   }
@@ -44,8 +45,8 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
           int new_row_b = new_i_b * block_size + ii;
           int new_col_b = j * block_size + jj;
 
-          a_temp[new_row_a * n + new_col_a] = a[orig_row * n + orig_col];
-          b_temp[new_row_b * n + new_col_b] = b[orig_row * n + orig_col];
+          a_temp[(new_row_a * n) + new_col_a] = mat_a[(orig_row * n) + orig_col];
+          b_temp[(new_row_b * n) + new_col_b] = mat_b[(orig_row * n) + orig_col];
         }
       }
     }
@@ -64,7 +65,7 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
               int row_c = i * block_size + ii;
               int col_c = j * block_size + jj;
 
-              matrixC[row_c * n + col_c] += a_temp[row_a * n + col_a] * b_temp[row_b * n + col_b];
+              matrix_c[(row_c * n) + col_c] += a_temp[(row_a * n) + col_a] * b_temp[(row_b * n) + col_b];
             }
           }
         }
@@ -85,7 +86,7 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
               int new_row = i * block_size + ii;
               int new_col = new_j * block_size + jj;
 
-              a_shifted[new_row * n + new_col] = a_temp[orig_row * n + orig_col];
+              a_shifted[(new_row * n) + new_col] = a_temp[(orig_row * n) + orig_col];
             }
           }
         }
@@ -101,7 +102,7 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
               int new_row = new_i * block_size + ii;
               int new_col = j * block_size + jj;
 
-              b_shifted[new_row * n + new_col] = b_temp[orig_row * n + orig_col];
+              b_shifted[(new_row * n) + new_col] = b_temp[(orig_row * n) + orig_col];
             }
           }
         }
@@ -114,12 +115,15 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
     }
   }
 
-  return matrixC;
+  return matrix_c;
 }
 
 bool chernova_n_cannon_matrix_mul_seq::TestTaskSequential::PreProcessingImpl() {
-  matrixA = std::vector<double>(task_data->inputs_count[0]);
-  matrixB = std::vector<double>(task_data->inputs_count[1]);
+  if (task_data->inputs[0] == nullptr || task_data->inputs[1] == nullptr || task_data->inputs[2] == nullptr) {
+    return false;
+  }
+  matrixA_ = std::vector<double>(task_data->inputs_count[0]);
+  matrixB_ = std::vector<double>(task_data->inputs_count[1]);
   n_ = *reinterpret_cast<int*>(task_data->inputs[2]);
 
   auto* tmp_ptr_a = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -150,18 +154,18 @@ bool chernova_n_cannon_matrix_mul_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool chernova_n_cannon_matrix_mul_seq::TestTaskSequential::RunImpl() {
-  res = CannonMatrixMultiplication(matrixA, matrixB, n_);
+  res_ = CannonMatrixMultiplication(matrixA_, matrixB_, n_);
   return true;
 }
 
 bool chernova_n_cannon_matrix_mul_seq::TestTaskSequential::PostProcessingImpl() {
-  std::ranges::copy(res.begin(), res.end(), reinterpret_cast<double*>(task_data->outputs[0]));
+  std::ranges::copy(res_, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
 }
 
-std::vector<double> chernova_n_cannon_matrix_mul_seq::MultiplyMatrix(const std::vector<double>& a,
-                                                                     const std::vector<double>& b, int n) {
-  std::vector<double> matrixC(n * n, 0.0);
+std::vector<double> chernova_n_cannon_matrix_mul_seq::MultiplyMatrix(const std::vector<double>& mat_a,
+                                                                     const std::vector<double>& mat_b, int n) {
+  std::vector<double> matrix_c(n * n, 0.0);
 
   if (n == 0) {
     return {};
@@ -170,9 +174,9 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::MultiplyMatrix(const std::
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
       for (int k = 0; k < n; ++k) {
-        matrixC[(i * n) + j] += a[(i * n) + k] * b[(k * n) + j];
+        matrix_c[(i * n) + j] += mat_a[(i * n) + k] * mat_b[(k * n) + j];
       }
     }
   }
-  return matrixC;
+  return matrix_c;
 }
