@@ -32,12 +32,13 @@ class TestTaskOpenMP : public ppc::core::Task {
 
   void LabelComponents();
   void FirstPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
-  void ResolveBlockBoundaries(ComponentLabels& component_labels, ParentStructure& parent_structure, int block_height);
+  void ResolveBlockBoundaries(ComponentLabels& component_labels, ParentStructure& parent_structure,
+                            int block_height) const;
   void ProcessPixel(int x, int y, int& local_next_label, ComponentLabels& component_labels,
                     ParentStructure& parent_structure);
   static int FindRoot(ParentStructure& parent, int x);
   static void UnionSets(ParentStructure& parent, int x, int y);
-  void SecondPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
+  static void SecondPass(ComponentLabels& component_labels, ParentStructure& parent_structure);
 };
 
 }  // namespace dudchenko_o_connected_components_omp
