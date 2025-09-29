@@ -2,11 +2,10 @@
 
 #include <cmath>
 #include <exception>
+#include <functional>
 #include <iostream>
-#include <thread>
 #include <vector>
 
-#include "oneapi/tbb.h"
 #include "oneapi/tbb/parallel_reduce.h"
 
 using namespace std::chrono_literals;
@@ -38,7 +37,7 @@ bool veliev_e_monte_carlo_tbb::VelievEMonteCarloTbb::RunImpl() {
           for (int j = r.begin(); j < r.end(); ++j) {
             double y = Int2_[0] + (h2 * j);
             for (int i = 0; i < N_; ++i) {
-              total += function_(Int1_[0] + h1 * i, y);
+              total += function_(Int1_[0] + (h1 * i), y);
             }
           }
           return total;
