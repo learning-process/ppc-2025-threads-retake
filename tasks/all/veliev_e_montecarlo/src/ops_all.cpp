@@ -1,10 +1,13 @@
 #include "all/veliev_e_montecarlo/include/ops_all.hpp"
 
+#include <algorithm>
+#include <boost/mpi/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <cstring>
 #include <exception>
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -14,8 +17,8 @@ void veliev_e_monte_carlo_all::VelievEMonteCarloAll::SetFunc(const veliev_func_a
 
 bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::PreProcessingImpl() {
   if (world_.rank() == 0) {
-    double *in1 = reinterpret_cast<double *>(task_data->inputs[0]);
-    double *in2 = reinterpret_cast<double *>(task_data->inputs[1]);
+    auto *in1 = reinterpret_cast<double *>(task_data->inputs[0]);
+    auto *in2 = reinterpret_cast<double *>(task_data->inputs[1]);
 
     Int1_[0] = in1[0];
     Int1_[1] = in1[1];
@@ -52,16 +55,16 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::RunImpl() {
     const double x1 = buf[1];
     const double y0 = buf[2];
     const double y1 = buf[3];
-    const int N = N_;
+    const int n = N_;
 
-    const double h1 = (x1 - x0) / N;
-    const double h2 = (y1 - y0) / N;
+    const double h1 = (x1 - x0) / n;
+    const double h2 = (y1 - y0) / n;
 
     int size = world_.size();
     int rank = world_.rank();
-    int base = N / size;
-    int rem = N % size;
-    int j_start = rank * base + std::min(rank, rem);
+    int base = n / size;
+    int rem = n % size;
+    int j_start = (rank * base) + std::min(rank, rem);
     int j_count = base + (rank < rem ? 1 : 0);
     int j_end = j_start + j_count;
 
@@ -82,7 +85,7 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::RunImpl() {
         double x = x0;
         int i = 0;
 
-        int limit = N - (N % 4);
+        int limit = n - (n % 4);
         for (; i < limit; i += 4) {
           if ((i & (recompute_period - 1)) == 0) {
             x = x0 + (h1 * i);
@@ -97,7 +100,7 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::RunImpl() {
           x += h1;
         }
 
-        for (; i < N; ++i) {
+        for (; i < n; ++i) {
           if ((i & (recompute_period - 1)) == 0) {
             x = x0 + (h1 * i);
           }
