@@ -35,7 +35,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   void LabelComponents();
 
   static void InitializeLocalParents(std::vector<ParentStructure>& local_parents, size_t total_pixels);
-  static void CalculateBlockBoundaries(std::vector<BlockRange>& blocks, int num_threads);
+  static void CalculateBlockBoundaries(std::vector<BlockRange>& blocks, int num_threads, int height);
   void ProcessBlocksInParallel(std::vector<std::vector<int>>& local_labels, std::vector<ParentStructure>& local_parents,
                                const std::vector<BlockRange>& blocks, size_t total_pixels, int num_threads);
 
@@ -62,7 +62,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   void ApplyLabelMap(const std::vector<int>& label_map);
 
   [[nodiscard]] static int FindRoot(const ParentStructure& parent, int x);
-  void UnionSets(ParentStructure& parent, int x, int y);
+  static void UnionSets(ParentStructure& parent, int x, int y);
 };
 
 }  // namespace dudchenko_o_connected_components_omp
