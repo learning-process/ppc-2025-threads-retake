@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PreProcessingImpl() {
@@ -71,7 +72,14 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
 
 #pragma omp parallel
   {
-#pragma omp for collapse(2) schedule(static)
+    int thread_next_label;
+#pragma omp critical
+    {
+      thread_next_label = next_label;
+      next_label += (width_ * height_) / omp_get_num_threads();
+    }
+
+#pragma omp for schedule(static)
     for (int y = 0; y < height_; ++y) {
       for (int x = 0; x < width_; ++x) {
         int index = (y * width_) + x;
@@ -85,12 +93,12 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
         int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
 
         if (left_label == 0 && top_label == 0) {
+          component_labels.labels[index] = thread_next_label;
 #pragma omp critical
           {
-            component_labels.labels[index] = next_label;
-            parent_structure.parents[next_label] = next_label;
-            next_label++;
+            parent_structure.parents[thread_next_label] = thread_next_label;
           }
+          thread_next_label++;
         } else if (left_label != 0 && top_label == 0) {
           component_labels.labels[index] = left_label;
         } else if (left_label == 0 && top_label != 0) {
@@ -122,10 +130,19 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentL
 }
 
 int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructure& parent, int x) {
-  if (parent.parents[x] != x) {
-    parent.parents[x] = FindRoot(parent, parent.parents[x]);
+  int root = x;
+  while (parent.parents[root] != root) {
+    root = parent.parents[root];
   }
-  return parent.parents[x];
+
+  int temp = x;
+  while (temp != root) {
+    int next = parent.parents[temp];
+    parent.parents[temp] = root;
+    temp = next;
+  }
+
+  return root;
 }
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStructure& parent, int x, int y) {
