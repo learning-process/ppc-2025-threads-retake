@@ -284,7 +284,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ApplyLabelMap(const s
   }
 }
 
-[[nodiscard]] int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(const ParentStructure& parent, int x) const {
+[[nodiscard]] int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(const ParentStructure& parent, int x) {
   if (x <= 0 || static_cast<size_t>(x) >= parent.parents.size()) {
     return x;
   }
@@ -299,7 +299,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ApplyLabelMap(const s
     const_cast<ParentStructure&>(parent).parents[temp] = root;
     temp = next;
   }
-  
+
   return root;
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -50,7 +50,7 @@ class TestTaskOpenMP : public ppc::core::Task {
                    const std::vector<BlockRange>& blocks, size_t total_pixels);
   static void InitializeGlobalParent(ParentStructure& global_parent);
   void CopyLocalLabelsToOutput(const std::vector<std::vector<int>>& local_labels,
-                               const std::vector<BlockRange>& blocks);;
+                               const std::vector<BlockRange>& blocks);
   void ResolveBlockBoundaries(ParentStructure& global_parent, const std::vector<BlockRange>& blocks);
   void ResolveSingleBoundary(ParentStructure& global_parent, const std::vector<BlockRange>& blocks, int block_idx);
   void ResolveHorizontalConnections(ParentStructure& global_parent);
@@ -61,7 +61,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   void BuildLabelMap(std::vector<int>& label_map, int& next_label);
   void ApplyLabelMap(const std::vector<int>& label_map);
 
-  [[nodiscard]] static int FindRoot(const ParentStructure& parent, int x) const;
+  [[nodiscard]] static int FindRoot(const ParentStructure& parent, int x);
   void UnionSets(ParentStructure& parent, int x, int y);
 };
 
