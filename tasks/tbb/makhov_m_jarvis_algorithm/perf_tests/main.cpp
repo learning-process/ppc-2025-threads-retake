@@ -52,8 +52,17 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Cleanup
+  // Restore result from task_data
+  std::vector<makhov_m_jarvis_algorithm_tbb::Point> restored_points =
+      makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertByteArrayToPoints(task_data_seq->outputs[0],
+                                                                       task_data_seq->outputs_count[0]);
 
+  // Should have a convex hull with at least 3 points
+  size_t expected_size = 3;
+  ASSERT_GE(restored_points.size(), expected_size);
+
+  // Cleanup
+  delete[] task_data_seq->outputs[0];
   delete[] buffer;
 }
 
@@ -98,7 +107,16 @@ TEST(makhov_m_jarvis_algorithm_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Cleanup
+  // Restore result from task_data
+  std::vector<makhov_m_jarvis_algorithm_tbb::Point> restored_points =
+      makhov_m_jarvis_algorithm_tbb::TaskTBB::ConvertByteArrayToPoints(task_data_seq->outputs[0],
+                                                                       task_data_seq->outputs_count[0]);
 
+  // Should have a convex hull with at least 3 points
+  size_t expected_size = 3;
+  ASSERT_GE(restored_points.size(), expected_size);
+
+  // Cleanup
+  delete[] task_data_seq->outputs[0];
   delete[] buffer;
 }
