@@ -8,9 +8,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/somov_i_radix_sort_simple_merging/include/ops_seq.hpp"
+#include "tbb/somov_i_radix_sort_simple_merging/include/ops_tbb.hpp"
 
-TEST(somov_i_radix_sort_simple_merging_seq, test_pipeline_run) {
+TEST(somov_i_radix_sort_simple_merging_tbb, test_pipeline_run) {
   const int n = 5000000;
   std::vector<double> input_vector(n);
   for (int i = 0; i < n; i++) {
@@ -27,7 +27,7 @@ TEST(somov_i_radix_sort_simple_merging_seq, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_vector.data()));
   task_data->outputs_count.emplace_back(output_vector.size());
 
-  auto test_task = std::make_shared<somov_i_radix_sort_simple_merging_seq::TestTaskSequential>(task_data);
+  auto test_task = std::make_shared<somov_i_radix_sort_simple_merging_tbb::TestTaskTbb>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -46,7 +46,7 @@ TEST(somov_i_radix_sort_simple_merging_seq, test_pipeline_run) {
   ASSERT_EQ(output_vector, result_vector);
 }
 
-TEST(somov_i_radix_sort_simple_merging_seq, test_task_run) {
+TEST(somov_i_radix_sort_simple_merging_tbb, test_task_run) {
   const int n = 5000000;
   std::vector<double> input_vector(n);
   for (int i = 0; i < n; i++) {
@@ -63,7 +63,7 @@ TEST(somov_i_radix_sort_simple_merging_seq, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_vector.data()));
   task_data->outputs_count.emplace_back(output_vector.size());
 
-  auto test_task = std::make_shared<somov_i_radix_sort_simple_merging_seq::TestTaskSequential>(task_data);
+  auto test_task = std::make_shared<somov_i_radix_sort_simple_merging_tbb::TestTaskTbb>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
