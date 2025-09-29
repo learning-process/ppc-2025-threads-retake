@@ -17,7 +17,6 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  // Сохраняем структуры как в sequential версии
   struct ComponentLabels {
     std::vector<int> labels;
   };

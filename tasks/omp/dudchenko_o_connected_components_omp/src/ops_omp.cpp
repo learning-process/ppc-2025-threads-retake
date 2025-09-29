@@ -2,7 +2,7 @@
 
 #include <omp.h>
 
-#include <algorithm>
+#include <cstdint>
 #include <cmath>
 #include <vector>
 
@@ -46,8 +46,7 @@ bool dudchenko_o_connected_components_omp::TestTaskOpenMP::RunImpl() {
 }
 
 bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PostProcessingImpl() {
-#pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(output_.size()); i++) {
+  for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
@@ -68,7 +67,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::LabelComponents() {
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, int y, ComponentLabels& component_labels,
                                                                         ParentStructure& parent_structure,
                                                                         int& local_next_label) {
-  int index = y * width_ + x;
+  int index = (y * width_) + x;
 
   if (input_[index] != 0) {
     component_labels.labels[index] = 0;
@@ -80,8 +79,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
 
   if (left_label == 0 && top_label == 0) {
     component_labels.labels[index] = local_next_label;
-#pragma omp critical
-    { parent_structure.parents[local_next_label] = local_next_label; }
+    parent_structure.parents[local_next_label] = local_next_label;
     local_next_label++;
   } else if (left_label != 0 && top_label == 0) {
     component_labels.labels[index] = left_label;
@@ -102,12 +100,11 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessConnectedNeigh
   component_labels.labels[index] = min_root;
 
   if (root_left != root_top) {
-#pragma omp critical
-    { UnionSets(parent_structure, root_left, root_top); }
+    UnionSets(parent_structure, root_left, root_top);
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessBlock(int start_y, int end_y,
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessBlock(int start_y, int end_y, 
                                                                         ComponentLabels& component_labels,
                                                                         ParentStructure& parent_structure,
                                                                         int base_label) {
@@ -122,10 +119,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessBlock(int star
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels,
                                                                                   ParentStructure& parent_structure) {
-#pragma omp parallel for
   for (int y = 1; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
-      int index = y * width_ + x;
+      int index = (y * width_) + x;
 
       if (component_labels.labels[index] == 0) {
         continue;
@@ -138,8 +134,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
         int root_top = FindRoot(parent_structure, top_label);
 
         if (root_current != root_top) {
-#pragma omp critical
-          { UnionSets(parent_structure, root_current, root_top); }
+          UnionSets(parent_structure, root_current, root_top);
         }
       }
     }
@@ -150,6 +145,12 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
                                                                      ParentStructure& parent_structure) {
   size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   int num_threads = omp_get_max_threads();
+  
+  // Calculate unique label ranges for each thread to avoid conflicts
+  std::vector<int> base_labels(num_threads);
+  for (int i = 0; i < num_threads; ++i) {
+    base_labels[i] = (i * (static_cast<int>(total_pixels) / num_threads)) + 1;
+  }
 
 #pragma omp parallel
   {
@@ -157,9 +158,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
     int block_height = height_ / num_threads;
     int start_y = thread_id * block_height;
     int end_y = (thread_id == num_threads - 1) ? height_ : start_y + block_height;
-
-    int base_label = (thread_id + 1) * (static_cast<int>(total_pixels) / num_threads) + 1;
-    ProcessBlock(start_y, end_y, component_labels, parent_structure, base_label);
+    
+    ProcessBlock(start_y, end_y, component_labels, parent_structure, base_labels[thread_id]);
   }
 
   ResolveBlockBoundaries(component_labels, parent_structure);
@@ -167,8 +167,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentLabels& component_labels,
                                                                       ParentStructure& parent_structure) {
-#pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(component_labels.labels.size()); ++i) {
+  for (size_t i = 0; i < component_labels.labels.size(); ++i) {
     if (component_labels.labels[i] != 0) {
       component_labels.labels[i] = FindRoot(parent_structure, component_labels.labels[i]);
     }
