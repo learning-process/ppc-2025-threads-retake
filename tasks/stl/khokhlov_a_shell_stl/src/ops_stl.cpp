@@ -1,5 +1,6 @@
 #include "stl/khokhlov_a_shell_stl/include/ops_stl.hpp"
 
+#include "core/util/include/util.hpp"
 #include <algorithm>
 #include <functional>
 #include <random>
@@ -45,7 +46,7 @@ void khokhlov_a_shell_stl::ShellStl::ShellSortChunk(std::vector<int>& vec, int s
 std::vector<int> khokhlov_a_shell_stl::ShellStl::ShellSort(const std::vector<int>& input) {
   std::vector<int> vec(input);
   int n = static_cast<int>(vec.size());
-  unsigned int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = ppc::util::GetPPCNumThreads()
   unsigned int chunk_size = (n + num_threads - 1) / num_threads;
 
   std::vector<std::pair<int, int>> chunks;
