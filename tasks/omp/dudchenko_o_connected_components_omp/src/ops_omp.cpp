@@ -206,7 +206,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStruc
     return;
   }
 
-  #pragma omp critical
+#pragma omp critical
   {
     int current_root_x = FindRoot(parent, root_x);
     int current_root_y = FindRoot(parent, root_y);
