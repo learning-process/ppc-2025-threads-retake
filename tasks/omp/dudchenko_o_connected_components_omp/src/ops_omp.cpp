@@ -207,7 +207,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStruc
 #pragma omp critical
   int current_root_x = FindRoot(parent, root_x);
   int current_root_y = FindRoot(parent, root_y);
-  
+
   if (current_root_x != current_root_y) {
     if (current_root_x < current_root_y) {
       parent.parents[current_root_y] = current_root_x;
