@@ -175,3 +175,4 @@ TEST(vragov_i_gaussian_filter_vertical_omp, RandomImageBlurAverage) {
 
   EXPECT_NEAR(avg_out, avg_in * 0.64, avg_in * 0.05);
 }
+//test
