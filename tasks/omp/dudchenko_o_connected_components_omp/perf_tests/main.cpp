@@ -12,13 +12,12 @@
 #include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
 TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
-  int width = 100;
-  int height = 100;
+  int width = 2000;
+  int height = 2000;
   std::vector<int> image_data(width * height);
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
   for (size_t i = 0; i < image_data.size(); ++i) {
-    // Генерируем значения 0 (foreground) или 255 (background)
     image_data[i] = (std::rand() % 2) * 255;
   }
 
@@ -52,7 +51,6 @@ TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Проверяем логику: 0 - foreground (должны получить ненулевые метки), 255 - background (должны получить 0)
   for (int i = 0; i < width * height; ++i) {
     if (image_data[i] == 0) {
       EXPECT_NE(output_data[i], 0) << "Foreground pixel at index " << i << " should have non-zero label";
@@ -63,13 +61,12 @@ TEST(dudchenko_o_connected_components_omp, test_pipeline_run) {
 }
 
 TEST(dudchenko_o_connected_components_omp, test_task_run) {
-  int width = 150;
-  int height = 150;
+  int width = 2000;
+  int height = 2000;
   std::vector<int> image_data(width * height);
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
   for (size_t i = 0; i < image_data.size(); ++i) {
-    // Генерируем значения 0 (foreground) или 255 (background)
     image_data[i] = (std::rand() % 2) * 255;
   }
 
@@ -103,7 +100,6 @@ TEST(dudchenko_o_connected_components_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Проверяем логику: 0 - foreground (должны получить ненулевые метки), 255 - background (должны получить 0)
   for (int i = 0; i < width * height; ++i) {
     if (image_data[i] == 0) {
       EXPECT_NE(output_data[i], 0) << "Foreground pixel at index " << i << " should have non-zero label";
