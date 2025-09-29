@@ -13,7 +13,6 @@
 
 namespace {
 
-// Структуры для устранения предупреждения о легко переставляемых параметрах
 struct OutputData {
   const std::vector<int>& data;
 };
@@ -48,7 +47,6 @@ void CheckAllLabelsUnique(const OutputData& output, const Indices& indices) {
     }
   }
 
-  // Все метки уже уникальны по построению, проверяем что их количество равно количеству индексов
   EXPECT_EQ(labels.size(), indices.indices.size());
 }
 
@@ -84,7 +82,6 @@ TEST(dudchenko_o_connected_components_omp, test_small_image) {
   test_task_omp.Run();
   test_task_omp.PostProcessing();
 
-  // Проверяем базовые свойства
   OutputData output{output_data};
   ForegroundIndices foreground{{0, 2, 4, 6, 8}};
   BackgroundIndices background{{1, 3, 5, 7}};
@@ -94,7 +91,6 @@ TEST(dudchenko_o_connected_components_omp, test_small_image) {
 }
 
 TEST(dudchenko_o_connected_components_omp, test_single_component) {
-  testing::GTEST_FLAG(timeout) = 5;
   int width = 4;
   int height = 4;
   std::vector<int> image_data(width * height, 0);
@@ -155,7 +151,6 @@ TEST(dudchenko_o_connected_components_omp, test_no_components) {
 }
 
 TEST(dudchenko_o_connected_components_omp, test_two_separate_components) {
-  testing::GTEST_FLAG(timeout) = 5;
   int width = 5;
   int height = 5;
   std::vector<int> image_data = {0,   0,   255, 255, 255, 0, 0, 255, 255, 255, 255, 255, 255,

@@ -82,18 +82,23 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
   int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
 
   if (left_label == 0 && top_label == 0) {
-    int new_label = 0;
+    int new_label;
+#pragma omp atomic capture
+    new_label = parent_structure.parents[0]++;
+
+    if (new_label >= static_cast<int>(parent_structure.parents.size())) {
 #pragma omp critical
-    {
-      new_label = parent_structure.parents[0]++;
-      if (new_label >= static_cast<int>(parent_structure.parents.size())) {
-        parent_structure.parents.resize(new_label + 1, 0);
+      {
+        if (new_label >= static_cast<int>(parent_structure.parents.size())) {
+          parent_structure.parents.resize(new_label + 100, 0);
+        }
       }
-      parent_structure.parents[new_label] = new_label;
     }
+    parent_structure.parents[new_label] = new_label;
     component_labels.labels[index] = new_label;
     return;
   }
+
   if (left_label != 0 && top_label == 0) {
     component_labels.labels[index] = left_label;
     return;
@@ -102,6 +107,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
     component_labels.labels[index] = top_label;
     return;
   }
+
   int root_left = FindRoot(parent_structure, left_label);
   int root_top = FindRoot(parent_structure, top_label);
   int min_root = std::min(root_left, root_top);
@@ -180,13 +186,12 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
   }
 
   int root = x;
-  while (parent.parents[root] != root) {
+  while (root > 0 && root < static_cast<int>(parent.parents.size()) && parent.parents[root] != root) {
     root = parent.parents[root];
-    if (root <= 0) break;
   }
 
   int temp = x;
-  while (temp != root) {
+  while (temp != root && temp > 0 && temp < static_cast<int>(parent.parents.size())) {
     int next = parent.parents[temp];
     parent.parents[temp] = root;
     temp = next;
@@ -203,11 +208,15 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStruc
     return;
   }
 
+  int min_root, max_root;
   if (root_x < root_y) {
-#pragma omp atomic write
-    parent.parents[root_y] = root_x;
+    min_root = root_x;
+    max_root = root_y;
   } else {
-#pragma omp atomic write
-    parent.parents[root_x] = root_y;
+    min_root = root_y;
+    max_root = root_x;
   }
+
+#pragma omp atomic write
+  parent.parents[max_root] = min_root;
 }
