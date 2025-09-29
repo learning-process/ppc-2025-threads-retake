@@ -151,7 +151,7 @@ TEST(golovkin_sentence_count_omp, test_task_run) {
 
   ASSERT_GT(result, 0) << "Result should be positive for generated text";
 
-  // Запускаем производительностный тест
+  // В«Р°РїСѓСЃРєР°РµРј РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚РЅС‹Р№ С‚РµСЃС‚
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
