@@ -125,14 +125,12 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
   const auto left_size = static_cast<std::size_t>(mid);
   const std::size_t right_size = n - left_size;
 
-  // Decide whether to sort halves in parallel
   int available_threads = 1;
   try {
     available_threads = ppc::util::GetPPCNumThreads();
   } catch (...) {
     available_threads = 1;  // Fallback: sequential
   }
-  // Simple threshold to avoid thread overhead on tiny ranges
   constexpr std::size_t kParallelThreshold = 2048;
 
   if (available_threads > 1 && left_size > 1 && right_size > 1 &&
