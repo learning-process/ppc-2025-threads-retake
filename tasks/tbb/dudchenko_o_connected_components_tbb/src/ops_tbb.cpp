@@ -197,6 +197,6 @@ bool ConnectedComponentsTbb::PostProcessingImpl() {
   task_data->outputs_count[0] = static_cast<unsigned int>(n);
   return true;
 }
-} // namespace
-
 }  // namespace dudchenko_o_connected_components_tbb
+
+}  // namespace
