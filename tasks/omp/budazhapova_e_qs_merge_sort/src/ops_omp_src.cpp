@@ -23,7 +23,8 @@ int PartitionHoare(std::vector<int>& arr, int low, int high) {
     return low;
   }
 
-  int pivot = arr[low + ((high - low) / 2)];
+  int pivot_index = low + ((high - low) / 2);
+  int pivot = arr[pivot_index];
   int i = low - 1;
   int j = high + 1;
 
