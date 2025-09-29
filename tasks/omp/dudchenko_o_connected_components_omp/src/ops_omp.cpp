@@ -1,6 +1,9 @@
 #include "omp/dudchenko_o_connected_components_omp/include/ops_omp.hpp"
 
+#include <algorithm>
+#include <cstddef>
 #include <omp.h>
+#include <vector>
 
 #include <cmath>
 
