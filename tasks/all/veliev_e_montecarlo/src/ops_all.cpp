@@ -6,7 +6,7 @@
 #include <boost/mpi/collectives/reduce.hpp>
 #include <cmath>
 #include <cstring>
-#inculde <functional>
+#inculde < functional>
 #include <exception>
 #include <iostream>
 #include <vector>
