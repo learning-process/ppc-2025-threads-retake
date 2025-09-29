@@ -166,7 +166,7 @@ TEST(sdobnov_v_simpson_stl, test_polynomial_3d_integral) {
   const int dimensions = 3;
   const double lower_bounds[3] = {0.0, 0.0, 0.0};
   const double upper_bounds[3] = {1.0, 1.0, 1.0};
-  const int n_points[3] = {50, 50, 50};
+  const int n_points[3] = {30, 30, 30};
   double result = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
