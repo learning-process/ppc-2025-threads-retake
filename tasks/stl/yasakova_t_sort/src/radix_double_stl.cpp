@@ -1,7 +1,5 @@
 #include "stl/yasakova_t_sort/include/radix_double_stl.hpp"
 
-#include "core/util/include/util.hpp"
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -9,6 +7,8 @@
 #include <thread>
 #include <utility>
 #include <vector>
+
+#include "core/util/include/util.hpp"
 
 namespace yasakova_t_sort_stl {
 
@@ -202,3 +202,4 @@ void RadixSortDoubleStl(std::vector<double>& data) {
 }
 
 }  // namespace yasakova_t_sort_stl
+
