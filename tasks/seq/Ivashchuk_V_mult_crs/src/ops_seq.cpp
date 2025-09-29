@@ -78,24 +78,19 @@ void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::MultiplySparseMatric
   C.values.clear();
   C.col_indices.clear();
 
-  // Временный вектор для накопления результатов строки
   std::vector<std::complex<double>> temp(C.cols, 0);
-  // Вектор для отслеживания использованных столбцов в текущей строке
   std::vector<bool> temp_used(C.cols, false);
 
   C.row_pointers.push_back(0);
 
   for (int i = 0; i < A.rows; ++i) {
-    // Очищаем временный вектор
     std::fill(temp.begin(), temp.end(), 0);
     std::fill(temp_used.begin(), temp_used.end(), false);
 
-    // Умножаем строку i матрицы A на матрицу B
     for (int a_idx = A.row_pointers[i]; a_idx < A.row_pointers[i + 1]; ++a_idx) {
       int k = A.col_indices[a_idx];
       std::complex<double> a_val = A.values[a_idx];
 
-      // Умножаем на соответствующие элементы строки k матрицы B
       for (int b_idx = B.row_pointers[k]; b_idx < B.row_pointers[k + 1]; ++b_idx) {
         int j = B.col_indices[b_idx];
         std::complex<double> b_val = B.values[b_idx];
@@ -104,7 +99,6 @@ void Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier::MultiplySparseMatric
       }
     }
 
-    // Добавляем ненулевые элементы из временного вектора в результат
     for (int j = 0; j < C.cols; ++j) {
       if (temp_used[j] && (std::abs(temp[j].real()) > 1e-10 || std::abs(temp[j].imag()) > 1e-10)) {
         C.values.push_back(temp[j]);
