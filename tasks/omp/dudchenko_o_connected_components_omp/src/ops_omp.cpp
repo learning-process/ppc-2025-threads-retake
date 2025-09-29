@@ -2,8 +2,8 @@
 
 #include <omp.h>
 
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 #include <vector>
 
 bool dudchenko_o_connected_components_omp::TestTaskOpenMP::PreProcessingImpl() {
@@ -104,7 +104,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessConnectedNeigh
   }
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessBlock(int start_y, int end_y, 
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessBlock(int start_y, int end_y,
                                                                         ComponentLabels& component_labels,
                                                                         ParentStructure& parent_structure,
                                                                         int base_label) {
@@ -145,8 +145,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
                                                                      ParentStructure& parent_structure) {
   size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   int num_threads = omp_get_max_threads();
-  
-  // Calculate unique label ranges for each thread to avoid conflicts
+
   std::vector<int> base_labels(num_threads);
   for (int i = 0; i < num_threads; ++i) {
     base_labels[i] = (i * (static_cast<int>(total_pixels) / num_threads)) + 1;
@@ -158,7 +157,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
     int block_height = height_ / num_threads;
     int start_y = thread_id * block_height;
     int end_y = (thread_id == num_threads - 1) ? height_ : start_y + block_height;
-    
+
     ProcessBlock(start_y, end_y, component_labels, parent_structure, base_labels[thread_id]);
   }
 
