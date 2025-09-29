@@ -135,7 +135,7 @@ bool ConnectedComponentsTbb::PreProcessingImpl() {
   return true;
 }
 
-bool ConnectedComponentsTbb::RunImpl() { // NOLINT(readability-function-cognitive-complexity)
+bool ConnectedComponentsTbb::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   const size_t total_pixels = static_cast<size_t>(width_) * static_cast<size_t>(height_);
   output_labels_.resize(total_pixels, 0);
 
