@@ -1,11 +1,10 @@
 #include "tbb/vragov_i_gaussian_filter_vertical/include/filter.hpp"
 
-#include <tbb/parallel_for.h>
-#include <tbb/tbb.h>
-
 #include <cmath>
 #include <cstddef>
 #include <vector>
+
+#include "oneapi/tbb/parallel_for.h"
 
 bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::PreProcessingImpl() {
   // Init value for input and output
