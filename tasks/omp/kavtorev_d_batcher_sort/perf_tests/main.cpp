@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -14,6 +15,8 @@
 
 using kavtorev_d_batcher_sort_omp::RadixBatcherSortOpenMP;
 
+namespace {
+
 bool IsSorted(const std::vector<double>& arr) {
   for (size_t i = 1; i < arr.size(); ++i) {
     if (arr[i] < arr[i - 1]) {
@@ -24,12 +27,14 @@ bool IsSorted(const std::vector<double>& arr) {
 }
 
 bool SameElements(const std::vector<double>& a, const std::vector<double>& b) {
-  if (a.size() != b.size()) return false;
+  if (a.size() != b.size()) {
+    return false;
+  }
 
   std::vector<double> sorted_a = a;
   std::vector<double> sorted_b = b;
-  std::sort(sorted_a.begin(), sorted_a.end());
-  std::sort(sorted_b.begin(), sorted_b.end());
+  std::ranges::sort(sorted_a);
+  std::ranges::sort(sorted_b);
 
   for (size_t i = 0; i < sorted_a.size(); ++i) {
     if (std::abs(sorted_a[i] - sorted_b[i]) > 1e-12) {
@@ -38,6 +43,8 @@ bool SameElements(const std::vector<double>& a, const std::vector<double>& b) {
   }
   return true;
 }
+
+}  // namespace
 
 TEST(kavtorev_d_batcher_sort_omp, perf_pipeline_run) {
   constexpr size_t kCount = 2000000;
@@ -74,7 +81,7 @@ TEST(kavtorev_d_batcher_sort_omp, perf_pipeline_run) {
   EXPECT_TRUE(SameElements(original, out));
 
   std::vector<double> std_sorted = original;
-  std::sort(std_sorted.begin(), std_sorted.end());
+  std::ranges::sort(std_sorted);
 
   bool matches_std_sort = true;
   for (size_t i = 0; i < out.size(); ++i) {
@@ -121,7 +128,7 @@ TEST(kavtorev_d_batcher_sort_omp, perf_task_run) {
   EXPECT_TRUE(SameElements(original, out));
 
   std::vector<double> std_sorted = original;
-  std::sort(std_sorted.begin(), std_sorted.end());
+  std::ranges::sort(std_sorted);
 
   bool matches_std_sort = true;
   for (size_t i = 0; i < out.size(); ++i) {
