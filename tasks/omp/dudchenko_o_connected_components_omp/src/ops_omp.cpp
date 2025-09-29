@@ -82,7 +82,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
   int top_label = (y > 0) ? component_labels.labels[index - width_] : 0;
 
   if (left_label == 0 && top_label == 0) {
-    int new_label;
+    int new_label = 0;
 #pragma omp atomic capture
     new_label = parent_structure.parents[0]++;
 
@@ -207,6 +207,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStruc
   if (root_x == root_y) {
     return;
   }
+
+  int min_root = 0;
+  int max_root = 0;
 
   int min_root, max_root;
   if (root_x < root_y) {
