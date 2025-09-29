@@ -1,4 +1,4 @@
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/chernova_n_cannon_matrix_mul/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
