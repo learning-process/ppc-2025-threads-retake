@@ -1,8 +1,11 @@
 // Golovkins
 #include <gtest/gtest.h>
 
+#include <cctype>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -11,8 +14,9 @@
 #include "core/task/include/task.hpp"
 #include "omp/golovkin_sentence_count_omp/include/ops_omp.hpp"
 
-TEST(golovkin_sentence_count_omp, test_pipeline_run) {
-  const int text_size = 1000000000;
+namespace {
+
+std::string GenerateTestText(int text_size) {
   std::string text;
   text.reserve(text_size);
 
@@ -27,99 +31,51 @@ TEST(golovkin_sentence_count_omp, test_pipeline_run) {
       text.push_back(static_cast<char>('a' + (i % 26)));
     }
   }
+  return text;
+}
 
-  int result = 0;
+bool IsValidSentenceEnd(const std::string& text, size_t i) {
+  const char current_char = text[i];
+  if (current_char != '.' && current_char != '?' && current_char != '!') {
+    return false;
+  }
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(text.data()));
-  task_data->inputs_count.emplace_back(text.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
-  task_data->outputs_count.emplace_back(1);
+  if (i + 1 < text.size()) {
+    const char next_char = text[i + 1];
+    if (next_char == '.' || next_char == '?' || next_char == '!') {
+      return false;
+    }
+  }
 
-  auto task = std::make_shared<golovkin_sentence_count_omp::SentenceCountParallel>(task_data);
-
-  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
-  const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
-    auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
-  };
-
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
-
-  task->PreProcessing();
-  task->Run();
-  task->PostProcessing();
-
-  int expected_count = 0;
-  for (size_t i = 0; i < text.size(); ++i) {
-    const char current_char = text[i];
-    if (current_char == '.' || current_char == '?' || current_char == '!') {
-      if (i + 1 < text.size()) {
-        const char next_char = text[i + 1];
-        if (next_char != '.' && next_char != '?' && next_char != '!') {
-          if (current_char == '.') {
-            if (i > 0 && i + 1 < text.size()) {
-              const char prev = text[i - 1];
-              const char next = text[i + 1];
-              if (!((std::isdigit(prev) && std::isdigit(next)) || (std::isalpha(prev) && std::isalpha(next)) ||
-                    (prev != ' ' && next != ' '))) {
-                expected_count++;
-              }
-            } else {
-              expected_count++;
-            }
-          } else {
-            expected_count++;
-          }
-        }
-      } else {
-        if (current_char == '.') {
-          if (i > 0) {
-            const char prev = text[i - 1];
-            if (!std::isdigit(prev) && !std::isalpha(prev)) {
-              expected_count++;
-            }
-          } else {
-            expected_count++;
-          }
-        } else {
-          expected_count++;
-        }
+  if (current_char == '.') {
+    if (i > 0 && i + 1 < text.size()) {
+      const char prev = text[i - 1];
+      const char next = text[i + 1];
+      if ((std::isdigit(prev) != 0 && std::isdigit(next) != 0) ||
+          (std::isalpha(prev) != 0 && std::isalpha(next) != 0) || (prev != ' ' && next != ' ')) {
+        return false;
       }
     }
   }
 
-  ASSERT_EQ(expected_count, result) << "Count validation failed: expected " << expected_count << ", got " << result;
-
-  perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-
-  ASSERT_GE(result, 0) << "Result should be non-negative";
-  ASSERT_LE(result, text_size) << "Result should not exceed text size";
+  return true;
 }
 
-TEST(golovkin_sentence_count_omp, test_task_run) {
-  const int text_size = 1000000000;
-  std::string text;
-  text.reserve(text_size);
-
-  for (int i = 0; i < text_size; ++i) {
-    if (i % 50 == 0 && i > 0) {
-      text.push_back('.');
-    } else if (i % 25 == 0 && i > 0) {
-      text.push_back('?');
-    } else if (i % 33 == 0 && i > 0) {
-      text.push_back('!');
-    } else {
-      text.push_back(static_cast<char>('a' + (i % 26)));
+int CalculateExpectedCount(const std::string& text) {
+  int count = 0;
+  for (size_t i = 0; i < text.size(); ++i) {
+    if (IsValidSentenceEnd(text, i)) {
+      count++;
     }
   }
+  return count;
+}
 
+}  // namespace
+
+TEST(golovkin_sentence_count_omp, test_pipeline_run) {
+  const int text_size = 1000000000;
+  std::string text = GenerateTestText(text_size);
   int result = 0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -129,6 +85,14 @@ TEST(golovkin_sentence_count_omp, test_task_run) {
   task_data->outputs_count.emplace_back(1);
 
   auto task = std::make_shared<golovkin_sentence_count_omp::SentenceCountParallel>(task_data);
+
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  EXPECT_GE(result, 0) << "Result should be non-negative";
+  EXPECT_LE(result, text_size) << "Result should not exceed text size";
+  EXPECT_GT(result, 0) << "Result should be positive for generated text";
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -140,21 +104,48 @@ TEST(golovkin_sentence_count_omp, test_task_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
+
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
+}
+
+TEST(golovkin_sentence_count_omp, test_task_run) {
+  const int text_size = 1000000000;
+  std::string text = GenerateTestText(text_size);
+  int result = 0;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(text.data()));
+  task_data->inputs_count.emplace_back(text.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+  task_data->outputs_count.emplace_back(1);
+
+  auto task = std::make_shared<golovkin_sentence_count_omp::SentenceCountParallel>(task_data);
 
   task->PreProcessing();
   task->Run();
   task->PostProcessing();
 
-  ASSERT_GE(result, 0) << "Result should be non-negative";
 
-  ASSERT_GT(result, 0) << "Result should be positive for generated text";
+  EXPECT_GE(result, 0) << "Result should be non-negative";
+  EXPECT_GT(result, 0) << "Result should be positive for generated text";
 
-  // «апускаем производительностный тест
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
+
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
+
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   int max_expected = text_size / 25;
-  ASSERT_LE(result, max_expected) << "Result seems too large";
+  EXPECT_LE(result, max_expected) << "Result seems too large";
 }
