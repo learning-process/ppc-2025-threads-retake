@@ -13,11 +13,15 @@
 #include "omp/somov_i_radix_sort_simple_merging/include/ops_omp.hpp"
 
 namespace {
-std::vector<double> GenerateVector(std::size_t n, double first, double last) {
+struct MinMaxStruct {
+  double min;
+  double max;
+};
+
+std::vector<double> GenerateVector(std::size_t n, MinMaxStruct limits) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(first, last);
-
+  std::uniform_real_distribution<double> dist(limits.min, limits.max);
   std::vector<double> result(n);
   for (std::size_t i = 0; i < n; ++i) {
     result[i] = dist(gen);
@@ -88,7 +92,8 @@ TEST(somov_i_radix_sort_simple_merging_omp, NegativeAndPositiveTest) {
 
 TEST(somov_i_radix_sort_simple_merging_omp, RandomVectorTest) {
   const std::size_t n = 1000;
-  std::vector<double> input_vector = GenerateVector(n, -1000.0, 1000.0);
+  MinMaxStruct limits{.min = -1000.0, .max = 1000.0};
+  std::vector<double> input_vector = GenerateVector(n, limits);
   std::vector<double> output_vector(n, 0.0);
 
   std::vector<double> result_vector = input_vector;
