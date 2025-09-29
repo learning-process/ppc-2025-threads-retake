@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <mutex>
+#include <oneapi/tbb.h>
 #include <vector>
 
 using namespace dudchenko_o_connected_components_tbb;
