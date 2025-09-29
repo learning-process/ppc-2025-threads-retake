@@ -106,7 +106,9 @@ std::vector<double> chernova_n_cannon_matrix_mul_seq::CannonMatrixMultiplication
           }
         }
       }
-
+      if (a_temp.empty() || b_temp.empty() || a_shifted.empty() || b_shifted.empty()) {
+        return std::vector<double>(n * n, 0.0);
+      }
       a_temp = a_shifted;
       b_temp = b_shifted;
     }
