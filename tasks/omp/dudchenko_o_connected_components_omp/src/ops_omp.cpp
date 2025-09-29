@@ -93,11 +93,11 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
     }
     component_labels.labels[index] = new_label;
     return;
-  } 
+  }
   if (left_label != 0 && top_label == 0) {
     component_labels.labels[index] = left_label;
     return;
-  } 
+  }
   if (left_label == 0 && top_label != 0) {
     component_labels.labels[index] = top_label;
     return;
@@ -109,11 +109,9 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ProcessPixel(int x, i
 
   if (root_left != root_top) {
 #pragma omp critical
-      { UnionSets(parent_structure, root_left, root_top); }
+    { UnionSets(parent_structure, root_left, root_top); }
   }
-  return;
 }
-
 
 void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLabels& component_labels,
                                                                      ParentStructure& parent_structure) {
@@ -137,12 +135,11 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::FirstPass(ComponentLa
   ResolveBlockBoundaries(component_labels, parent_structure, block_height);
 }
 
-void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels,
-                                                                                  ParentStructure& parent_structure,
-                                                                                  int block_height) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundaries(ComponentLabels& component_labels, ParentStructure& parent_structure, 
+                                                                     int block_height) const {
   int num_blocks = (height_ + block_height - 1) / block_height;
 
-  for (int block = 1; block < num_blocks; ++block) {
+  for (int block = 1; block < num_blocks; ++block) { 
     int boundary_y = block * block_height;
     if (boundary_y >= height_) {
       continue;
@@ -167,8 +164,8 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::ResolveBlockBoundarie
   }
 }
 
-static void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentLabels& component_labels,
-                                                                      ParentStructure& parent_structure) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentLabels& component_labels,
+                                                                             ParentStructure& parent_structure) const {
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(component_labels.labels.size()); ++i) {
     if (component_labels.labels[i] != 0) {
@@ -177,7 +174,7 @@ static void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(Com
   }
 }
 
-int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructure& parent, int x) {
+int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructure& parent, int x) const {
   if (x <= 0 || x >= static_cast<int>(parent.parents.size())) {
     return x;
   }
@@ -200,11 +197,13 @@ int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructu
   return root;
 }
 
-static void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStructure& parent, int x, int y) {
+void dudchenko_o_connected_components_omp::TestTaskOpenMP::UnionSets(ParentStructure& parent, int x, int y) const {
   int root_x = FindRoot(parent, x);
   int root_y = FindRoot(parent, y);
 
-  if (root_x == root_y) return;
+  if (root_x == root_y) {
+    return;
+  }
 
 #pragma omp critical
   {
