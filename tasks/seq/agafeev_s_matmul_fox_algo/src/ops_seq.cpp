@@ -58,7 +58,7 @@ bool agafeev_s_matmul_fox_algo_seq::MultiplMatrixSequental::RunImpl() {
     for (size_t i = 0; i < num_blocks; i++) {
       size_t block_index = (i + step) % num_blocks;
       for (size_t j = 0; j < num_blocks; ++j) {
-        BlockMultiply(first_input_, second_input_, result_, i, j, block_index, block_size_, size_);
+        BlockMultiply(first_input_, i, second_input_, j, result_, block_index, block_size_, size_);
       }
     }
   }
