@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <thread>
+#include "core/util/include/util.hpp"
 #include <utility>
 #include <vector>
 
@@ -12,11 +13,12 @@ namespace yasakova_t_sort_stl {
 
 namespace {
 
-size_t ClampThreads(size_t requested, size_t total) {
-  if (requested == 0) {
+size_t ClampThreads(int requested, size_t total) {
+  if (requested <= 0) {
     return std::min<size_t>(1, total);
   }
-  return std::max<size_t>(1, std::min(requested, total));
+  const size_t positive_requested = static_cast<size_t>(requested);
+  return std::max<size_t>(size_t{1}, std::min(positive_requested, total));
 }
 
 struct ParallelPlan {
@@ -26,7 +28,7 @@ struct ParallelPlan {
 };
 
 ParallelPlan MakePlan(size_t total) {
-  const size_t threads = ClampThreads(std::thread::hardware_concurrency(), total);
+  const size_t threads = ClampThreads(ppc::util::GetPPCNumThreads(), total);
   const size_t chunk_size = (total + threads - 1) / threads;
   return ParallelPlan{.threads = threads, .chunk_size = chunk_size, .total = total};
 }
