@@ -175,7 +175,7 @@ void dudchenko_o_connected_components_omp::TestTaskOpenMP::SecondPass(ComponentL
   }
 }
 
-int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructure& parent, int x) const {
+int dudchenko_o_connected_components_omp::TestTaskOpenMP::FindRoot(ParentStructure& parent, int x) {
   if (x <= 0 || x >= static_cast<int>(parent.parents.size())) {
     return x;
   }
