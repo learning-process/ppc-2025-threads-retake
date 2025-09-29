@@ -14,7 +14,7 @@
 TEST(sdobnov_v_simpson_stl, perf_pipeline_run) {
   const int dimensions = 5;
   const double lower_bounds[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-  const double upper_bounds[5] = {10.0, 5 * std::numbers::pi, 10.0, 5 * std::numbers::pi, 10.0};
+  const double upper_bounds[5] = {2.0, std::numbers::pi, 2.0, std::numbers::pi, 2.0};
   const int n_points[5] = {20, 20, 20, 20, 20};
   double result = 0.0;
 
@@ -53,8 +53,8 @@ TEST(sdobnov_v_simpson_stl, perf_pipeline_run) {
 
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  const double expected_result = ((2875000 * std::numbers::pi * std::numbers::pi) + (30000 * std::numbers::pi)) / 3;
-  const double tolerance = 1e2;
+  const double expected_result = ((56 * std::numbers::pi * std::numbers::pi) + (48 * std::numbers::pi)) / 3;
+  const double tolerance = 1e-2;
   EXPECT_NEAR(result, expected_result, tolerance);
 }
 
