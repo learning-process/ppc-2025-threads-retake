@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -24,7 +23,7 @@ std::vector<uint8_t> CreateTestImage(int size) {
       for (int dy = 0; dy < block_size; ++dy) {
         for (int dx = 0; dx < block_size; ++dx) {
           if (y + dy < size && x + dx < size) {
-            img[(y + dy) * size + (x + dx)] = 1;
+            img[((y + dy) * size) + (x + dx)] = 1;
           }
         }
       }
@@ -48,7 +47,8 @@ std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
 TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
   auto img = CreateTestImage(kSmallSize);
   std::vector<int> out(img.size());
-  int w = kSmallSize, h = kSmallSize;
+  int w = kSmallSize;
+  int h = kSmallSize;
 
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));
@@ -72,7 +72,8 @@ TEST(dudchenko_o_connected_components_tbb, perf_pipeline_small) {
 TEST(dudchenko_o_connected_components_tbb, perf_task_run_small) {
   auto img = CreateTestImage(kSmallSize);
   std::vector<int> out(img.size());
-  int w = kSmallSize, h = kSmallSize;
+  int w = kSmallSize;
+  int h = kSmallSize;
 
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(img.data()));

@@ -16,7 +16,7 @@ std::vector<int> RunConnectedComponents(const std::vector<uint8_t>& img, int w, 
   std::vector<int> out(static_cast<std::size_t>(w) * static_cast<std::size_t>(h));
 
   auto td = std::make_shared<ppc::core::TaskData>();
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<uint8_t*>(img.data())));
+  td->inputs.emplace_back(const_cast<uint8_t*>(img.data()));
   td->inputs_count.emplace_back(static_cast<unsigned int>(img.size()));
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&w));
   td->inputs_count.emplace_back(1);
@@ -27,10 +27,18 @@ std::vector<int> RunConnectedComponents(const std::vector<uint8_t>& img, int w, 
 
   auto task = std::make_shared<ConnectedComponentsTbb>(td);
 
-  if (!task->ValidationImpl()) return {};
-  if (!task->PreProcessingImpl()) return {};
-  if (!task->RunImpl()) return {};
-  if (!task->PostProcessingImpl()) return {};
+  if (!task->ValidationImpl()) {
+    return {};
+  }
+  if (!task->PreProcessingImpl()) {
+    return {};
+  }
+  if (!task->RunImpl()) {
+    return {};
+  }
+  if (!task->PostProcessingImpl()) {
+    return {};
+  }
 
   const unsigned int n = td->outputs_count[0];
   return {out.begin(), out.begin() + n};
@@ -39,7 +47,7 @@ std::vector<int> RunConnectedComponents(const std::vector<uint8_t>& img, int w, 
 int CountUniqueComponents(const std::vector<int>& labels) {
   std::vector<int> unique_labels;
   for (int label : labels) {
-    if (label != 0 && std::find(unique_labels.begin(), unique_labels.end(), label) == unique_labels.end()) {
+    if (label != 0 && std::ranges::find(unique_labels, label) == unique_labels.end()) {
       unique_labels.push_back(label);
     }
   }
@@ -48,12 +56,13 @@ int CountUniqueComponents(const std::vector<int>& labels) {
 }  // namespace
 
 TEST(dudchenko_o_connected_components_tbb, single_component) {
-  const int w = 5, h = 5;
+  const int w = 5;
+  const int h = 5;
   std::vector<uint8_t> img(w * h, 0);
 
   for (int y = 1; y <= 3; ++y) {
     for (int x = 1; x <= 3; ++x) {
-      img[y * w + x] = 1;
+      img[(y * w) + x] = 1;
     }
   }
 

@@ -5,48 +5,51 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <mutex>
-#include <oneapi/tbb.h>
+#include <cstdint>
+#include <utility>
 #include <vector>
 
 using namespace dudchenko_o_connected_components_tbb;
 
 class DisjointSetUnion {
  private:
-  std::vector<int> parent;
-  std::vector<int> rank;
+  std::vector<int> parent_;
+  std::vector<int> rank_;
 
  public:
-  DisjointSetUnion(int n) : parent(n), rank(n, 0) {
+  DisjointSetUnion(int n) : parent_(n), rank_(n, 0) {
     for (int i = 0; i < n; ++i) {
-      parent[i] = i;
+      parent_[i] = i;
     }
   }
 
-  int find(int x) {
-    if (parent[x] != x) {
-      parent[x] = find(parent[x]);
+  int Find(int x) {
+    if (parent_[x] != x) {
+      parent_[x] = Find(parent_[x]);
     }
-    return parent[x];
+    return parent_[x];
   }
 
   void unite(int x, int y) {
-    x = find(x);
-    y = find(y);
-    if (x == y) return;
+    x = Find(x);
+    y = Find(y);
+    if (x == y) {
+      return;
+    }
 
-    if (rank[x] < rank[y]) {
-      parent[x] = y;
-    } else if (rank[x] > rank[y]) {
-      parent[y] = x;
+    if (rank_[x] < rank_[y]) {
+      parent_[x] = y;
+    } else if (rank[x] > rank_[y]) {
+      parent_[y] = x;
     } else {
-      parent[y] = x;
-      rank[x]++;
+      parent_[y] = x;
+      rank_[x]++;
     }
   }
 };
 
-static void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, int>>& equivalences) {
+namespace {
+void ResolveEquivalences(std::vector<int>& labels, std::vector<std::pair<int, int>>& equivalences) {
   if (equivalences.empty()) return;
 
   int max_label = *std::max_element(labels.begin(), labels.end());
@@ -194,5 +197,6 @@ bool ConnectedComponentsTbb::PostProcessingImpl() {
   task_data->outputs_count[0] = static_cast<unsigned int>(n);
   return true;
 }
+} // namespace
 
 }  // namespace dudchenko_o_connected_components_tbb
