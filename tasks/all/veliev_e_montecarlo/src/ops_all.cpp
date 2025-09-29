@@ -39,7 +39,7 @@ bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::ValidationImpl() {
 bool veliev_e_monte_carlo_all::VelievEMonteCarloAll::RunImpl() {
   try {
     double buf[4];
-    if (world_.rank() = 0) {
+    if (world_.rank() == 0) {
       buf[0] = Int1_[0];
       buf[1] = Int1_[1];
       buf[2] = Int2_[0];
