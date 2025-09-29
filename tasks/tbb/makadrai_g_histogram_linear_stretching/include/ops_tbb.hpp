@@ -6,11 +6,11 @@
 
 #include "core/task/include/task.hpp"
 
-namespace makadrai_g_histogram_linear_stretching_omp {
+namespace makadrai_g_histogram_linear_stretching_tbb {
 
-class TestTaskSequential : public ppc::core::Task {
+class TestTaskTBB : public ppc::core::Task {
  public:
-  explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -20,4 +20,4 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<uint8_t> img_, res_;
 };
 
-}  // namespace makadrai_g_histogram_linear_stretching_omp
+}  // namespace makadrai_g_histogram_linear_stretching_tbb
