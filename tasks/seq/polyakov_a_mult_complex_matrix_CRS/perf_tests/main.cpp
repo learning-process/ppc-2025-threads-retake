@@ -14,17 +14,17 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
   constexpr size_t kN = 2500;
 
   // Create data
-  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS A =
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS a =
       polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
-  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS B =
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b =
       polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
-  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS C(kN, kN);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS c(kN, kN);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
 
   // Create Task
   auto test_task_sequential =
@@ -53,17 +53,17 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_task_run) {
   constexpr size_t kN = 2500;
 
   // Create data
-  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS A =
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS a =
       polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
-  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS B =
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b =
       polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
-  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS C(kN, kN);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS c(kN, kN);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
 
   // Create Task
   auto test_task_sequential =

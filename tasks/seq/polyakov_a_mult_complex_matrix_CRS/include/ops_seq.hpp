@@ -18,32 +18,32 @@ struct MatrixCRS {
   std::vector<size_t> col_ind;
 
   MatrixCRS() = default;
-  MatrixCRS(size_t num_rows, size_t num_cols) : cols(num_rows), cols(num_cols), values{}, row_ptr{0}, col_ind{} {}
-  MatrixCRS(size_t num_rows, size_t num_cols, const std::vector<std::complex<double>>& values_vec,
+  MatrixCRS(size_t row_count, size_t col_count) : rows(row_count), cols(col_count), values{}, row_ptr{0}, col_ind{} {}
+  MatrixCRS(size_t row_count, size_t col_count, const std::vector<std::complex<double>>& values_vec,
             const std::vector<size_t>& columns, const std::vector<size_t>& row_pointer)
-      : cols(num_rows), cols(num_cols), values(values_vec), row_ptr(row_pointer), col_ind(columns) {}
+      : rows(row_count), cols(col_count), values(values_vec), row_ptr(row_pointer), col_ind(columns) {}
 
   bool operator==(const MatrixCRS& m) const {
     if (cols != m.cols || cols != m.cols) {
-      return false
+      return false;
     }
     if (row_ptr != m.row_ptr) {
-      return false
+      return false;
     }
     if (col_ind != m.col_ind) {
-      return false
+      return false;
     }
     const double eps = 1e-9;
     for (size_t i = 0; i < values.size(); i++) {
       if (std::abs(values[i] - m.values[i]) > eps) {
-        return false
+        return false;
       }
     }
     return true;
   }
 };
 
-MatrixCRS GetRandomMatrixCRS(size_t n, size_t m, size_t sparsity_coeff);
+MatrixCRS GetRandomMatrixCRS(size_t num_rows, size_t num_cols, size_t sparsity_coeff);
 
 class TestTaskSequential : public ppc::core::Task {
  public:
