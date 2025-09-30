@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -12,36 +13,43 @@
 
 namespace {
 
-std::vector<std::complex<double>> GenerateRandomSparseMatrix(int rows, int cols, double density) {
-  std::vector<std::complex<double>> matrix(rows * cols, {0.0, 0.0});
+struct MatrixDimensions {
+  int rows1;
+  int cols1;
+  int rows2;
+  int cols2;
+};
+
+std::vector<std::complex<double>> GenerateRandomSparseMatrix(int size_rows, int size_cols, double fill_density) {
+  std::vector<std::complex<double>> matrix(size_rows * size_cols, {0.0, 0.0});
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> value_dist(-10.0, 10.0);
   std::uniform_real_distribution<double> prob_dist(0.0, 1.0);
 
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      if (prob_dist(gen) < density) {
-        matrix[(i * cols) + j] = {value_dist(gen), value_dist(gen)};
+  for (int i = 0; i < size_rows; i++) {
+    for (int j = 0; j < size_cols; j++) {
+      if (prob_dist(gen) < fill_density) {
+        matrix[(i * size_cols) + j] = {value_dist(gen), value_dist(gen)};
       }
     }
   }
   return matrix;
 }
 
-void SetupAndRunPerformanceTest(int rows1, int cols1, int rows2, int cols2, double density) {
+void SetupAndRunPerformanceTest(const MatrixDimensions& dims, double density) {
   // Create sparse matrices
-  auto in1 = GenerateRandomSparseMatrix(rows1, cols1, density);
-  auto in2 = GenerateRandomSparseMatrix(rows2, cols2, density);
-  std::vector<std::complex<double>> out(rows1 * cols2, {0.0, 0.0});
+  auto in1 = GenerateRandomSparseMatrix(dims.rows1, dims.cols1, density);
+  auto in2 = GenerateRandomSparseMatrix(dims.rows2, dims.cols2, density);
+  std::vector<std::complex<double>> out(dims.rows1 * dims.cols2, {0.0, 0.0});
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in1.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in2.data()));
 
-  std::vector<int> dims1{rows1, cols1};
-  std::vector<int> dims2{rows2, cols2};
+  std::vector<int> dims1{dims.rows1, dims.cols1};
+  std::vector<int> dims2{dims.rows2, dims.cols2};
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(dims1.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(dims2.data()));
 
@@ -84,7 +92,8 @@ TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
   constexpr int kCols2 = 100;
   constexpr double kDensity = 0.1;  // 10% non-zero elements
 
-  SetupAndRunPerformanceTest(kRows1, kCols1, kRows2, kCols2, kDensity);
+  MatrixDimensions dims{kRows1, kCols1, kRows2, kCols2};
+  SetupAndRunPerformanceTest(dims, kDensity);
 }
 
 TEST(Ivashchuk_V_mult_crs_omp, test_task_run) {
