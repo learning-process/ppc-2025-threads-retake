@@ -8,11 +8,11 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/polyakov_a_mult_complex_matrix_CRS/include/ops_seq.hpp"
+#include "tbb/polyakov_a_mult_complex_matrix_CRS/include/ops_tbb.hpp"
 
-namespace pcrs = polyakov_a_mult_complex_matrix_crs_seq;
+namespace pcrs = polyakov_a_mult_complex_matrix_crs_tbb;
 
-TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
+TEST(polyakov_a_mult_complex_matrix_crs_tbb, test_pipeline_run) {
   constexpr size_t kN = 2500;
 
   // Create data
@@ -21,13 +21,13 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
   pcrs::MatrixCRS c(pcrs::Rows{kN}, pcrs::Cols{kN});
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&a));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&b));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&a));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&b));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<pcrs::TestTaskSequential>(task_data_seq);
+  auto test_task_tbb = std::make_shared<pcrs::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -43,12 +43,12 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(polyakov_a_mult_complex_matrix_crs_seq, test_task_run) {
+TEST(polyakov_a_mult_complex_matrix_crs_tbb, test_task_run) {
   constexpr size_t kN = 2500;
 
   // Create data
@@ -57,13 +57,13 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_task_run) {
   pcrs::MatrixCRS c(pcrs::Rows{kN}, pcrs::Cols{kN});
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&a));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&b));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&a));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&b));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<pcrs::TestTaskSequential>(task_data_seq);
+  auto test_task_tbb = std::make_shared<pcrs::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -79,7 +79,7 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }

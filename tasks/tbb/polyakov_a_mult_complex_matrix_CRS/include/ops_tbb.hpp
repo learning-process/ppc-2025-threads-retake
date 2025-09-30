@@ -8,7 +8,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace polyakov_a_mult_complex_matrix_crs_seq {
+namespace polyakov_a_mult_complex_matrix_crs_tbb {
 
 struct Rows {
   size_t value;
@@ -59,9 +59,9 @@ struct MatrixCRS {
 
 MatrixCRS GetRandomMatrixCRS(Rows num_rows, Cols num_cols, size_t sparsity_coeff);
 
-class TestTaskSequential : public ppc::core::Task {
+class TestTaskTBB : public ppc::core::Task {
  public:
-  explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -72,4 +72,4 @@ class TestTaskSequential : public ppc::core::Task {
   size_t a_rows_{}, a_cols_{}, b_rows_{}, b_cols_{}, c_rows_{}, c_cols_{};
 };
 
-}  // namespace polyakov_a_mult_complex_matrix_crs_seq
+}  // namespace polyakov_a_mult_complex_matrix_crs_tbb
