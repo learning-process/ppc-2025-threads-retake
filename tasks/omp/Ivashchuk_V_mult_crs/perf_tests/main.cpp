@@ -92,22 +92,23 @@ void SetupAndRunPerformanceTest(const MatrixDimensions& dims, double density, bo
 }  // namespace
 
 TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
-  constexpr int kRows1 = 100;
-  constexpr int kCols1 = 100;
-  constexpr int kRows2 = 100;
-  constexpr int kCols2 = 100;
-  constexpr double kDensity = 0.1;
+
+  constexpr int kRows1 = 3000;
+  constexpr int kCols1 = 3000;
+  constexpr int kRows2 = 3000;
+  constexpr int kCols2 = 3000;
+  constexpr double kDensity = 0.8; 
 
   MatrixDimensions dims{.rows1 = kRows1, .cols1 = kCols1, .rows2 = kRows2, .cols2 = kCols2};
   SetupAndRunPerformanceTest(dims, kDensity, true);
 }
 
 TEST(Ivashchuk_V_mult_crs_omp, test_task_run) {
-  constexpr int kRows1 = 150;
-  constexpr int kCols1 = 150;
-  constexpr int kRows2 = 150;
-  constexpr int kCols2 = 150;
-  constexpr double kDensity = 0.05;
+  constexpr int kRows1 = 3000;
+  constexpr int kCols1 = 3000;
+  constexpr int kRows2 = 3000;
+  constexpr int kCols2 = 3000;
+  constexpr double kDensity = 0.8;
 
   MatrixDimensions dims{.rows1 = kRows1, .cols1 = kCols1, .rows2 = kRows2, .cols2 = kCols2};
   SetupAndRunPerformanceTest(dims, kDensity, false);
