@@ -167,7 +167,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_tbb, test_pipeline_run) {
       GenerateRandomMatrix({.rows = 200, .cols = 200, .density = 0.6, .seed = 1993});
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix b =
       GenerateRandomMatrix({.rows = 200, .cols = 200, .density = 0.6, .seed = 4325});
-  auto b_seq = b; 
+  auto b_seq = b;
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix result;
 
   // Create TaskData
@@ -206,7 +206,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_tbb, test_task_run) {
       GenerateRandomMatrix({.rows = 200, .cols = 200, .density = 0.6, .seed = 1993});
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix b =
       GenerateRandomMatrix({.rows = 200, .cols = 200, .density = 0.6, .seed = 4325});
-  auto b_seq = b; 
+  auto b_seq = b;
   guseynov_e_sparse_matrix_multiply_crs_tbb::CRSMatrix result;
 
   // Create TaskData
