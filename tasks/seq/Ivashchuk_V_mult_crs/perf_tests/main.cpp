@@ -90,7 +90,6 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
   std::vector<std::complex<double>> out(kCount * kCount, 0);
 
   std::random_device rd;
-  std::mutex mtx;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> value_dis(-2.0, 2.0);
 
