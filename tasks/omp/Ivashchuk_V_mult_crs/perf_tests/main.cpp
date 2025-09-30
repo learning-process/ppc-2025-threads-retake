@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -91,7 +92,7 @@ TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
   constexpr int kCols2 = 100;
   constexpr double kDensity = 0.1;  // 10% non-zero elements
 
-  MatrixDimensions dims{kRows1, kCols1, kRows2, kCols2};
+  MatrixDimensions dims{.rows1 = kRows1, .cols1 = kCols1, .rows2 = kRows2, .cols2 = kCols2};
   SetupAndRunPerformanceTest(dims, kDensity);
 }
 
