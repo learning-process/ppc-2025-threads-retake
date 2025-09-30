@@ -63,7 +63,7 @@ TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
   task_data->outputs_count.emplace_back(out.size() * sizeof(std::complex<double>));
 
   // Create Task
-  auto test_task = std::make_shared<Ivashchuk_V_mult_crs::SparseMatrixMultiplierOMP>(task_data);
+  auto test_task = std::make_shared<ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -115,7 +115,7 @@ TEST(Ivashchuk_V_mult_crs_omp, test_task_run) {
   task_data->outputs_count.emplace_back(out.size() * sizeof(std::complex<double>));
 
   // Create Task
-  auto test_task = std::make_shared<Ivashchuk_V_mult_crs::SparseMatrixMultiplierOMP>(task_data);
+  auto test_task = std::make_shared<ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

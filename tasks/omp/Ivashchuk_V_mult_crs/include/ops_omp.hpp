@@ -6,7 +6,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace Ivashchuk_V_mult_crs {
+namespace ivashchuk_v_mult_crs {
 
 struct SparseMatrix {
   std::vector<std::complex<double>> values;
@@ -25,10 +25,10 @@ class SparseMatrixMultiplierOMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  SparseMatrix matrix1;
-  SparseMatrix matrix2;
-  SparseMatrix result;
-  void multiplySparseMatrices();
+  SparseMatrix matrix1_;
+  SparseMatrix matrix2_;
+  SparseMatrix result_;
+  void MultiplySparseMatrices();
 };
 
-}  // namespace Ivashchuk_V_mult_crs
+}  // namespace ivashchuk_v_mult_crs

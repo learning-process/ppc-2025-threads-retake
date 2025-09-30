@@ -1,18 +1,14 @@
 #include <gtest/gtest.h>
 
 #include <complex>
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/Ivashchuk_V_mult_crs/include/ops_omp.hpp"
 
-TEST(Ivashchuk_V_mult_crs_omp, test_multiply_3x3) {
+void TestMultiply3x3() {
   constexpr int kRows1 = 3;
   constexpr int kCols1 = 3;
   constexpr int kRows2 = 3;
@@ -49,7 +45,7 @@ TEST(Ivashchuk_V_mult_crs_omp, test_multiply_3x3) {
   task_data->outputs_count.emplace_back(out.size() * sizeof(std::complex<double>));
 
   // Create Task
-  Ivashchuk_V_mult_crs::SparseMatrixMultiplierOMP test_task(task_data);
+  ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP test_task(task_data);
   ASSERT_EQ(test_task.Validation(), true);
   test_task.PreProcessing();
   test_task.Run();
@@ -69,7 +65,9 @@ TEST(Ivashchuk_V_mult_crs_omp, test_multiply_3x3) {
   }
 }
 
-TEST(Ivashchuk_V_mult_crs_omp, test_multiply_complex_numbers) {
+TEST(Ivashchuk_V_mult_crs_omp, test_multiply_3x3) { TestMultiply3x3(); }
+
+void TestMultiplyComplexNumbers() {
   constexpr int kRows1 = 2;
   constexpr int kCols1 = 2;
   constexpr int kRows2 = 2;
@@ -101,7 +99,7 @@ TEST(Ivashchuk_V_mult_crs_omp, test_multiply_complex_numbers) {
   task_data->outputs_count.emplace_back(out.size() * sizeof(std::complex<double>));
 
   // Create Task
-  Ivashchuk_V_mult_crs::SparseMatrixMultiplierOMP test_task(task_data);
+  ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP test_task(task_data);
   ASSERT_EQ(test_task.Validation(), true);
   test_task.PreProcessing();
   test_task.Run();
@@ -114,7 +112,9 @@ TEST(Ivashchuk_V_mult_crs_omp, test_multiply_complex_numbers) {
   }
 }
 
-TEST(Ivashchuk_V_mult_crs_omp, test_sparse_matrix_multiplication) {
+TEST(Ivashchuk_V_mult_crs_omp, test_multiply_complex_numbers) { TestMultiplyComplexNumbers(); }
+
+void TestSparseMatrixMultiplication() {
   constexpr int kRows1 = 3;
   constexpr int kCols1 = 4;
   constexpr int kRows2 = 4;
@@ -150,7 +150,7 @@ TEST(Ivashchuk_V_mult_crs_omp, test_sparse_matrix_multiplication) {
   task_data->outputs_count.emplace_back(out.size() * sizeof(std::complex<double>));
 
   // Create Task
-  Ivashchuk_V_mult_crs::SparseMatrixMultiplierOMP test_task(task_data);
+  ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP test_task(task_data);
   ASSERT_EQ(test_task.Validation(), true);
   test_task.PreProcessing();
   test_task.Run();
@@ -162,3 +162,5 @@ TEST(Ivashchuk_V_mult_crs_omp, test_sparse_matrix_multiplication) {
     EXPECT_NEAR(out[i].imag(), expected[i].imag(), 1e-10);
   }
 }
+
+TEST(Ivashchuk_V_mult_crs_omp, test_sparse_matrix_multiplication) { TestSparseMatrixMultiplication(); }
