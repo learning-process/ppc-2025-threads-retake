@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <numeric>
 #include <random>
-#include <utility>
 #include <vector>
 
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_omp;
@@ -75,7 +74,7 @@ bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::RunImpl() {
     std::vector<char> local_marked(c_cols_);
 #pragma omp for
     for (int r = 0; r < a_rows_int; r++) {
-      std::ranges::fill(local_marked, static_cast<char>(0));
+      std::fill(local_marked.begin(), local_marked.end(), static_cast<char>(0));
       for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; i++) {
         size_t k = a_->col_ind[i];
         for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; j++) {
@@ -102,7 +101,7 @@ bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::RunImpl() {
     std::vector<std::complex<double>> local_temp(c_cols_);
 #pragma omp for
     for (int r = 0; r < a_rows_int; r++) {
-      std::ranges::fill(local_temp, std::complex<double>(0.0));
+      std::fill(local_temp.begin(), local_temp.end(), std::complex<double>(0.0));
 
       // Умножение строки r матрицы A на B
       for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; i++) {
