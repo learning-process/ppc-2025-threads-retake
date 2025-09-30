@@ -5,7 +5,9 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
+#include <numeric>
 #include <random>
+#include <range>
 #include <utility>
 #include <vector>
 
@@ -70,10 +72,10 @@ bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::RunImpl() {
 
 #pragma omp parallel
   {
-    std::vector<bool> local_marked(c_cols_, 0);
+    std::vector<char> local_marked(c_cols_, 0);
 #pragma omp for
     for (int r = 0; r < a_rows_int; r++) {
-      std::fill(local_marked.begin(), local_marked.end(), 0);
+      std::ranges::fill(local_marked.begin(), local_marked.end(), 0);
       for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; i++) {
         size_t k = a_->col_ind[i];
         for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; j++) {
@@ -100,7 +102,7 @@ bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::RunImpl() {
     std::vector<std::complex<double>> local_temp(c_cols_);
 #pragma omp for
     for (int r = 0; r < a_rows_int; r++) {
-      std::fill(local_temp.begin(), local_temp.end(), std::complex<double>(0.0));
+      std::ranges::fill(local_temp.begin(), local_temp.end(), std::complex<double>(0.0));
 
       // Умножение строки r матрицы A на B
       for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; i++) {
@@ -117,7 +119,7 @@ bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::RunImpl() {
       for (size_t j = 0; j < c_cols_; j++) {
         if (std::abs(local_temp[j]) > eps) {
           c_->values[write_pos] = local_temp[j];
-          c_->col_ind[write_pos] = static_cast<size_t>(j);
+          c_->col_ind[write_pos] = j;
           write_pos++;
         }
       }
