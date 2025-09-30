@@ -50,13 +50,28 @@ bool ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP::PreProcessingImpl() {
 }
 
 bool ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP::ValidationImpl() {
-  // Check if matrices can be multiplied
-  if (matrix1_.cols != matrix2_.rows) {
+  if (task_data->inputs.size() < 4) {
+    return false;
+  }
+  if (task_data->outputs.empty()) {
     return false;
   }
 
-  // Check if output data is not nullptr
-  if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
+  int* dims1 = reinterpret_cast<int*>(task_data->inputs[2]);
+  int* dims2 = reinterpret_cast<int*>(task_data->inputs[3]);
+
+  if (dims1 == nullptr || dims2 == nullptr) {
+    return false;
+  }
+
+  int cols1 = dims1[1];
+  int rows2 = dims2[0];
+
+  if (cols1 != rows2) {
+    return false;
+  }
+
+  if (task_data->outputs[0] == nullptr) {
     return false;
   }
 
@@ -120,7 +135,6 @@ void ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP::MultiplySparseMatrices() {
 }
 
 bool ivashchuk_v_mult_crs::SparseMatrixMultiplierOMP::PostProcessingImpl() {
-  // Convert result matrix to dense format for output
   auto* output_data = reinterpret_cast<std::complex<double>*>(task_data->outputs[0]);
   int rows = result_.rows;
   int cols = result_.cols;
