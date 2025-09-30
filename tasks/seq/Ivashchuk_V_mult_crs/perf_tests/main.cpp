@@ -13,7 +13,7 @@
 #include "core/task/include/task.hpp"
 
 TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
-  constexpr int kCount = 1500;  // Large size + dense matrices
+  constexpr int kCount = 2500;  // Very large size
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
@@ -23,24 +23,26 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> value_dis(-2.0, 2.0);
 
-  // Ensure matrices are not too sparse
+  // Create dense matrices to ensure long computation time
   for (int i = 0; i < kCount; ++i) {
-    // Main diagonal
+    // Main diagonal with complex values
     in1[i * kCount + i] = std::complex<double>(2.0, 1.0);
     in2[i * kCount + i] = std::complex<double>(1.5, -0.5);
 
-    // Adjacent diagonals
-    if (i > 0) {
-      in1[i * kCount + (i - 1)] = std::complex<double>(0.5, 0.3);
-      in2[i * kCount + (i - 1)] = std::complex<double>(0.3, 0.5);
-    }
-    if (i < kCount - 1) {
-      in1[i * kCount + (i + 1)] = std::complex<double>(0.7, -0.2);
-      in2[i * kCount + (i + 1)] = std::complex<double>(-0.2, 0.7);
+    // Multiple adjacent diagonals
+    for (int offset = 1; offset <= 5; ++offset) {
+      if (i >= offset) {
+        in1[i * kCount + (i - offset)] = std::complex<double>(0.3, 0.2);
+        in2[i * kCount + (i - offset)] = std::complex<double>(0.2, 0.3);
+      }
+      if (i < kCount - offset) {
+        in1[i * kCount + (i + offset)] = std::complex<double>(0.4, -0.1);
+        in2[i * kCount + (i + offset)] = std::complex<double>(-0.1, 0.4);
+      }
     }
 
-    // Random elements in each row (add density)
-    for (int j = 0; j < 10; ++j) {
+    // Many random elements in each row
+    for (int j = 0; j < 20; ++j) {
       int random_col = std::uniform_int_distribution<>(0, kCount - 1)(gen);
       in1[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
       in2[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
@@ -71,7 +73,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Check result correctness (simplified)
+  // Check result correctness
   bool has_non_zero = false;
   for (size_t i = 0; i < kCount * kCount; ++i) {
     if (std::abs(out[i].real()) > 1e-10 || std::abs(out[i].imag()) > 1e-10) {
@@ -79,11 +81,11 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
       break;
     }
   }
-  EXPECT_TRUE(has_non_zero);  // Result should not be zero matrix
+  EXPECT_TRUE(has_non_zero);
 }
 
 TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
-  constexpr int kCount = 1500;  // Large size + dense matrices
+  constexpr int kCount = 2500;  // Very large size
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
@@ -93,24 +95,26 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> value_dis(-2.0, 2.0);
 
-  // Ensure matrices are not too sparse
+  // Create dense matrices to ensure long computation time
   for (int i = 0; i < kCount; ++i) {
-    // Main diagonal
+    // Main diagonal with complex values
     in1[i * kCount + i] = std::complex<double>(2.0, 1.0);
     in2[i * kCount + i] = std::complex<double>(1.5, -0.5);
 
-    // Adjacent diagonals
-    if (i > 0) {
-      in1[i * kCount + (i - 1)] = std::complex<double>(0.5, 0.3);
-      in2[i * kCount + (i - 1)] = std::complex<double>(0.3, 0.5);
-    }
-    if (i < kCount - 1) {
-      in1[i * kCount + (i + 1)] = std::complex<double>(0.7, -0.2);
-      in2[i * kCount + (i + 1)] = std::complex<double>(-0.2, 0.7);
+    // Multiple adjacent diagonals
+    for (int offset = 1; offset <= 5; ++offset) {
+      if (i >= offset) {
+        in1[i * kCount + (i - offset)] = std::complex<double>(0.3, 0.2);
+        in2[i * kCount + (i - offset)] = std::complex<double>(0.2, 0.3);
+      }
+      if (i < kCount - offset) {
+        in1[i * kCount + (i + offset)] = std::complex<double>(0.4, -0.1);
+        in2[i * kCount + (i + offset)] = std::complex<double>(-0.1, 0.4);
+      }
     }
 
-    // Random elements in each row (add density)
-    for (int j = 0; j < 10; ++j) {
+    // Many random elements in each row
+    for (int j = 0; j < 20; ++j) {
       int random_col = std::uniform_int_distribution<>(0, kCount - 1)(gen);
       in1[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
       in2[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
@@ -141,7 +145,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Check result correctness (simplified)
+  // Check result correctness
   bool has_non_zero = false;
   for (size_t i = 0; i < kCount * kCount; ++i) {
     if (std::abs(out[i].real()) > 1e-10 || std::abs(out[i].imag()) > 1e-10) {
@@ -149,5 +153,5 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
       break;
     }
   }
-  EXPECT_TRUE(has_non_zero);  // Result should not be zero matrix
+  EXPECT_TRUE(has_non_zero);
 }
