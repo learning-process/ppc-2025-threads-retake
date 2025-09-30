@@ -36,9 +36,9 @@ std::vector<std::complex<double>> GenerateRandomSparseMatrix(int size_rows, int 
   }
   return matrix;
 }
-// test fix
+
 void SetupAndRunPerformanceTest(const MatrixDimensions& dims, double density, bool pipeline_run = true) {
-  // Create sparse matrice
+  // Create sparse matrices
   auto in1 = GenerateRandomSparseMatrix(dims.rows1, dims.cols1, density);
   auto in2 = GenerateRandomSparseMatrix(dims.rows2, dims.cols2, density);
   std::vector<std::complex<double>> out(dims.rows1 * dims.cols2, {0.0, 0.0});
@@ -92,13 +92,11 @@ void SetupAndRunPerformanceTest(const MatrixDimensions& dims, double density, bo
 }  // namespace
 
 TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
-
   constexpr int kRows1 = 3000;
   constexpr int kCols1 = 3000;
   constexpr int kRows2 = 3000;
   constexpr int kCols2 = 3000;
-
-  constexpr double kDensity = 0.8; 
+  constexpr double kDensity = 0.8;
 
   MatrixDimensions dims{.rows1 = kRows1, .cols1 = kCols1, .rows2 = kRows2, .cols2 = kCols2};
   SetupAndRunPerformanceTest(dims, kDensity, true);
