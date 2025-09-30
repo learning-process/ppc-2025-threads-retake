@@ -59,6 +59,10 @@ struct MatrixCRS {
 
 MatrixCRS GetRandomMatrixCRS(Rows num_rows, Cols num_cols, size_t sparsity_coeff);
 
+int CountNonZeroInRow(size_t r);
+
+void ComputeRowProduct(size_t r, std::vector<std::complex<double>>& local_temp);
+
 class TestTaskTBB : public ppc::core::Task {
  public:
   explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}

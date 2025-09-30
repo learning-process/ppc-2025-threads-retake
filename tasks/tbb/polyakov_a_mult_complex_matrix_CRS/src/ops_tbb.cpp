@@ -68,20 +68,10 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   // Подсчёт количества ненулевых в каждой строке
   std::vector<int> row_nnz(a_rows_, 0);
 
+  // Подсчёт ненулевых элементов в строках матрицы A
   tbb::parallel_for(tbb::blocked_range<size_t>(0, a_rows_), [&](const tbb::blocked_range<size_t> &range) {
-    std::vector<char> local_marked(c_cols_);
     for (size_t r = range.begin(); r < range.end(); ++r) {
-      for (auto &x : local_marked) {
-        x = 0;
-      }
-      for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
-        size_t k = a_->col_ind[i];
-        for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
-          size_t t = b_->col_ind[j];
-          local_marked[t] = 1;
-        }
-      }
-      row_nnz[r] = std::accumulate(local_marked.begin(), local_marked.end(), 0);
+      row_nnz[r] = CountNonZeroInRow(r);
     }
   });
 
@@ -94,23 +84,11 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   c_->values.assign(total_nnz, std::complex<double>(0.0));
   c_->col_ind.assign(total_nnz, 0);
 
-  // Вычисление результата
+  // Вычисление результата умножения A * B и запись в матрицу C
   tbb::parallel_for(tbb::blocked_range<size_t>(0, a_rows_), [&](const tbb::blocked_range<size_t> &range) {
-    std::vector<std::complex<double>> local_temp(c_cols_);
     for (size_t r = range.begin(); r < range.end(); ++r) {
-      for (auto &x : local_temp) {
-        x = {};
-      }
-
-      for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
-        std::complex<double> a_val = a_->values[i];
-        size_t k = a_->col_ind[i];
-        for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
-          std::complex<double> b_val = b_->values[j];
-          size_t t = b_->col_ind[j];
-          local_temp[t] += a_val * b_val;
-        }
-      }
+      std::vector<std::complex<double>> local_temp(c_cols_);
+      ComputeRowProduct(r, local_temp);
 
       size_t write_pos = c_->row_ptr[r];
       for (size_t j = 0; j < c_cols_; ++j) {
@@ -124,6 +102,36 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   });
 
   return true;
+}
+
+// Функция для подсчёта ненулевых элементов в строке матрицы A
+int polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::CountNonZeroInRow(size_t r) {
+  std::vector<char> local_marked(c_cols_);
+  std::fill(local_marked.begin(), local_marked.end(), 0);
+
+  for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
+    size_t k = a_->col_ind[i];
+    for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
+      size_t t = b_->col_ind[j];
+      local_marked[t] = 1;
+    }
+  }
+
+  return std::accumulate(local_marked.begin(), local_marked.end(), 0);
+}
+
+// Функция для вычисления произведения строк A и B и обновления local_temp
+void polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::ComputeRowProduct(
+    size_t r, std::vector<std::complex<double>> &local_temp) {
+  for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
+    std::complex<double> a_val = a_->values[i];
+    size_t k = a_->col_ind[i];
+    for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
+      std::complex<double> b_val = b_->values[j];
+      size_t t = b_->col_ind[j];
+      local_temp[t] += a_val * b_val;
+    }
+  }
 }
 
 bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::PostProcessingImpl() { return true; }
