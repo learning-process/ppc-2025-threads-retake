@@ -39,7 +39,7 @@ void VerifyOffDiagonal(const std::vector<std::complex<double>> &out, size_t coun
   }
 }
 
-}  // namespace¹
+}  // namespace
 
 TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
   constexpr size_t kCount = 5;
