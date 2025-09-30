@@ -19,7 +19,7 @@ struct MatrixCRS {
   MatrixCRS(size_t rows, size_t cols) : rows_(rows), cols_(cols) { row_ptr.resize(rows + 1, 0); }
   MatrixCRS(size_t rows, size_t cols, const std::vector<std::complex<double>>& v, const std::vector<size_t>& c,
             const std::vector<size_t>& rptr)
-      : rows_(rows), cols_(cols), values(v), col_ind(c), row_ptr(rptr) {}
+      : rows_(rows), cols_(cols), values(v), row_ptr(rptr), col_ind(c) {}
 
   bool operator==(const MatrixCRS& m) const {
     if (rows_ != m.rows_ || cols_ != m.cols_) return false;
