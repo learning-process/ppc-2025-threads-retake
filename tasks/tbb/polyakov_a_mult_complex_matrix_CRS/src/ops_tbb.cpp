@@ -62,6 +62,36 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::ValidationImpl() {
   return a_cols_ == b_rows_ && a_rows_ != 0 && a_cols_ != 0 && b_cols_ != 0;
 }
 
+// Функция для подсчёта ненулевых элементов в строке матрицы A
+int polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::CountNonZeroInRow(size_t r) {
+  std::vector<char> local_marked(c_cols_);
+  std::fill(local_marked.begin(), local_marked.end(), 0);
+
+  for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
+    size_t k = a_->col_ind[i];
+    for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
+      size_t t = b_->col_ind[j];
+      local_marked[t] = 1;
+    }
+  }
+
+  return std::accumulate(local_marked.begin(), local_marked.end(), 0);
+}
+
+// Функция для вычисления произведения строк A и B и обновления local_temp
+void polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::ComputeRowProduct(
+    size_t r, std::vector<std::complex<double>> &local_temp) {
+  for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
+    std::complex<double> a_val = a_->values[i];
+    size_t k = a_->col_ind[i];
+    for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
+      std::complex<double> b_val = b_->values[j];
+      size_t t = b_->col_ind[j];
+      local_temp[t] += a_val * b_val;
+    }
+  }
+}
+
 bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   const double eps = 1e-9;
 
@@ -102,36 +132,6 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   });
 
   return true;
-}
-
-// Функция для подсчёта ненулевых элементов в строке матрицы A
-int polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::CountNonZeroInRow(size_t r) {
-  std::vector<char> local_marked(c_cols_);
-  std::fill(local_marked.begin(), local_marked.end(), 0);
-
-  for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
-    size_t k = a_->col_ind[i];
-    for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
-      size_t t = b_->col_ind[j];
-      local_marked[t] = 1;
-    }
-  }
-
-  return std::accumulate(local_marked.begin(), local_marked.end(), 0);
-}
-
-// Функция для вычисления произведения строк A и B и обновления local_temp
-void polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::ComputeRowProduct(
-    size_t r, std::vector<std::complex<double>> &local_temp) {
-  for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
-    std::complex<double> a_val = a_->values[i];
-    size_t k = a_->col_ind[i];
-    for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
-      std::complex<double> b_val = b_->values[j];
-      size_t t = b_->col_ind[j];
-      local_temp[t] += a_val * b_val;
-    }
-  }
 }
 
 bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::PostProcessingImpl() { return true; }
