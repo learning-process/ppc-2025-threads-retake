@@ -1,13 +1,17 @@
 #include "../include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-
+#include <algorithm>
 #include <cmath>
+#include <complex>
+#include <cstddef>
+#include <vector>
+
+#include "oneapi/tbb/parallel_for.h"
+#include "tbb/blocked_range.h"
 
 namespace {
 
-void ConvertDenseToCRS(const std::vector<std::complex<double>>& dense, int rows, int cols,
+void ConvertDenseToCRS(const std::vector<std::complex<double>>& dense, int num_rows, int num_cols,
                        std::vector<std::complex<double>>& values, std::vector<int>& col_indices,
                        std::vector<int>& row_ptr) {
   row_ptr.clear();
@@ -15,9 +19,9 @@ void ConvertDenseToCRS(const std::vector<std::complex<double>>& dense, int rows,
   col_indices.clear();
 
   row_ptr.push_back(0);
-  for (int i = 0; i < rows; ++i) {
-    for (int j = 0; j < cols; ++j) {
-      const auto& elem = dense[(i * cols) + j];
+  for (int i = 0; i < num_rows; ++i) {
+    for (int j = 0; j < num_cols; ++j) {
+      const auto& elem = dense[(i * num_cols) + j];
       if (std::abs(elem) > 1e-10) {
         values.push_back(elem);
         col_indices.push_back(j);
@@ -31,16 +35,16 @@ void ComputeRowProduct(const std::vector<std::complex<double>>& a_values, const 
                        int a_row_start, int a_row_end, const std::vector<std::complex<double>>& b_values,
                        const std::vector<int>& b_col_indices, const std::vector<int>& b_row_ptr,
                        std::vector<std::complex<double>>& temp_row) {
-  for (int k = a_row_start; k < a_row_end; ++k) {
-    int col_a = a_col_indices[k];
-    const std::complex<double>& val_a = a_values[k];
+  for (int idx = a_row_start; idx < a_row_end; ++idx) {
+    int col_a = a_col_indices[idx];
+    const std::complex<double>& val_a = a_values[idx];
 
-    int b_row_start = b_row_ptr[col_a];
-    int b_row_end = b_row_ptr[col_a + 1];
+    int b_row_start_local = b_row_ptr[col_a];
+    int b_row_end_local = b_row_ptr[col_a + 1];
 
-    for (int l = b_row_start; l < b_row_end; ++l) {
-      int col_b = b_col_indices[l];
-      temp_row[col_b] += val_a * b_values[l];
+    for (int inner_idx = b_row_start_local; inner_idx < b_row_end_local; ++inner_idx) {
+      int col_b = b_col_indices[inner_idx];
+      temp_row[col_b] += val_a * b_values[inner_idx];
     }
   }
 }
@@ -56,8 +60,8 @@ bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PreProcessingImpl() {
   std::vector<std::complex<double>> dense_a(matrix_size * matrix_size);
   std::vector<std::complex<double>> dense_b(matrix_size * matrix_size);
 
-  std::copy(in_ptr, in_ptr + matrix_size * matrix_size, dense_a.begin());
-  std::copy(in_ptr + matrix_size * matrix_size, in_ptr + 2 * matrix_size * matrix_size, dense_b.begin());
+  std::copy(in_ptr, in_ptr + (matrix_size * matrix_size), dense_a.begin());
+  std::copy(in_ptr + (matrix_size * matrix_size), in_ptr + (2 * matrix_size * matrix_size), dense_b.begin());
 
   ConvertToCRS(dense_a, matrix_size, matrix_size, matrix_a_);
   ConvertToCRS(dense_b, matrix_size, matrix_size, matrix_b_);
@@ -102,11 +106,11 @@ bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PostProcessingImpl() {
   return true;
 }
 
-void ivashchuk_v_tbb::SparseMatrixComplexCRS::ConvertToCRS(const std::vector<std::complex<double>>& dense, int rows,
-                                                           int cols, CRSMatrix& crs) {
-  crs.rows = rows;
-  crs.cols = cols;
-  ConvertDenseToCRS(dense, rows, cols, crs.values, crs.col_indices, crs.row_ptr);
+void ivashchuk_v_tbb::SparseMatrixComplexCRS::ConvertToCRS(const std::vector<std::complex<double>>& dense, int num_rows,
+                                                           int num_cols, CRSMatrix& crs) {
+  crs.rows = num_rows;
+  crs.cols = num_cols;
+  ConvertDenseToCRS(dense, num_rows, num_cols, crs.values, crs.col_indices, crs.row_ptr);
 }
 
 void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& a, const CRSMatrix& b, CRSMatrix& c) {
@@ -131,12 +135,10 @@ void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& a, c
 
       ComputeRowProduct(a.values, a.col_indices, a_row_start, a_row_end, b.values, b.col_indices, b.row_ptr, temp_row);
 
-      int non_zero_count = 0;
       for (int j = 0; j < b.cols; ++j) {
         if (std::abs(temp_row[j]) > 1e-10) {
           local_values.push_back(temp_row[j]);
           local_col_indices.push_back(j);
-          non_zero_count++;
         }
       }
       local_row_ptr.push_back(static_cast<int>(local_values.size()));
@@ -147,12 +149,12 @@ void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& a, c
       c.values.insert(c.values.end(), local_values.begin(), local_values.end());
       c.col_indices.insert(c.col_indices.end(), local_col_indices.begin(), local_col_indices.end());
       if (c.row_ptr.size() == 1) {
-        for (size_t ptr : local_row_ptr) {
+        for (int ptr : local_row_ptr) {
           c.row_ptr.push_back(ptr);
         }
       } else {
         int last_ptr = c.row_ptr.back();
-        for (size_t ptr : local_row_ptr) {
+        for (int ptr : local_row_ptr) {
           c.row_ptr.push_back(last_ptr + ptr);
         }
       }
