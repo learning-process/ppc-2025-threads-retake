@@ -13,6 +13,20 @@
 #include "omp/agafeev_s_matmul_fox_algo/include/ops_omp.hpp"
 
 namespace {
+std::vector<double> MatrixMultiply(const std::vector<double> &a, const std::vector<double> &b, int row_col_size) {
+  std::vector<double> c(row_col_size * row_col_size, 0);
+
+  for (int i = 0; i < row_col_size; ++i) {
+    for (int j = 0; j < row_col_size; ++j) {
+      for (int k = 0; k < row_col_size; ++k) {
+        c[(i * row_col_size) + j] += a[(i * row_col_size) + k] * b[(k * row_col_size) + j];
+      }
+    }
+  }
+
+  return c;
+}
+
 std::vector<double> CreateRandomMatrix(int size) {
   auto rand_gen = std::mt19937(time(nullptr));
   std::uniform_real_distribution<double> dist(-1e3, 1e3);
@@ -61,6 +75,12 @@ TEST(agafeev_s_matmul_fox_algo_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  auto temp = MatrixMultiply(in_matrix1, in_matrix2, n);
+
+  for (size_t i = 0; i < out.size(); i++) {
+    ASSERT_FLOAT_EQ(temp[i], out[i]);
+  }
 }
 
 TEST(agafeev_s_matmul_fox_algo_omp, test_task_run) {
@@ -99,4 +119,10 @@ TEST(agafeev_s_matmul_fox_algo_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  auto temp = MatrixMultiply(in_matrix1, in_matrix2, n);
+
+  for (size_t i = 0; i < out.size(); i++) {
+    ASSERT_FLOAT_EQ(temp[i], out[i]);
+  }
 }
