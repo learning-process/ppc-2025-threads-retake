@@ -14,14 +14,14 @@ struct MatrixCRS {
   size_t rows{};
   size_t cols{};
   std::vector<std::complex<double>> values;
-  std::vector<size_t> row_ptr{0};
   std::vector<size_t> col_ind;
+  std::vector<size_t> row_ptr{0};
 
   MatrixCRS() = default;
   MatrixCRS(size_t row_count, size_t col_count) : rows(row_count), cols(col_count) {}
   MatrixCRS(size_t row_count, size_t column_count, const std::vector<std::complex<double>>& non_zero_values,
             const std::vector<size_t>& column_indexes, const std::vector<size_t>& row_pointers)
-      : rows(row_count), cols(col_count), values(values_vec), row_ptr(row_pointer), col_ind(columns) {}
+      : rows(row_count), cols(column_count), values(non_zero_values), col_ind(column_indexes), row_ptr(row_pointers) {}
 
   bool operator==(const MatrixCRS& m) const {
     if (cols != m.cols || cols != m.cols) {
