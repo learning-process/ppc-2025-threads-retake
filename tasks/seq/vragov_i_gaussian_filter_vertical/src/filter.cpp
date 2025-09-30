@@ -22,7 +22,7 @@ bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::Valida
   // Verify image dimensions
   if (task_data->inputs_count[1] < 0 || task_data->inputs_count[2] < 0) {
     return false;
-  };
+  }
   return (task_data->inputs_count[1] * task_data->inputs_count[2] == task_data->inputs_count[0]);
 }
 
