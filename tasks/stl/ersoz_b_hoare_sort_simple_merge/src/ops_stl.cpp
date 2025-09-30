@@ -133,11 +133,79 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
   }
   constexpr std::size_t kParallelThreshold = 2048;
 
-  if (available_threads > 1 && left_size > 1 && right_size > 1 &&
-      (left_size >= kParallelThreshold || right_size >= kParallelThreshold)) {
+  if (available_threads > 2 && n >= kParallelThreshold * 2) {
+    std::size_t num_segments = std::min(static_cast<std::size_t>(available_threads), n / 1024);
+    if (num_segments < 2) num_segments = 2;
+
+    std::vector<std::thread> threads;
+    std::vector<std::pair<std::size_t, std::size_t>> segments;
+
+    std::size_t segment_size = n / num_segments;
+    for (std::size_t i = 0; i < num_segments; ++i) {
+      std::size_t start = i * segment_size;
+      std::size_t end = (i == num_segments - 1) ? n : (i + 1) * segment_size;
+      if (start < end) {
+        segments.emplace_back(start, end);
+      }
+    }
+
+    for (const auto& segment : segments) {
+      if (segment.second - segment.first > 1) {
+        threads.emplace_back([&, segment]() {
+          QuickSortHoare(input_, static_cast<long long>(segment.first), static_cast<long long>(segment.second) - 1);
+        });
+      }
+    }
+
+    for (auto& thread : threads) {
+      thread.join();
+    }
+    threads.clear();
+
+    std::vector<int> temp_result = input_;
+    std::size_t merge_step = 1;
+
+    while (merge_step < segments.size()) {
+      for (std::size_t i = 0; i < segments.size(); i += 2 * merge_step) {
+        if (i + merge_step < segments.size()) {
+          std::size_t left_start = segments[i].first;
+          std::size_t left_end = segments[i].second;
+          std::size_t right_start = segments[i + merge_step].first;
+          std::size_t right_end = segments[i + merge_step].second;
+
+          threads.emplace_back([&, left_start, left_end, right_start, right_end]() {
+            std::vector<int> merged_result(right_end - left_start);
+            MergeTwo(temp_result, Segment{left_start, left_end}, Segment{right_start, right_end}, merged_result);
+
+            for (std::size_t j = 0; j < merged_result.size(); ++j) {
+              temp_result[left_start + j] = merged_result[j];
+            }
+          });
+        }
+      }
+
+      for (auto& thread : threads) {
+        thread.join();
+      }
+      threads.clear();
+
+      for (std::size_t i = 0; i < segments.size(); i += 2 * merge_step) {
+        if (i + merge_step < segments.size()) {
+          segments[i].second = segments[i + merge_step].second;
+        }
+      }
+
+      merge_step *= 2;
+    }
+
+    output_ = temp_result;
+  } else if (available_threads > 1 && left_size > 1 && right_size > 1 &&
+             (left_size >= kParallelThreshold || right_size >= kParallelThreshold)) {
     std::thread left_thread([&]() { QuickSortHoare(input_, 0, static_cast<long long>(left_size) - 1); });
     QuickSortHoare(input_, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
     left_thread.join();
+
+    MergeTwo(input_, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
   } else {
     if (left_size > 1) {
       QuickSortHoare(input_, 0, static_cast<long long>(left_size) - 1);
@@ -145,9 +213,10 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
     if (right_size > 1) {
       QuickSortHoare(input_, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
     }
+
+    MergeTwo(input_, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
   }
 
-  MergeTwo(input_, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
   return true;
 }
 
