@@ -4,14 +4,12 @@
 #include <tbb/parallel_for.h>
 
 #include <algorithm>
-#include <cmath>
 #include <complex>
 #include <cstddef>
 #include <numeric>
 #include <random>
 #include <utility>
 #include <vector>
-
 
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_tbb;
 
@@ -74,7 +72,7 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   tbb::parallel_for(tbb::blocked_range<size_t>(0, a_rows_), [&](const tbb::blocked_range<size_t> &range) {
     std::vector<char> local_marked(c_cols_);
     for (size_t r = range.begin(); r < range.end(); ++r) {
-      std::ranges::fill(local_marked, 0);
+      for (auto &x : local_marked) x = 0;
       for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
         size_t k = a_->col_ind[i];
         for (size_t j = b_->row_ptr[k]; j < b_->row_ptr[k + 1]; ++j) {
@@ -99,7 +97,7 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   tbb::parallel_for(tbb::blocked_range<size_t>(0, a_rows_), [&](const tbb::blocked_range<size_t> &range) {
     std::vector<std::complex<double>> local_temp(c_cols_);
     for (size_t r = range.begin(); r < range.end(); ++r) {
-      std::ranges::fill(local_temp, std::complex<double>(0.0));
+      for (auto &x : local_temp) x = {};
 
       for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
         std::complex<double> a_val = a_->values[i];
