@@ -10,24 +10,24 @@
 #include "core/task/include/task.hpp"
 #include "omp/polyakov_a_mult_complex_matrix_CRS/include/ops_omp.hpp"
 
-TEST(polyakov_a_mult_complex_matrix_CRS_omp, test_pipeline_run) {
-  constexpr size_t n = 2500;
+namespace pcrs = polyakov_a_mult_complex_matrix_crs_omp;
+
+TEST(polyakov_a_mult_complex_matrix_crs_omp, test_pipeline_run) {
+  constexpr size_t kN = 2500;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_omp::MatrixCRS A =
-      polyakov_a_mult_complex_matrix_CRS_omp::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_omp::MatrixCRS B =
-      polyakov_a_mult_complex_matrix_CRS_omp::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_omp::MatrixCRS C(n, n);
+  pcrs::MatrixCRS a = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS b = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS c(pcrs::Rows{kN}, pcrs::Cols{kN});
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&a));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&b));
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
 
   // Create Task
-  auto test_task_omp = std::make_shared<polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<pcrs::TestTaskOMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -48,24 +48,22 @@ TEST(polyakov_a_mult_complex_matrix_CRS_omp, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(polyakov_a_mult_complex_matrix_CRS_omp, test_task_run) {
-  constexpr size_t n = 2500;
+TEST(polyakov_a_mult_complex_matrix_crs_omp, test_task_run) {
+  constexpr size_t kN = 2500;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_omp::MatrixCRS A =
-      polyakov_a_mult_complex_matrix_CRS_omp::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_omp::MatrixCRS B =
-      polyakov_a_mult_complex_matrix_CRS_omp::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_omp::MatrixCRS C(n, n);
+  pcrs::MatrixCRS a = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS b = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS c(pcrs::Rows{kN}, pcrs::Cols{kN});
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&a));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&b));
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
 
   // Create Task
-  auto test_task_omp = std::make_shared<polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<pcrs::TestTaskOMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
