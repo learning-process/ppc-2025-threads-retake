@@ -84,7 +84,7 @@ TEST(shishkarev_a_radix_sort_omp, test_task_run) {
 
   // Создаем копию для эталонной сортировки
   expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
