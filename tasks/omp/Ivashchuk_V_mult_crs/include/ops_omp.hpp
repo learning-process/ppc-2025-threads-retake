@@ -1,0 +1,34 @@
+#pragma once
+
+#include <complex>
+#include <utility>
+#include <vector>
+
+#include "core/task/include/task.hpp"
+
+namespace ivashchuk_v_mult_crs {
+
+struct SparseMatrix {
+  std::vector<std::complex<double>> values;
+  std::vector<int> col_indices;
+  std::vector<int> row_pointers;
+  int rows;
+  int cols;
+};
+
+class SparseMatrixMultiplierOMP : public ppc::core::Task {
+ public:
+  explicit SparseMatrixMultiplierOMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  bool PreProcessingImpl() override;
+  bool ValidationImpl() override;
+  bool RunImpl() override;
+  bool PostProcessingImpl() override;
+
+ private:
+  SparseMatrix matrix1_;
+  SparseMatrix matrix2_;
+  SparseMatrix result_;
+  void MultiplySparseMatrices();
+};
+
+}  // namespace ivashchuk_v_mult_crs
