@@ -3,94 +3,91 @@
 #include <complex>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 #include "seq/polyakov_a_mult_complex_matrix_CRS/include/ops_seq.hpp"
 
-TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_identity_matrix) {
-  constexpr size_t n = 1000;
+TEST(polyakov_a_mult_complex_matrix_crs_seq, test_mul_identity_matrix) {
+  constexpr size_t kN = 1000;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
-      polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS a =
+      polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
 
-  std::vector<std::complex<double>> values(n, 1.0);
+  std::vector<std::complex<double>> values(kN, 1.0);
   std::vector<size_t> col_ind;
   std::vector<size_t> row_ptr;
   row_ptr.push_back(0);
 
-  for (size_t i = 0; i < n; i++) {
+  for (size_t i = 0; i < kN; i++) {
     col_ind.push_back(i);
     row_ptr.push_back(i + 1);
   }
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS B(n, n, values, col_ind, row_ptr);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C(n, n);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b(kN, kN, values, col_ind, row_ptr);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS c(kN, kN);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
 
   // Create Task
-  polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(A, C);
+  EXPECT_EQ(a, c);
 }
 
-TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) {
-  constexpr size_t n = 1000;
+TEST(polyakov_a_mult_complex_matrix_crs_seq, test_mul_negative_identity_matrix) {
+  constexpr size_t kN = 1000;
   const std::complex<double> k = -1.0;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
-      polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS a =
+      polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
 
-  std::vector<std::complex<double>> b_values(n, k);
+  std::vector<std::complex<double>> b_values(kN, k);
   std::vector<size_t> b_col_ind;
   std::vector<size_t> b_row_ptr;
   b_row_ptr.push_back(0);
 
-  for (size_t i = 0; i < n; i++) {
+  for (size_t i = 0; i < kN; i++) {
     b_col_ind.push_back(i);
     b_row_ptr.push_back(i + 1);
   }
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS B(n, n, b_values, b_col_ind, b_row_ptr);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b(kN, kN, b_values, b_col_ind, b_row_ptr);
 
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C(n, n);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS c(kN, kN);
 
   std::vector<std::complex<double>> exp_values;
-  for (size_t i = 0; i < A.values.size(); i++) {
-    exp_values.push_back(A.values[i] * k);
+  for (size_t i = 0; i < a.values.size(); i++) {
+    exp_values.push_back(a.values[i] * k);
   }
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS expect(n, n, exp_values, A.col_ind, A.row_ptr);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS expect(kN, kN, exp_values, a.col_ind, a.row_ptr);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
 
   // Create Task
-  polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(expect, C);
+  EXPECT_EQ(expect, c);
 }
 
-TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_none_square_matrix) {
-  constexpr size_t n = 5;
+TEST(polyakov_a_mult_complex_matrix_crs_seq, test_mul_none_square_matrix) {
+  constexpr size_t kN = 5;
   constexpr size_t m = 4;
   constexpr size_t k = 3;
 
@@ -107,44 +104,44 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_none_square_matrix) {
   std::vector<size_t> exp_col_ind = {0, 2, 0, 1, 0, 2, 0};
   std::vector<size_t> exp_row_ptr = {0, 2, 4, 6, 6, 7};
 
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C(n, k);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS c(kN, k);
 
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A(n, m, a_values, a_col_ind, a_row_ptr);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS B(m, k, b_values, b_col_ind, b_row_ptr);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS expect(n, k, exp_values, exp_col_ind, exp_row_ptr);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS a(kN, m, a_values, a_col_ind, a_row_ptr);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b(m, k, b_values, b_col_ind, b_row_ptr);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS expect(kN, k, exp_values, exp_col_ind, exp_row_ptr);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
 
   // Create Task
-  polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(expect, C);
+  EXPECT_EQ(expect, c);
 }
 
-TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_none_valid) {
-  constexpr size_t n = 5;
+TEST(polyakov_a_mult_complex_matrix_crs_seq, test_none_valid) {
+  constexpr size_t kN = 5;
   constexpr size_t m = 4;
   constexpr size_t k = 3;
   constexpr size_t t = 10;
 
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A(n, m);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS B(k, t);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C;
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS a(kN, m);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b(k, t);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS c;
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&A));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&B));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&a));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&b));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
 
   // Create Task
-  polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }

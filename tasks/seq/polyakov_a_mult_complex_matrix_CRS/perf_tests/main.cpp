@@ -10,15 +10,15 @@
 #include "core/task/include/task.hpp"
 #include "seq/polyakov_a_mult_complex_matrix_CRS/include/ops_seq.hpp"
 
-TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_pipeline_run) {
-  constexpr size_t n = 2500;
+TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
+  constexpr size_t kN = 2500;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
-      polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS B =
-      polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C(n, n);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS A =
+      polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS B =
+      polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS C(kN, kN);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -28,7 +28,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_pipeline_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -49,15 +49,15 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_task_run) {
-  constexpr size_t n = 2500;
+TEST(polyakov_a_mult_complex_matrix_crs_seq, test_task_run) {
+  constexpr size_t kN = 2500;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
-      polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS B =
-      polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C(n, n);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS A =
+      polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS B =
+      polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(kN, kN, 5);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS C(kN, kN);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -67,7 +67,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
