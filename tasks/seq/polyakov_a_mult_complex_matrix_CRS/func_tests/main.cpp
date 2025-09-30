@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>

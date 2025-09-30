@@ -1,6 +1,7 @@
 #include "seq/polyakov_a_mult_complex_matrix_CRS/include/ops_seq.hpp"
 
 #include <cmath>
+#include <complex>
 #include <cstddef>
 #include <random>
 #include <vector>
@@ -60,6 +61,7 @@ bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::ValidationImpl(
 
 bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::RunImpl() {
   double eps = 1e-9;
+  C->row_ptr.push_back(0);
 
   for (size_t r = 0; r < a_rows; r++) {
     std::vector<std::complex<double>> temp_row(c_cols, 0);  // создаём вектор для временного хранения строки матрицы C
