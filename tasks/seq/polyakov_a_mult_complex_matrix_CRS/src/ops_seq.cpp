@@ -33,7 +33,7 @@ pcrs::MatrixCRS pcrs::GetRandomMatrixCRS(pcrs::Rows num_rows, pcrs::Cols num_col
     row_ptr.push_back(row_ptr.back() + nz_row);
   }
 
-  return pcrs::MatrixCRS(num_rows, num_cols, std::move(values), std::move(col_ind), std::move(row_ptr));
+  return {num_rows, num_cols, std::move(values), std::move(col_ind), std::move(row_ptr)};
 }
 
 bool polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential::PreProcessingImpl() {
