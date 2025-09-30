@@ -9,14 +9,14 @@
 namespace polyakov_a_mult_complex_matrix_CRS_seq {
 
 struct MatrixCRS {
-  std::vector<std::complex<double>> values;
-  std::vector<size_t> col_ind;
-  std::vector<size_t> row_ptr;
-  size_t cols_{};
   size_t rows_{};
+  size_t cols_{};
+  std::vector<std::complex<double>> values;
+  std::vector<size_t> row_ptr;
+  std::vector<size_t> col_ind;
 
   MatrixCRS() = default;
-  MatrixCRS(size_t rows, size_t cols) : cols_(cols), rows_(rows) { row_ptr.resize(rows + 1, 0); }
+  MatrixCRS(size_t rows, size_t cols) : rows_(rows), cols_(cols) { row_ptr.resize(rows + 1, 0); }
   MatrixCRS(size_t rows, size_t cols, const std::vector<std::complex<double>>& v, const std::vector<size_t>& c,
             const std::vector<size_t>& rptr)
       : rows_(rows), cols_(cols), values(v), col_ind(c), row_ptr(rptr) {}
