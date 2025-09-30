@@ -87,6 +87,4 @@ bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::RunImpl() {
   return true;
 }
 
-bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::PostProcessingImpl() {
-  return true;
-}
+bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::PostProcessingImpl() { return true; }
