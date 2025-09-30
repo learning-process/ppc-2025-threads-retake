@@ -37,9 +37,9 @@ polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS polyakov_a_mult_complex_matrix
 }
 
 bool polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential::PreProcessingImpl() {
-  a_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->cols;
+  a_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->rows;
   a_cols_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->cols;
-  b_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->cols;
+  b_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->rows;
   b_cols_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->cols;
 
   a_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[0]);
@@ -52,9 +52,9 @@ bool polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential::PreProcessingIm
 }
 
 bool polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential::ValidationImpl() {
-  a_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->cols;
+  a_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->rows;
   a_cols_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->cols;
-  b_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->cols;
+  b_rows_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->rows;
   b_cols_ = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->cols;
   return a_cols_ == b_rows_ && a_rows_ != 0 && a_cols_ != 0 && b_cols_ != 0;
 }
