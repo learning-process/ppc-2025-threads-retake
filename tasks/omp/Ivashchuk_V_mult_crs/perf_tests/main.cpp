@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
