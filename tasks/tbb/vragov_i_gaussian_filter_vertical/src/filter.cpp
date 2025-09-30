@@ -22,7 +22,12 @@ bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::PreProcessingImp
 
 bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::ValidationImpl() {
   // Verify image dimensions
-  return (task_data->inputs_count[1] * task_data->inputs_count[2] == task_data->inputs_count[0]);
+  int x = static_cast<int>(task_data->inputs_count[1]);
+  int y = static_cast<int>(task_data->inputs_count[2]);
+  if (x < 0 || y < 0) {
+    return false;
+  }
+  return (x * y == static_cast<int>(task_data->inputs_count[0]));
 }
 
 bool vragov_i_gaussian_filter_vertical_tbb::GaussianFilterTask::RunImpl() {
