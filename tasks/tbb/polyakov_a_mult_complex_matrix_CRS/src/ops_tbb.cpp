@@ -11,7 +11,7 @@
 #include <random>
 #include <vector>
 
-polyakov_a_mult_complex_matrix_CRS_tbb::MatrixCRS polyakov_a_mult_complex_matrix_CRS_tbb::GetRandomMatrixCRS(
+polyakov_a_mult_complex_matrix_crs_tbb::MatrixCRS polyakov_a_mult_complex_matrix_CRS_tbb::GetRandomMatrixCRS(
     size_t n, size_t m, size_t sparsity_coeff) {
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -56,7 +56,7 @@ bool polyakov_a_mult_complex_matrix_CRS_tbb::TestTaskTBB::PreProcessingImpl() {
   return true;
 }
 
-bool polyakov_a_mult_complex_matrix_CRS_tbb::TestTaskTBB::ValidationImpl() {
+bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::ValidationImpl() {
   a_rows = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->rows_;
   a_cols = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->cols_;
   b_rows = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->rows_;
@@ -64,7 +64,7 @@ bool polyakov_a_mult_complex_matrix_CRS_tbb::TestTaskTBB::ValidationImpl() {
   return a_cols == b_rows && a_rows != 0 && a_cols != 0 && b_cols != 0;
 }
 
-bool polyakov_a_mult_complex_matrix_CRS_tbb::TestTaskTBB::RunImpl() {
+bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   const double eps = 1e-9;
 
   // Подсчёт количества ненулевых в каждой строке
