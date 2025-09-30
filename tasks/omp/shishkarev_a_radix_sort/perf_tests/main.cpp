@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -24,7 +25,7 @@ TEST(shishkarev_a_radix_sort_omp, test_pipeline_run) {
 
   // Создаем копию для эталонной сортировки
   expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -35,7 +36,7 @@ TEST(shishkarev_a_radix_sort_omp, test_pipeline_run) {
   auto test_task_openmp = std::make_shared<shishkarev_a_radix_sort_omp::TestTaskOpenMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 100;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
