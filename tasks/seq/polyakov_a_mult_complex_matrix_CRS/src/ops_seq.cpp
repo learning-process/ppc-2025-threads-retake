@@ -6,8 +6,9 @@
 #include <random>
 #include <vector>
 
-polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(
-    size_t num_rows, size_t num_cols, size_t sparsity_coeff) {
+namespace pcrs = polyakov_a_mult_complex_matrix_crs_seq;
+
+pcrs::MatrixCRS pcrs::GetRandomMatrixCRS(pcrs::Rows num_rows, pcrs::Cols num_cols, size_t sparsity_coeff) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> real_dist(-1000.0, 1000.0);
@@ -19,9 +20,9 @@ polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS polyakov_a_mult_complex_matrix
   std::vector<size_t> row_ptr;
   row_ptr.push_back(0);
 
-  for (size_t i = 0; i < num_rows; i++) {
+  for (size_t i = 0; i < num_rows.value; ++i) {
     size_t nz_row = 0;
-    for (size_t j = 0; j < num_cols; j++) {
+    for (size_t j = 0; j < num_cols.value; ++j) {
       if (static_cast<size_t>(try_dist(gen)) <= sparsity_coeff) {
         values.emplace_back(real_dist(gen), imag_dist(gen));
         col_ind.push_back(j);
@@ -31,9 +32,7 @@ polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS polyakov_a_mult_complex_matrix
     row_ptr.push_back(row_ptr.back() + nz_row);
   }
 
-  MatrixCRS matrix(num_rows, num_cols, values, col_ind, row_ptr);
-
-  return matrix;
+  return pcrs::MatrixCRS(num_rows, num_cols, std::move(values), std::move(col_ind), std::move(row_ptr));
 }
 
 bool polyakov_a_mult_complex_matrix_crs_seq::TestTaskSequential::PreProcessingImpl() {

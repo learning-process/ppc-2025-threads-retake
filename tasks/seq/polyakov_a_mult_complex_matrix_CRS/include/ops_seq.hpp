@@ -10,6 +10,16 @@
 
 namespace polyakov_a_mult_complex_matrix_crs_seq {
 
+struct Rows {
+  size_t value;
+  constexpr explicit Rows(size_t v) : value(v) {}
+};
+
+struct Cols {
+  size_t value;
+  constexpr explicit Cols(size_t v) : value(v) {}
+};
+
 struct MatrixCRS {
   size_t rows{};
   size_t cols{};
@@ -18,13 +28,17 @@ struct MatrixCRS {
   std::vector<size_t> row_ptr{0};
 
   MatrixCRS() = default;
-  MatrixCRS(size_t row_count, size_t col_count) : rows(row_count), cols(col_count) {}
-  MatrixCRS(size_t row_count, size_t column_count, const std::vector<std::complex<double>>& non_zero_values,
-            const ColIndices& column_indexes, const RowPointers& row_pointers)
-      : rows(row_count), cols(column_count), values(non_zero_values), col_ind(column_indexes), row_ptr(row_pointers) {}
+  MatrixCRS(Rows row_count, Cols col_count) : rows(row_count.value), cols(col_count.value) {}
+  MatrixCRS(Rows row_count, Cols column_count, std::vector<std::complex<double>> non_zero_values,
+            std::vector<size_t> column_indexes, std::vector<size_t> row_pointers)
+      : rows(row_count.value),
+        cols(column_count.value),
+        values(std::move(non_zero_values)),
+        col_ind(std::move(column_indexes)),
+        row_ptr(std::move(row_pointers)) {}
 
   bool operator==(const MatrixCRS& m) const {
-    if (cols != m.cols || cols != m.cols) {
+    if (rows != m.rows || cols != m.cols) {
       return false;
     }
     if (row_ptr != m.row_ptr) {
@@ -43,7 +57,7 @@ struct MatrixCRS {
   }
 };
 
-MatrixCRS GetRandomMatrixCRS(size_t num_rows, size_t num_cols, size_t sparsity_coeff);
+MatrixCRS GetRandomMatrixCRS(Rows num_rows, Cols num_cols, size_t sparsity_coeff);
 
 class TestTaskSequential : public ppc::core::Task {
  public:
