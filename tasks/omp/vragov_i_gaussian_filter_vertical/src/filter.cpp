@@ -18,9 +18,14 @@ bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::PreProcessingImp
   return true;
 }
 
-bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::ValidationImpl() {
+bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::ValidationImpl() {
   // Verify image dimensions
-  return (task_data->inputs_count[1] * task_data->inputs_count[2] == task_data->inputs_count[0]);
+  int x = static_cast<int>(task_data->inputs_count[1]);
+  int y = static_cast<int>(task_data->inputs_count[2]);
+  if (x < 0 || y < 0) {
+    return false;
+  }
+  return (x * y == static_cast<int>(task_data->inputs_count[0]));
 }
 
 bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::RunImpl() {

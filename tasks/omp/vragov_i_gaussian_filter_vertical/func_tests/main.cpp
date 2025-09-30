@@ -175,3 +175,21 @@ TEST(vragov_i_gaussian_filter_vertical_omp, RandomImageBlurAverage) {
 
   EXPECT_NEAR(avg_out, avg_in * 0.64, avg_in * 0.05);
 }
+
+TEST(vragov_i_gaussian_filter_vertical_omp, NegativeDimensionsFailValidation) {
+  constexpr int kX = -3;
+  constexpr int kY = -5;
+  std::vector<int> in(1, 1);  // Minimal input, size doesn't matter due to negative dims
+  std::vector<int> out(1, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->inputs_count.emplace_back(kX);
+  task_data->inputs_count.emplace_back(kY);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask task(task_data);
+  EXPECT_FALSE(task.Validation());
+}
