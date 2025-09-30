@@ -71,6 +71,108 @@ void HoareSortSimpleMergeSTL::MergeTwo(const std::vector<int>& src, Segment left
   std::merge(left_first, left_last, right_first, right_last, dst.begin());
 }
 
+// Helper function to perform parallel sorting
+void HoareSortSimpleMergeSTL::ParallelSort(std::vector<int>& data, std::size_t n, int available_threads) {
+  constexpr std::size_t kMinSegmentSize = 1024;
+  std::size_t num_segments = std::min(static_cast<std::size_t>(available_threads), n / kMinSegmentSize);
+  num_segments = std::max<std::size_t>(num_segments, 2);
+
+  std::vector<std::thread> threads;
+  std::vector<std::pair<std::size_t, std::size_t>> segments;
+
+  // Create segments
+  std::size_t segment_size = n / num_segments;
+  for (std::size_t i = 0; i < num_segments; ++i) {
+    std::size_t start = i * segment_size;
+    std::size_t end = (i == num_segments - 1) ? n : (i + 1) * segment_size;
+    if (start < end) {
+      segments.emplace_back(start, end);
+    }
+  }
+
+  // Sort each segment in parallel
+  for (const auto& segment : segments) {
+    if (segment.second - segment.first > 1) {
+      threads.emplace_back([&, segment]() {
+        QuickSortHoare(data, static_cast<long long>(segment.first), static_cast<long long>(segment.second) - 1);
+      });
+    }
+  }
+
+  // Wait for all sorting threads
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  // Perform parallel merge
+  PerformParallelMerge(data, segments);
+}
+
+// Helper function to perform parallel merge
+void HoareSortSimpleMergeSTL::PerformParallelMerge(std::vector<int>& data,
+                                                   std::vector<std::pair<std::size_t, std::size_t>>& segments) {
+  std::size_t merge_step = 1;
+
+  while (merge_step < segments.size()) {
+    std::vector<std::thread> merge_threads;
+
+    for (std::size_t i = 0; i < segments.size(); i += 2 * merge_step) {
+      if (i + merge_step < segments.size()) {
+        merge_threads.emplace_back([&, i, merge_step]() {
+          std::size_t left_start = segments[i].first;
+          std::size_t left_end = segments[i].second;
+          std::size_t right_start = segments[i + merge_step].first;
+          std::size_t right_end = segments[i + merge_step].second;
+
+          std::vector<int> merged_result(right_end - left_start);
+          MergeTwo(data, Segment{.begin = left_start, .end = left_end}, Segment{.begin = right_start, .end = right_end},
+                   merged_result);
+
+          // Copy back to data
+          for (std::size_t j = 0; j < merged_result.size(); ++j) {
+            data[left_start + j] = merged_result[j];
+          }
+        });
+      }
+    }
+
+    // Wait for merge threads
+    for (auto& thread : merge_threads) {
+      thread.join();
+    }
+
+    // Update segments for next iteration
+    for (std::size_t i = 0; i < segments.size(); i += 2 * merge_step) {
+      if (i + merge_step < segments.size()) {
+        segments[i].second = segments[i + merge_step].second;
+      }
+    }
+
+    merge_step *= 2;
+  }
+}
+
+// Helper function for two-thread approach
+void HoareSortSimpleMergeSTL::TwoThreadSort(std::vector<int>& data, std::size_t left_size, std::size_t n) {
+  std::thread left_thread([&]() { QuickSortHoare(data, 0, static_cast<long long>(left_size) - 1); });
+  QuickSortHoare(data, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
+  left_thread.join();
+
+  MergeTwo(data, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
+}
+
+// Helper function for sequential sort
+void HoareSortSimpleMergeSTL::SequentialSort(std::vector<int>& data, std::size_t left_size, std::size_t n) {
+  if (left_size > 1) {
+    QuickSortHoare(data, 0, static_cast<long long>(left_size) - 1);
+  }
+  if (n - left_size > 1) {
+    QuickSortHoare(data, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
+  }
+
+  MergeTwo(data, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
+}
+
 bool HoareSortSimpleMergeSTL::PreProcessingImpl() {
   if (task_data->inputs.empty() || task_data->outputs.empty()) {
     return false;
@@ -114,6 +216,7 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
     output_[0] = input_[0];
     return true;
   }
+
   long long mid = Partition(input_, 0, static_cast<long long>(n - 1));
   // Clamp mid defensively
   if (mid < 0) {
@@ -131,90 +234,19 @@ bool HoareSortSimpleMergeSTL::RunImpl() {
   } catch (...) {
     available_threads = 1;  // Fallback: sequential
   }
+
   constexpr std::size_t kParallelThreshold = 2048;
 
+  // Choose sorting strategy based on data size and available threads
   if (available_threads > 2 && n >= kParallelThreshold * 2) {
-    std::size_t num_segments = std::min(static_cast<std::size_t>(available_threads), n / 1024);
-    if (num_segments < 2) num_segments = 2;
-
-    std::vector<std::thread> threads;
-    std::vector<std::pair<std::size_t, std::size_t>> segments;
-
-    std::size_t segment_size = n / num_segments;
-    for (std::size_t i = 0; i < num_segments; ++i) {
-      std::size_t start = i * segment_size;
-      std::size_t end = (i == num_segments - 1) ? n : (i + 1) * segment_size;
-      if (start < end) {
-        segments.emplace_back(start, end);
-      }
-    }
-
-    for (const auto& segment : segments) {
-      if (segment.second - segment.first > 1) {
-        threads.emplace_back([&, segment]() {
-          QuickSortHoare(input_, static_cast<long long>(segment.first), static_cast<long long>(segment.second) - 1);
-        });
-      }
-    }
-
-    for (auto& thread : threads) {
-      thread.join();
-    }
-    threads.clear();
-
-    std::vector<int> temp_result = input_;
-    std::size_t merge_step = 1;
-
-    while (merge_step < segments.size()) {
-      for (std::size_t i = 0; i < segments.size(); i += 2 * merge_step) {
-        if (i + merge_step < segments.size()) {
-          std::size_t left_start = segments[i].first;
-          std::size_t left_end = segments[i].second;
-          std::size_t right_start = segments[i + merge_step].first;
-          std::size_t right_end = segments[i + merge_step].second;
-
-          threads.emplace_back([&, left_start, left_end, right_start, right_end]() {
-            std::vector<int> merged_result(right_end - left_start);
-            MergeTwo(temp_result, Segment{left_start, left_end}, Segment{right_start, right_end}, merged_result);
-
-            for (std::size_t j = 0; j < merged_result.size(); ++j) {
-              temp_result[left_start + j] = merged_result[j];
-            }
-          });
-        }
-      }
-
-      for (auto& thread : threads) {
-        thread.join();
-      }
-      threads.clear();
-
-      for (std::size_t i = 0; i < segments.size(); i += 2 * merge_step) {
-        if (i + merge_step < segments.size()) {
-          segments[i].second = segments[i + merge_step].second;
-        }
-      }
-
-      merge_step *= 2;
-    }
-
-    output_ = temp_result;
+    std::vector<int> temp_data = input_;
+    ParallelSort(temp_data, n, available_threads);
+    output_ = temp_data;
   } else if (available_threads > 1 && left_size > 1 && right_size > 1 &&
              (left_size >= kParallelThreshold || right_size >= kParallelThreshold)) {
-    std::thread left_thread([&]() { QuickSortHoare(input_, 0, static_cast<long long>(left_size) - 1); });
-    QuickSortHoare(input_, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
-    left_thread.join();
-
-    MergeTwo(input_, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
+    TwoThreadSort(input_, left_size, n);
   } else {
-    if (left_size > 1) {
-      QuickSortHoare(input_, 0, static_cast<long long>(left_size) - 1);
-    }
-    if (right_size > 1) {
-      QuickSortHoare(input_, static_cast<long long>(left_size), static_cast<long long>(n) - 1);
-    }
-
-    MergeTwo(input_, Segment{.begin = 0, .end = left_size}, Segment{.begin = left_size, .end = n}, output_);
+    SequentialSort(input_, left_size, n);
   }
 
   return true;

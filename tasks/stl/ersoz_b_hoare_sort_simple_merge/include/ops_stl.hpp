@@ -25,6 +25,12 @@ class HoareSortSimpleMergeSTL : public ppc::core::Task {
   static long long Partition(std::vector<int>& a, long long l, long long r);
   static void QuickSortHoare(std::vector<int>& a, long long l, long long r);
   static void MergeTwo(const std::vector<int>& src, Segment left, Segment right, std::vector<int>& dst);
+
+  void ParallelSort(std::vector<int>& data, std::size_t n, int available_threads);
+  void PerformParallelMerge(std::vector<int>& data, std::vector<std::pair<std::size_t, std::size_t>>& segments);
+  void TwoThreadSort(std::vector<int>& data, std::size_t left_size, std::size_t n);
+  void SequentialSort(std::vector<int>& data, std::size_t left_size, std::size_t n);
+
   std::vector<int> input_;
   std::vector<int> output_;
 };
