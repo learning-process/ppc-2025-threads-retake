@@ -10,7 +10,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/polyakov_a_mult_complex_matrix_CRS/include/ops_seq.hpp"
 
-
 TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_pipeline_run) {
   constexpr int n = 7000;
 

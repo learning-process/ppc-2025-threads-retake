@@ -5,7 +5,6 @@
 #include <random>
 #include <vector>
 
-
 polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(
     size_t n, size_t m, size_t sparsity_coeff) {
   std::random_device rd;
@@ -57,7 +56,7 @@ bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::ValidationImpl(
 bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::RunImpl() {
   double eps = 1e-9;
 
-  for (int r = 0; r < a_rows; r++) {  // для каждой строки
+  for (int r = 0; r < a_rows; r++) {                        // для каждой строки
     std::vector<std::complex<double>> temp_row(c_cols, 0);  // создаём вектор для временного хранения строки матрицы C
 
     for (int i = A->row_ptr[r]; i < A->row_ptr[r + 1]; i++) {  // проходимся по i-ой строке A, если она не нулевая

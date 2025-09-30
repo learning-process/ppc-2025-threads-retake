@@ -6,7 +6,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 namespace polyakov_a_mult_complex_matrix_CRS_seq {
 
 struct MatrixCRS {
