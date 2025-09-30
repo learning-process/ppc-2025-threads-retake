@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <numeric>
 #include <random>
-#include <range>
+#include <ranges>
 #include <utility>
 #include <vector>
 
