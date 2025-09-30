@@ -13,7 +13,7 @@
 #include "core/task/include/task.hpp"
 
 TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
-  constexpr int kCount = 100;
+  constexpr int kCount = 1000;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
@@ -62,7 +62,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
 }
 
 TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
-  constexpr int kCount = 100;
+  constexpr int kCount = 800;
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
