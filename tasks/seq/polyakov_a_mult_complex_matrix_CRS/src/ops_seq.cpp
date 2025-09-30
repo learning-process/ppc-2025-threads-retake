@@ -44,10 +44,10 @@ bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::PreProcessingIm
 
   A = reinterpret_cast<MatrixCRS *>(task_data->inputs[0]);
   B = reinterpret_cast<MatrixCRS *>(task_data->inputs[1]);
+  C = reinterpret_cast<MatrixCRS *>(task_data->outputs[0]);
   c_rows = a_rows;
   c_cols = b_cols;
 
-  C = new MatrixCRS(c_rows, c_cols);
   return true;
 }
 
@@ -88,6 +88,5 @@ bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::RunImpl() {
 }
 
 bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::PostProcessingImpl() {
-  *reinterpret_cast<MatrixCRS *>(task_data->outputs[0]) = *C;
   return true;
 }
