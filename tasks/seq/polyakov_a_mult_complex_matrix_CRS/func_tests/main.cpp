@@ -16,9 +16,9 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_identity_matrix) {
   constexpr size_t n = 1000;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A = polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5)
+  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A = polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
 
-  std::vector<complex<double>> values(n, 1);
+  std::vector<std::complex<double>> values(n, 1);
   std::vector<size_t> col_ind;
   std::vector<size_t> row_ptr;
   row_ptr.push_back(0);
@@ -50,9 +50,9 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) 
   constexpr size_t k = -1;
 
   // Create data
-  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A = polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5)
+  polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A = polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
 
-  std::vector<complex<double>> b_values(n, -1);
+  std::vector<std::complex<double>> b_values(n, -1);
   std::vector<size_t> b_col_ind;
   std::vector<size_t> b_row_ptr;
   b_row_ptr.push_back(0);
@@ -65,7 +65,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) 
 
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C(n, n);
 
-  std::vector<complex<double>> exp_values;
+  std::vector<std::complex<double>> exp_values;
   for (int i = 0; i < n; i++){
     exp_values.push_back(A.values[i] * -1);
   }
@@ -92,15 +92,15 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_none_square_matrix) {
   constexpr size_t k = 3;
 
   // Create data
-  std::vector<complex<double>> a_values = {1,2,3,4,5,10,6};
+  std::vector<std::complex<double>> a_values = {1,2,3,4,5,10,6};
   std::vector<size_t> a_col_ind = {0,2,1,3,0,2,1};
   std::vector<size_t> a_row_ptr = {0,2,4,6,6,7};
 
-  std::vector<complex<double>> b_values = {5,4,9,2,1};
+  std::vector<std::complex<double>> b_values = {5,4,9,2,1};
   std::vector<size_t> b_col_ind = {0,2,0,2,1};
   std::vector<size_t> b_row_ptr = {0,2,3,4,5};
 
-  std::vector<complex<double>> exp_values = {5,8,27,4,25,40,54};
+  std::vector<std::complex<double>> exp_values = {5,8,27,4,25,40,54};
   std::vector<size_t> exp_col_ind = {0,2,0,1,0,2,0};
   std::vector<size_t> exp_row_ptr = {0,2,4,6,6,7};
 
