@@ -70,7 +70,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) 
 
   std::vector<std::complex<double>> exp_values;
   for (size_t i = 0; i < A.values.size(); i++) {
-    exp_values.push_back(A.values[i] * -1);
+    exp_values.push_back(A.values[i] * k);
   }
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS expect(n, n, exp_values, A.col_ind, A.row_ptr);
 
