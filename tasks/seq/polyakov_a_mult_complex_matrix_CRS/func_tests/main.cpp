@@ -20,7 +20,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_identity_matrix) {
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
       polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
 
-  std::vector<std::complex<double>> values(n, 1);
+  std::vector<std::complex<double>> values(n, 1.0);
   std::vector<size_t> col_ind;
   std::vector<size_t> row_ptr;
   row_ptr.push_back(0);
@@ -49,13 +49,13 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_identity_matrix) {
 
 TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) {
   constexpr size_t n = 1000;
-  const std::complex<double> k = -1;
+  const std::complex<double> k = -1.0;
 
   // Create data
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
       polyakov_a_mult_complex_matrix_CRS_seq::GetRandomMatrixCRS(n, n, 5);
 
-  std::vector<std::complex<double>> b_values(n, -1);
+  std::vector<std::complex<double>> b_values(n, k);
   std::vector<size_t> b_col_ind;
   std::vector<size_t> b_row_ptr;
   b_row_ptr.push_back(0);
