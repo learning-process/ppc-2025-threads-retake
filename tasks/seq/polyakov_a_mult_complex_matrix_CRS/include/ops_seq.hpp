@@ -10,21 +10,16 @@
 
 namespace polyakov_a_mult_complex_matrix_crs_seq {
 
-using Rows = size_t;
-using Cols = size_t;
-using ColIndices = std::vector<size_t>;
-using RowPointers = std::vector<size_t>;
-
 struct MatrixCRS {
-  Rows rows{};
-  Cols cols{};
+  size_t rows{};
+  size_t cols{};
   std::vector<std::complex<double>> values;
   std::vector<size_t> col_ind;
   std::vector<size_t> row_ptr{0};
 
   MatrixCRS() = default;
-  MatrixCRS(Rows row_count, Cols col_count) : rows(row_count), cols(col_count) {}
-  MatrixCRS(Rowst row_count, Cols column_count, const std::vector<std::complex<double>>& non_zero_values,
+  MatrixCRS(size_t row_count, size_t col_count) : rows(row_count), cols(col_count) {}
+  MatrixCRS(size_t row_count, size_t column_count, const std::vector<std::complex<double>>& non_zero_values,
             const ColIndices& column_indexes, const RowPointers& row_pointers)
       : rows(row_count), cols(column_count), values(non_zero_values), col_ind(column_indexes), row_ptr(row_pointers) {}
 

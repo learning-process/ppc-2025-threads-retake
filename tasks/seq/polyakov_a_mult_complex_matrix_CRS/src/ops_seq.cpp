@@ -7,7 +7,7 @@
 #include <vector>
 
 polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS polyakov_a_mult_complex_matrix_crs_seq::GetRandomMatrixCRS(
-    Rows num_rows, Cols num_cols, size_t sparsity_coeff) {
+    size_t num_rows, size_t num_cols, size_t sparsity_coeff) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> real_dist(-1000.0, 1000.0);
