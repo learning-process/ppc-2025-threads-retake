@@ -7,9 +7,9 @@
 #include <memory>
 #include <string>
 
+#include "../include/ops_tbb.hpp"
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "include/ops_tbb.hpp"
 
 TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
   constexpr size_t kCount = 5;

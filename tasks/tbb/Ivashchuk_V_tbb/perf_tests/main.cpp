@@ -6,9 +6,9 @@
 #include <cstdint>
 #include <memory>
 
+#include "../include/ops_tbb.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "include/ops_tbb.hpp"
 
 TEST(ivashchuk_v_tbb, test_pipeline_run) {
   constexpr int kCount = 100;
