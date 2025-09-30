@@ -85,7 +85,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
 }
 
 TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
-  constexpr int kCount = 2500;  // Very large size
+  constexpr int kCount = 3000;  // Even larger size for TaskRun
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
@@ -95,14 +95,14 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> value_dis(-2.0, 2.0);
 
-  // Create dense matrices to ensure long computation time
+  // Create very dense matrices to ensure long computation time
   for (int i = 0; i < kCount; ++i) {
     // Main diagonal with complex values
     in1[i * kCount + i] = std::complex<double>(2.0, 1.0);
     in2[i * kCount + i] = std::complex<double>(1.5, -0.5);
 
     // Multiple adjacent diagonals
-    for (int offset = 1; offset <= 5; ++offset) {
+    for (int offset = 1; offset <= 10; ++offset) {
       if (i >= offset) {
         in1[i * kCount + (i - offset)] = std::complex<double>(0.3, 0.2);
         in2[i * kCount + (i - offset)] = std::complex<double>(0.2, 0.3);
@@ -113,8 +113,8 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
       }
     }
 
-    // Many random elements in each row
-    for (int j = 0; j < 20; ++j) {
+    // Many random elements in each row - make it denser
+    for (int j = 0; j < 30; ++j) {
       int random_col = std::uniform_int_distribution<>(0, kCount - 1)(gen);
       in1[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
       in2[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
