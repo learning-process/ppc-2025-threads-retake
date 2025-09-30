@@ -83,12 +83,20 @@ void TestMultiplyComplexNumbers() {
   constexpr int kRows2 = 2;
   constexpr int kCols2 = 2;
 
+  // Matrix 1: [[1+2i, 3+4i], [5+6i, 7+8i]]
   std::vector<std::complex<double>> in1 = {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}, {7.0, 8.0}};
 
+  // Matrix 2: [[2+1i, 0+1i], [1+0i, 2+2i]]
   std::vector<std::complex<double>> in2 = {{2.0, 1.0}, {0.0, 1.0}, {1.0, 0.0}, {2.0, 2.0}};
 
   std::vector<std::complex<double>> out(kRows1 * kCols2, {0.0, 0.0});
-  std::vector<std::complex<double>> expected = {{-3.0, 11.0}, {-8.0, 10.0}, {-7.0, 31.0}, {-12.0, 38.0}};
+
+  // Correct expected results for complex matrix multiplication:
+  // Element [0,0]: (1+2i)*(2+1i) + (3+4i)*(1+0i) = (0+5i) + (3+4i) = 3+9i
+  // Element [0,1]: (1+2i)*(0+1i) + (3+4i)*(2+2i) = (-2+1i) + (-2+14i) = -4+15i
+  // Element [1,0]: (5+6i)*(2+1i) + (7+8i)*(1+0i) = (4+17i) + (7+8i) = 11+25i
+  // Element [1,1]: (5+6i)*(0+1i) + (7+8i)*(2+2i) = (-6+5i) + (-2+30i) = -8+35i
+  std::vector<std::complex<double>> expected = {{3.0, 9.0}, {-4.0, 15.0}, {11.0, 25.0}, {-8.0, 35.0}};
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -331,10 +339,20 @@ void TestMultiplyWithImaginaryNumbers() {
   constexpr int kRows2 = 2;
   constexpr int kCols2 = 2;
 
+  // Matrix 1: [[0+1i, 0+2i], [0+3i, 0+4i]]
   std::vector<std::complex<double>> in1 = {{0.0, 1.0}, {0.0, 2.0}, {0.0, 3.0}, {0.0, 4.0}};
+
+  // Matrix 2: [[0+1i, 0+2i], [0+3i, 0+4i]]
   std::vector<std::complex<double>> in2 = {{0.0, 1.0}, {0.0, 2.0}, {0.0, 3.0}, {0.0, 4.0}};
+
   std::vector<std::complex<double>> out(kRows1 * kCols2, {0.0, 0.0});
-  std::vector<std::complex<double>> expected = {{-5.0, 0.0}, {-8.0, 0.0}, {-11.0, 0.0}, {-20.0, 0.0}};
+
+  // Correct expected results for imaginary matrix multiplication:
+  // Element [0,0]: (0+1i)*(0+1i) + (0+2i)*(0+3i) = (-1+0i) + (-6+0i) = -7+0i
+  // Element [0,1]: (0+1i)*(0+2i) + (0+2i)*(0+4i) = (-2+0i) + (-8+0i) = -10+0i
+  // Element [1,0]: (0+3i)*(0+1i) + (0+4i)*(0+3i) = (-3+0i) + (-12+0i) = -15+0i
+  // Element [1,1]: (0+3i)*(0+2i) + (0+4i)*(0+4i) = (-6+0i) + (-16+0i) = -22+0i
+  std::vector<std::complex<double>> expected = {{-7.0, 0.0}, {-10.0, 0.0}, {-15.0, 0.0}, {-22.0, 0.0}};
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
