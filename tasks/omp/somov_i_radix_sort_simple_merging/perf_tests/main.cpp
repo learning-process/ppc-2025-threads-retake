@@ -30,7 +30,7 @@ TEST(somov_i_radix_sort_simple_merging_omp, test_pipeline_run) {
   auto test_task = std::make_shared<somov_i_radix_sort_simple_merging_omp::TestTaskOMP>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 50;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [t0]() {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -66,7 +66,7 @@ TEST(somov_i_radix_sort_simple_merging_omp, test_task_run) {
   auto test_task = std::make_shared<somov_i_radix_sort_simple_merging_omp::TestTaskOMP>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 50;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [t0]() {
     auto current_time_point = std::chrono::high_resolution_clock::now();
