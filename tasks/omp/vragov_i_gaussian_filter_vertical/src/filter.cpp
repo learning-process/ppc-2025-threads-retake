@@ -18,7 +18,7 @@ bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::PreProcessingImp
   return true;
 }
 
-bool vragov_i_gaussian_filter_vertical_seq::GaussianFilterTaskSequential::ValidationImpl() {
+bool vragov_i_gaussian_filter_vertical_omp::GaussianFilterTask::ValidationImpl() {
   // Verify image dimensions
   int x = static_cast<int>(task_data->inputs_count[1]);
   int y = static_cast<int>(task_data->inputs_count[2]);
