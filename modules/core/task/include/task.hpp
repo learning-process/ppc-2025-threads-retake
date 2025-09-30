@@ -48,7 +48,7 @@ class Task {
   void InternalOrderTest(const std::string &str = __builtin_FUNCTION());
   TaskDataPtr task_data;
 
-  // implementation of "validation" function
+  // implementation of "validation" functio
   virtual bool ValidationImpl() = 0;
 
   // implementation of "PreProcessing" function
