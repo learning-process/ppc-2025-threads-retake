@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -18,8 +17,8 @@ class GaussianFilterTask : public ppc::core::Task {
 
  private:
   std::vector<int> input_, output_;
-  size_t x_{};
-  size_t y_{};
+  int x_{};
+  int y_{};
 };
 
 }  // namespace vragov_i_gaussian_filter_vertical_omp
