@@ -67,13 +67,14 @@ bool polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP::RunImpl() {
   const double eps = 1e-9;
 
   // подсчёт количества ненулевых в каждой строке
+  int a_rows_int = static_cast<int>(a_rows);
   std::vector<int> row_nnz(a_rows, 0);
 
 #pragma omp parallel
   {
     std::vector<bool> local_marked(c_cols, 0);
 #pragma omp for
-    for (int r = 0; r < a_rows; r++) {
+    for (int r = 0; r < a_rows_int; r++) {
       std::fill(local_marked.begin(), local_marked.end(), 0);
       for (size_t i = A->row_ptr[r]; i < A->row_ptr[r + 1]; i++) {
         size_t k = A->col_ind[i];
@@ -100,7 +101,7 @@ bool polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP::RunImpl() {
   {
     std::vector<std::complex<double>> local_temp(c_cols);
 #pragma omp for
-    for (int r = 0; r < a_rows; r++) {
+    for (int r = 0; r < a_rows_int; r++) {
       std::fill(local_temp.begin(), local_temp.end(), std::complex<double>(0.0));
 
       // Умножение строки r матрицы A на B
