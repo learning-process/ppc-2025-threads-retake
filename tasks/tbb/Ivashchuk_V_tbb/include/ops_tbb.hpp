@@ -18,11 +18,11 @@ class SparseMatrixComplexCRS : public ppc::core::Task {
 
  private:
   struct CRSMatrix {
-    std::vector<std::complex<double>> values_;
-    std::vector<int> col_indices_;
-    std::vector<int> row_ptr_;
-    int rows_ = 0;
-    int cols_ = 0;
+    std::vector<std::complex<double>> values;
+    std::vector<int> col_indices;
+    std::vector<int> row_ptr;
+    int rows = 0;
+    int cols = 0;
   };
 
   CRSMatrix matrix_a_, matrix_b_, result_;

@@ -6,31 +6,40 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "../include/ops_tbb.hpp"
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
-void CreateIdentityMatrices(std::vector<std::complex<double>> &in, size_t count) {
+namespace {
+
+static void CreateIdentityMatrices(std::vector<std::complex<double>> &in, size_t count) {
   for (size_t i = 0; i < count; i++) {
     in[(i * count) + i] = std::complex<double>(1.0, 0.0);
     in[(count * count) + (i * count) + i] = std::complex<double>(1.0, 0.0);
   }
 }
 
-void VerifyIdentityResult(const std::vector<std::complex<double>> &out, size_t count) {
+static void VerifyDiagonal(const std::vector<std::complex<double>> &out, size_t count) {
+  for (size_t i = 0; i < count; i++) {
+    EXPECT_NEAR(out[(i * count) + i].real(), 1.0, 1e-10);
+    EXPECT_NEAR(out[(i * count) + i].imag(), 0.0, 1e-10);
+  }
+}
+
+static void VerifyOffDiagonal(const std::vector<std::complex<double>> &out, size_t count) {
   for (size_t i = 0; i < count; i++) {
     for (size_t j = 0; j < count; j++) {
-      if (i == j) {
-        EXPECT_NEAR(out[(i * count) + j].real(), 1.0, 1e-10);
-        EXPECT_NEAR(out[(i * count) + j].imag(), 0.0, 1e-10);
-      } else {
+      if (i != j) {
         EXPECT_NEAR(out[(i * count) + j].real(), 0.0, 1e-10);
         EXPECT_NEAR(out[(i * count) + j].imag(), 0.0, 1e-10);
       }
     }
   }
 }
+
+}  // namespace
 
 TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
   constexpr size_t kCount = 5;
@@ -51,7 +60,8 @@ TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
   task.Run();
   task.PostProcessing();
 
-  VerifyIdentityResult(out, kCount);
+  VerifyDiagonal(out, kCount);
+  VerifyOffDiagonal(out, kCount);
 }
 
 TEST(ivashchuk_v_tbb, test_sparse_matmul_10x10_from_file) {
@@ -80,5 +90,6 @@ TEST(ivashchuk_v_tbb, test_sparse_matmul_10x10_from_file) {
   task.Run();
   task.PostProcessing();
 
-  VerifyIdentityResult(out, count);
+  VerifyDiagonal(out, count);
+  VerifyOffDiagonal(out, count);
 }

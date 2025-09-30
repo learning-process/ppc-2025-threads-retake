@@ -1,4 +1,4 @@
-#include "ops_tbb.hpp"
+#include "../include/ops_tbb.hpp"
 
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
@@ -62,8 +62,8 @@ bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PreProcessingImpl() {
   ConvertToCRS(dense_a, matrix_size, matrix_size, matrix_a_);
   ConvertToCRS(dense_b, matrix_size, matrix_size, matrix_b_);
 
-  result_.rows_ = matrix_size;
-  result_.cols_ = matrix_size;
+  result_.rows = matrix_size;
+  result_.cols = matrix_size;
 
   return true;
 }
@@ -86,16 +86,16 @@ bool ivashchuk_v_tbb::SparseMatrixComplexCRS::RunImpl() {
 
 bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PostProcessingImpl() {
   auto* out_ptr = reinterpret_cast<std::complex<double>*>(task_data->outputs[0]);
-  int size = result_.rows_ * result_.cols_;
+  int size = result_.rows * result_.cols;
   std::fill(out_ptr, out_ptr + size, std::complex<double>(0.0));
 
-  for (int i = 0; i < result_.rows_; ++i) {
-    int row_start = result_.row_ptr_[i];
-    int row_end = result_.row_ptr_[i + 1];
+  for (int i = 0; i < result_.rows; ++i) {
+    int row_start = result_.row_ptr[i];
+    int row_end = result_.row_ptr[i + 1];
 
     for (int j = row_start; j < row_end; ++j) {
-      int col = result_.col_indices_[j];
-      out_ptr[(i * result_.cols_) + col] = result_.values_[j];
+      int col = result_.col_indices[j];
+      out_ptr[(i * result_.cols) + col] = result_.values[j];
     }
   }
 
@@ -104,36 +104,35 @@ bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PostProcessingImpl() {
 
 void ivashchuk_v_tbb::SparseMatrixComplexCRS::ConvertToCRS(const std::vector<std::complex<double>>& dense, int rows,
                                                            int cols, CRSMatrix& crs) {
-  crs.rows_ = rows;
-  crs.cols_ = cols;
-  ConvertDenseToCRS(dense, rows, cols, crs.values_, crs.col_indices_, crs.row_ptr_);
+  crs.rows = rows;
+  crs.cols = cols;
+  ConvertDenseToCRS(dense, rows, cols, crs.values, crs.col_indices, crs.row_ptr);
 }
 
 void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& a, const CRSMatrix& b, CRSMatrix& c) {
-  c.rows_ = a.rows_;
-  c.cols_ = b.cols_;
-  c.row_ptr_.clear();
-  c.values_.clear();
-  c.col_indices_.clear();
+  c.rows = a.rows;
+  c.cols = b.cols;
+  c.row_ptr.clear();
+  c.values.clear();
+  c.col_indices.clear();
 
-  c.row_ptr_.push_back(0);
+  c.row_ptr.push_back(0);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, a.rows_), [&](const tbb::blocked_range<int>& range) {
+  tbb::parallel_for(tbb::blocked_range<int>(0, a.rows), [&](const tbb::blocked_range<int>& range) {
     std::vector<std::complex<double>> local_values;
     std::vector<int> local_col_indices;
     std::vector<int> local_row_ptr;
 
     for (int i = range.begin(); i != range.end(); ++i) {
-      std::vector<std::complex<double>> temp_row(b.cols_, 0.0);
+      std::vector<std::complex<double>> temp_row(b.cols, 0.0);
 
-      int a_row_start = a.row_ptr_[i];
-      int a_row_end = a.row_ptr_[i + 1];
+      int a_row_start = a.row_ptr[i];
+      int a_row_end = a.row_ptr[i + 1];
 
-      ComputeRowProduct(a.values_, a.col_indices_, a_row_start, a_row_end, b.values_, b.col_indices_, b.row_ptr_,
-                        temp_row);
+      ComputeRowProduct(a.values, a.col_indices, a_row_start, a_row_end, b.values, b.col_indices, b.row_ptr, temp_row);
 
       int non_zero_count = 0;
-      for (int j = 0; j < b.cols_; ++j) {
+      for (int j = 0; j < b.cols; ++j) {
         if (std::abs(temp_row[j]) > 1e-10) {
           local_values.push_back(temp_row[j]);
           local_col_indices.push_back(j);
@@ -145,16 +144,16 @@ void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& a, c
 
 #pragma omp critical
     {
-      c.values_.insert(c.values_.end(), local_values.begin(), local_values.end());
-      c.col_indices_.insert(c.col_indices_.end(), local_col_indices.begin(), local_col_indices.end());
-      if (c.row_ptr_.size() == 1) {
+      c.values.insert(c.values.end(), local_values.begin(), local_values.end());
+      c.col_indices.insert(c.col_indices.end(), local_col_indices.begin(), local_col_indices.end());
+      if (c.row_ptr.size() == 1) {
         for (size_t ptr : local_row_ptr) {
-          c.row_ptr_.push_back(ptr);
+          c.row_ptr.push_back(ptr);
         }
       } else {
-        int last_ptr = c.row_ptr_.back();
+        int last_ptr = c.row_ptr.back();
         for (size_t ptr : local_row_ptr) {
-          c.row_ptr_.push_back(last_ptr + ptr);
+          c.row_ptr.push_back(last_ptr + ptr);
         }
       }
     }
