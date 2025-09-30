@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "task.hpp"
+#include "core/task/include/task.hpp"
 
 namespace Ivashchuk_V_mult_crs {
 
@@ -12,7 +12,8 @@ struct SparseMatrix {
   std::vector<std::complex<double>> values;
   std::vector<int> col_indices;
   std::vector<int> row_pointers;
-  int rows, cols;
+  int rows;
+  int cols;
 };
 
 class SparseMatrixMultiplierOMP : public ppc::core::Task {
@@ -24,7 +25,9 @@ class SparseMatrixMultiplierOMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  SparseMatrix matrix1, matrix2, result;
+  SparseMatrix matrix1;
+  SparseMatrix matrix2;
+  SparseMatrix result;
   void multiplySparseMatrices();
 };
 

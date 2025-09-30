@@ -13,7 +13,10 @@
 #include "omp/Ivashchuk_V_mult_crs/include/ops_omp.hpp"
 
 TEST(Ivashchuk_V_mult_crs_omp, test_multiply_3x3) {
-  constexpr int kRows1 = 3, kCols1 = 3, kRows2 = 3, kCols2 = 3;
+  constexpr int kRows1 = 3;
+  constexpr int kCols1 = 3;
+  constexpr int kRows2 = 3;
+  constexpr int kCols2 = 3;
 
   // Create data - identity matrices
   std::vector<std::complex<double>> in1(kRows1 * kCols1, {0.0, 0.0});
@@ -22,8 +25,8 @@ TEST(Ivashchuk_V_mult_crs_omp, test_multiply_3x3) {
 
   // Identity matrix
   for (int i = 0; i < kRows1; i++) {
-    in1[i * kCols1 + i] = {1.0, 0.0};
-    in2[i * kCols2 + i] = {1.0, 0.0};
+    in1[(i * kCols1) + i] = {1.0, 0.0};
+    in2[(i * kCols2) + i] = {1.0, 0.0};
   }
 
   // Create task_data
@@ -56,18 +59,21 @@ TEST(Ivashchuk_V_mult_crs_omp, test_multiply_3x3) {
   for (int i = 0; i < kRows1; i++) {
     for (int j = 0; j < kCols2; j++) {
       if (i == j) {
-        EXPECT_NEAR(out[i * kCols2 + j].real(), 1.0, 1e-10);
-        EXPECT_NEAR(out[i * kCols2 + j].imag(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCols2) + j].real(), 1.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCols2) + j].imag(), 0.0, 1e-10);
       } else {
-        EXPECT_NEAR(out[i * kCols2 + j].real(), 0.0, 1e-10);
-        EXPECT_NEAR(out[i * kCols2 + j].imag(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCols2) + j].real(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCols2) + j].imag(), 0.0, 1e-10);
       }
     }
   }
 }
 
 TEST(Ivashchuk_V_mult_crs_omp, test_multiply_complex_numbers) {
-  constexpr int kRows1 = 2, kCols1 = 2, kRows2 = 2, kCols2 = 2;
+  constexpr int kRows1 = 2;
+  constexpr int kCols1 = 2;
+  constexpr int kRows2 = 2;
+  constexpr int kCols2 = 2;
 
   std::vector<std::complex<double>> in1 = {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}, {7.0, 8.0}};
 
@@ -109,7 +115,10 @@ TEST(Ivashchuk_V_mult_crs_omp, test_multiply_complex_numbers) {
 }
 
 TEST(Ivashchuk_V_mult_crs_omp, test_sparse_matrix_multiplication) {
-  constexpr int kRows1 = 3, kCols1 = 4, kRows2 = 4, kCols2 = 2;
+  constexpr int kRows1 = 3;
+  constexpr int kCols1 = 4;
+  constexpr int kRows2 = 4;
+  constexpr int kCols2 = 2;
 
   // Sparse matrices with mostly zeros
   std::vector<std::complex<double>> in1 = {{1.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {4.0, 0.0}, {0.0, 0.0}, {2.0, 0.0},

@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <complex>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -12,7 +11,9 @@
 #include "core/task/include/task.hpp"
 #include "omp/Ivashchuk_V_mult_crs/include/ops_omp.hpp"
 
-std::vector<std::complex<double>> generateRandomSparseMatrix(int rows, int cols, double density) {
+namespace {
+
+std::vector<std::complex<double>> GenerateRandomSparseMatrix(int rows, int cols, double density) {
   std::vector<std::complex<double>> matrix(rows * cols, {0.0, 0.0});
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -22,20 +23,25 @@ std::vector<std::complex<double>> generateRandomSparseMatrix(int rows, int cols,
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       if (prob_dist(gen) < density) {
-        matrix[i * cols + j] = {value_dist(gen), value_dist(gen)};
+        matrix[(i * cols) + j] = {value_dist(gen), value_dist(gen)};
       }
     }
   }
   return matrix;
 }
 
+}  // namespace
+
 TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
-  constexpr int kRows1 = 100, kCols1 = 100, kRows2 = 100, kCols2 = 100;
+  constexpr int kRows1 = 100;
+  constexpr int kCols1 = 100;
+  constexpr int kRows2 = 100;
+  constexpr int kCols2 = 100;
   constexpr double kDensity = 0.1;  // 10% non-zero elements
 
   // Create sparse matrices
-  auto in1 = generateRandomSparseMatrix(kRows1, kCols1, kDensity);
-  auto in2 = generateRandomSparseMatrix(kRows2, kCols2, kDensity);
+  auto in1 = GenerateRandomSparseMatrix(kRows1, kCols1, kDensity);
+  auto in2 = GenerateRandomSparseMatrix(kRows2, kCols2, kDensity);
   std::vector<std::complex<double>> out(kRows1 * kCols2, {0.0, 0.0});
 
   // Create task_data
@@ -79,12 +85,15 @@ TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
 }
 
 TEST(Ivashchuk_V_mult_crs_omp, test_task_run) {
-  constexpr int kRows1 = 150, kCols1 = 150, kRows2 = 150, kCols2 = 150;
+  constexpr int kRows1 = 150;
+  constexpr int kCols1 = 150;
+  constexpr int kRows2 = 150;
+  constexpr int kCols2 = 150;
   constexpr double kDensity = 0.05;  // 5% non-zero elements
 
   // Create sparse matrices
-  auto in1 = generateRandomSparseMatrix(kRows1, kCols1, kDensity);
-  auto in2 = generateRandomSparseMatrix(kRows2, kCols2, kDensity);
+  auto in1 = GenerateRandomSparseMatrix(kRows1, kCols1, kDensity);
+  auto in2 = GenerateRandomSparseMatrix(kRows2, kCols2, kDensity);
   std::vector<std::complex<double>> out(kRows1 * kCols2, {0.0, 0.0});
 
   // Create task_data
