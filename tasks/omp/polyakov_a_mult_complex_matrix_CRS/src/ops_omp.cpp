@@ -6,6 +6,7 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
+#include <numeric>
 #include <random>
 #include <vector>
 
@@ -72,7 +73,7 @@ bool polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP::RunImpl() {
   {
     std::vector<bool> local_marked(c_cols, 0);
 #pragma omp for
-    for (size_t r = 0; r < a_rows; r++) {
+    for (int r = 0; r < a_rows; r++) {
       std::fill(local_marked.begin(), local_marked.end(), 0);
       for (size_t i = A->row_ptr[r]; i < A->row_ptr[r + 1]; i++) {
         size_t k = A->col_ind[i];
@@ -99,7 +100,7 @@ bool polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP::RunImpl() {
   {
     std::vector<std::complex<double>> local_temp(c_cols);
 #pragma omp for
-    for (size_t r = 0; r < a_rows; r++) {
+    for (int r = 0; r < a_rows; r++) {
       std::fill(local_temp.begin(), local_temp.end(), std::complex<double>(0.0));
 
       // Умножение строки r матрицы A на B
