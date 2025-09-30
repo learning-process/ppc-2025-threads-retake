@@ -116,6 +116,41 @@ guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix MultiplyCRSSeq(
 
   return result;
 }
+
+void CompareCRSMatricesUnordered(const guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix &result,
+                                 const guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix &expected,
+                                 double eps = 1e-9) {
+  ASSERT_EQ(result.n_rows, expected.n_rows);
+  ASSERT_EQ(result.n_cols, expected.n_cols);
+  ASSERT_EQ(result.pointer, expected.pointer);
+
+  for (int i = 0; i < result.n_rows; ++i) {
+    int start_r = result.pointer[i];
+    int end_r = result.pointer[i + 1];
+    int start_s = expected.pointer[i];
+    int end_s = expected.pointer[i + 1];
+
+    ASSERT_EQ(end_r - start_r, end_s - start_s);
+
+    std::vector<std::pair<int, double>> row_r;
+    std::vector<std::pair<int, double>> row_s;
+
+    for (int k = start_r; k < end_r; ++k) { 
+      row_r.emplace_back(result.col_indexes[k], result.non_zero_values[k]);
+    }
+    for (int k = start_s; k < end_s; ++k) {
+      row_s.emplace_back(expected.col_indexes[k], expected.non_zero_values[k]);
+    }
+
+    std::sort(row_r.begin(), row_r.end());
+    std::sort(row_s.begin(), row_s.end());
+
+    for (size_t j = 0; j < row_r.size(); ++j) {
+      EXPECT_EQ(row_r[j].first, row_s[j].first);
+      EXPECT_NEAR(row_r[j].second, row_s[j].second, eps);
+    }
+  }
+}
 }  // namespace
 
 TEST(guseynov_e_sparse_matrix_multiply_crs_omp, test_pipeline_run) {
@@ -153,30 +188,7 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_omp, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   auto seq_result = MultiplyCRSSeq(a, b_seq);
-  ASSERT_EQ(result.n_rows, seq_result.n_rows);
-  ASSERT_EQ(result.n_cols, seq_result.n_cols);
-  ASSERT_EQ(result.pointer, seq_result.pointer);
-
-  const double eps = 1e-9;
-  for (int i = 0; i < result.n_rows; i++) {
-    int start_r = result.pointer[i];
-    int end_r = result.pointer[i + 1];
-    int start_s = seq_result.pointer[i];
-    int end_s = seq_result.pointer[i + 1];
-
-    ASSERT_EQ(end_r - start_r, end_s - start_s);
-    std::vector<std::pair<int, double>> row_r, row_s;
-    for (int k = start_r; k < end_r; ++k) row_r.emplace_back(result.col_indexes[k], result.non_zero_values[k]);
-    for (int k = start_s; k < end_s; ++k) row_s.emplace_back(seq_result.col_indexes[k], seq_result.non_zero_values[k]);
-
-    std::sort(row_r.begin(), row_r.end());
-    std::sort(row_s.begin(), row_s.end());
-
-    for (size_t j = 0; j < row_r.size(); ++j) {
-      EXPECT_EQ(row_r[j].first, row_s[j].first);
-      EXPECT_NEAR(row_r[j].second, row_s[j].second, eps);
-    }
-  }
+  CompareCRSMatricesUnordered(result, seq_result);
 }
 
 TEST(guseynov_e_sparse_matrix_multiply_crs_omp, test_task_run) {
@@ -215,28 +227,5 @@ TEST(guseynov_e_sparse_matrix_multiply_crs_omp, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   auto seq_result = MultiplyCRSSeq(a, b_seq);
-  ASSERT_EQ(result.n_rows, seq_result.n_rows);
-  ASSERT_EQ(result.n_cols, seq_result.n_cols);
-  ASSERT_EQ(result.pointer, seq_result.pointer);
-
-  const double eps = 1e-9;
-  for (int i = 0; i < result.n_rows; i++) {
-    int start_r = result.pointer[i];
-    int end_r = result.pointer[i + 1];
-    int start_s = seq_result.pointer[i];
-    int end_s = seq_result.pointer[i + 1];
-
-    ASSERT_EQ(end_r - start_r, end_s - start_s);
-    std::vector<std::pair<int, double>> row_r, row_s;
-    for (int k = start_r; k < end_r; ++k) row_r.emplace_back(result.col_indexes[k], result.non_zero_values[k]);
-    for (int k = start_s; k < end_s; ++k) row_s.emplace_back(seq_result.col_indexes[k], seq_result.non_zero_values[k]);
-
-    std::sort(row_r.begin(), row_r.end());
-    std::sort(row_s.begin(), row_s.end());
-
-    for (size_t j = 0; j < row_r.size(); ++j) {
-      EXPECT_EQ(row_r[j].first, row_s[j].first);
-      EXPECT_NEAR(row_r[j].second, row_s[j].second, eps);
-    }
-  }
+  CompareCRSMatricesUnordered(result, seq_result);
 }
