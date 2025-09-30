@@ -36,7 +36,7 @@ std::vector<std::complex<double>> GenerateRandomSparseMatrix(int size_rows, int 
   }
   return matrix;
 }
-
+// test fix
 void SetupAndRunPerformanceTest(const MatrixDimensions& dims, double density, bool pipeline_run = true) {
   // Create sparse matrice
   auto in1 = GenerateRandomSparseMatrix(dims.rows1, dims.cols1, density);
