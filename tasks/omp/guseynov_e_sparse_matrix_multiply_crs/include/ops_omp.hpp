@@ -27,4 +27,15 @@ class SparseMatMultOMP : public ppc::core::Task {
   CRSMatrix *A_mat_{}, *B_mat_{}, *Result_{};
 };
 
+class SparseMatMultSequantial : public ppc::core::Task {
+ public:
+  explicit SparseMatMultSequantial(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  bool PreProcessingImpl() override;
+  bool ValidationImpl() override;
+  bool RunImpl() override;
+  bool PostProcessingImpl() override;
+
+ private:
+  CRSMatrix *A_mat_{}, *B_mat_{}, *Result_{};
+};
 }  // namespace guseynov_e_sparse_matrix_multiply_crs_omp
