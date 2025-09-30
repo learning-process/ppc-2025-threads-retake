@@ -1,4 +1,4 @@
-#include "omp/Ivashchuk_V_mult_crs/include/ops_omp.hpp"
+#include "ops_omp.hpp"
 
 #include <cmath>
 #include <complex>

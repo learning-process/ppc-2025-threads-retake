@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
+#include "task.hpp"
 
 namespace Ivashchuk_V_mult_crs {
 
