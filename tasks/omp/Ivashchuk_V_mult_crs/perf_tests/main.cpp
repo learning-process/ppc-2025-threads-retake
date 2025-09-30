@@ -89,7 +89,7 @@ void SetupAndRunPerformanceTest(const MatrixDimensions& dims, double density, bo
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-}  // namespace1
+}  // namespace
 
 TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
   constexpr int kRows1 = 100;
