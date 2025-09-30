@@ -1,5 +1,6 @@
 #include "tbb/agafeev_s_matmul_fox_algo/include/ops_tbb.hpp"
 
+#include <tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
