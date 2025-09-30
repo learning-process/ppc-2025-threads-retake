@@ -27,8 +27,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_omp, test_pipeline_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
 
   // Create Task
-  auto test_task_omp =
-      std::make_shared<polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -66,8 +65,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_omp, test_task_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&C));
 
   // Create Task
-  auto test_task_omp =
-      std::make_shared<polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
