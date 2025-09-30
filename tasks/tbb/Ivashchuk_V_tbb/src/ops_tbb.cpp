@@ -31,24 +31,6 @@ void ConvertDenseToCRS(const std::vector<std::complex<double>>& dense, int num_r
   }
 }
 
-void ComputeRowProduct(const std::vector<std::complex<double>>& a_values, const std::vector<int>& a_col_indices,
-                       int a_row_start, int a_row_end, const std::vector<std::complex<double>>& b_values,
-                       const std::vector<int>& b_col_indices, const std::vector<int>& b_row_ptr,
-                       std::vector<std::complex<double>>& temp_row) {
-  for (int idx = a_row_start; idx < a_row_end; ++idx) {
-    int col_a = a_col_indices[idx];
-    const std::complex<double>& val_a = a_values[idx];
-
-    int b_row_start_local = b_row_ptr[col_a];
-    int b_row_end_local = b_row_ptr[col_a + 1];
-
-    for (int inner_idx = b_row_start_local; inner_idx < b_row_end_local; ++inner_idx) {
-      int col_b = b_col_indices[inner_idx];
-      temp_row[col_b] += val_a * b_values[inner_idx];
-    }
-  }
-}
-
 }  // namespace
 
 bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PreProcessingImpl() {
@@ -122,42 +104,41 @@ void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& a, c
 
   c.row_ptr.push_back(0);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, a.rows), [&](const tbb::blocked_range<int>& range) {
-    std::vector<std::complex<double>> local_values;
-    std::vector<int> local_col_indices;
-    std::vector<int> local_row_ptr;
+  std::vector<std::vector<std::complex<double>>> temp_results(a.rows);
+  std::vector<std::vector<int>> temp_cols(a.rows);
 
+  tbb::parallel_for(tbb::blocked_range<int>(0, a.rows), [&](const tbb::blocked_range<int>& range) {
     for (int i = range.begin(); i != range.end(); ++i) {
-      std::vector<std::complex<double>> temp_row(b.cols, 0.0);
+      std::vector<std::complex<double>> row_result(b.cols, 0.0);
 
       int a_row_start = a.row_ptr[i];
       int a_row_end = a.row_ptr[i + 1];
 
-      ComputeRowProduct(a.values, a.col_indices, a_row_start, a_row_end, b.values, b.col_indices, b.row_ptr, temp_row);
+      for (int k = a_row_start; k < a_row_end; ++k) {
+        int col_a = a.col_indices[k];
+        const std::complex<double>& val_a = a.values[k];
 
-      for (int j = 0; j < b.cols; ++j) {
-        if (std::abs(temp_row[j]) > 1e-10) {
-          local_values.push_back(temp_row[j]);
-          local_col_indices.push_back(j);
+        int b_row_start = b.row_ptr[col_a];
+        int b_row_end = b.row_ptr[col_a + 1];
+
+        for (int l = b_row_start; l < b_row_end; ++l) {
+          int col_b = b.col_indices[l];
+          row_result[col_b] += val_a * b.values[l];
         }
       }
-      local_row_ptr.push_back(static_cast<int>(local_values.size()));
-    }
 
-#pragma omp critical
-    {
-      c.values.insert(c.values.end(), local_values.begin(), local_values.end());
-      c.col_indices.insert(c.col_indices.end(), local_col_indices.begin(), local_col_indices.end());
-      if (c.row_ptr.size() == 1) {
-        for (int ptr : local_row_ptr) {
-          c.row_ptr.push_back(ptr);
-        }
-      } else {
-        int last_ptr = c.row_ptr.back();
-        for (int ptr : local_row_ptr) {
-          c.row_ptr.push_back(last_ptr + ptr);
+      for (int j = 0; j < b.cols; ++j) {
+        if (std::abs(row_result[j]) > 1e-10) {
+          temp_results[i].push_back(row_result[j]);
+          temp_cols[i].push_back(j);
         }
       }
     }
   });
+
+  for (int i = 0; i < a.rows; ++i) {
+    c.values.insert(c.values.end(), temp_results[i].begin(), temp_results[i].end());
+    c.col_indices.insert(c.col_indices.end(), temp_cols[i].begin(), temp_cols[i].end());
+    c.row_ptr.push_back(static_cast<int>(c.values.size()));
+  }
 }
