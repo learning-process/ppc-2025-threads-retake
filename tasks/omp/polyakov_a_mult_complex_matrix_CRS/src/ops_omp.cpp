@@ -61,7 +61,7 @@ bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::ValidationImpl() {
   return a_cols_ == b_rows_ && a_rows_ != 0 && a_cols_ != 0 && b_cols_ != 0;
 }
 
-bool polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP::RunImpl() {
+bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::RunImpl() {
   const double eps = 1e-9;
 
   // подсчёт количества ненулевых в каждой строке
@@ -127,4 +127,4 @@ bool polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP::RunImpl() {
   return true;
 }
 
-bool polyakov_a_mult_complex_matrix_CRS_omp::TestTaskOMP::PostProcessingImpl() { return true; }
+bool polyakov_a_mult_complex_matrix_crs_omp::TestTaskOMP::PostProcessingImpl() { return true; }
