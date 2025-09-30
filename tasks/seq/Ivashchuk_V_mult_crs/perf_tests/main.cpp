@@ -35,7 +35,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
   auto test_task_sequential = std::make_shared<Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 9;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -84,7 +84,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
   auto test_task_sequential = std::make_shared<Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 9;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
