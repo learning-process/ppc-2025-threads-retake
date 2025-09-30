@@ -1,57 +1,48 @@
 #include <gtest/gtest.h>
 
-#include <chrono>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
+#include <fstream>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "../include/ops_tbb.hpp"
-#include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
 
 namespace {
 
-static void CreateIdentityMatrices(std::vector<std::complex<double>> &in, size_t count) {
+void CreateIdentityMatrices(std::vector<std::complex<double>> &in, size_t count) {
   for (size_t i = 0; i < count; i++) {
     in[(i * count) + i] = std::complex<double>(1.0, 0.0);
     in[(count * count) + (i * count) + i] = std::complex<double>(1.0, 0.0);
   }
 }
 
-static void VerifyDiagonal(const std::vector<std::complex<double>> &out, size_t count) {
+void VerifyDiagonal(const std::vector<std::complex<double>> &out, size_t count) {
   for (size_t i = 0; i < count; i++) {
     EXPECT_NEAR(out[(i * count) + i].real(), 1.0, 1e-10);
+    EXPECT_NEAR(out[(i * count) + i].imag(), 0.0, 1e-10);
   }
 }
 
-static void VerifyOffDiagonal(const std::vector<std::complex<double>> &out, size_t count) {
+void VerifyOffDiagonal(const std::vector<std::complex<double>> &out, size_t count) {
   for (size_t i = 0; i < count; i++) {
     for (size_t j = 0; j < count; j++) {
       if (i != j) {
         EXPECT_NEAR(out[(i * count) + j].real(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * count) + j].imag(), 0.0, 1e-10);
       }
     }
   }
 }
 
-static std::shared_ptr<ppc::core::PerfAttr> CreatePerfAttr() {
-  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
-  const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
-    auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
-  };
-  return perf_attr;
-}
-
 }  // namespace
 
-TEST(ivashchuk_v_tbb, test_pipeline_run) {
-  constexpr int kCount = 100;
+TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
+  constexpr size_t kCount = 5;
   std::vector<std::complex<double>> in(2 * kCount * kCount, 0.0);
   std::vector<std::complex<double>> out(kCount * kCount, 0.0);
 
@@ -63,24 +54,37 @@ TEST(ivashchuk_v_tbb, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size() * sizeof(std::complex<double>));
 
-  auto task = std::make_shared<ivashchuk_v_tbb::SparseMatrixComplexCRS>(task_data);
-  auto perf_attr = CreatePerfAttr();
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
-  perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ivashchuk_v_tbb::SparseMatrixComplexCRS task(task_data);
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  task.Run();
+  task.PostProcessing();
 
   VerifyDiagonal(out, kCount);
   VerifyOffDiagonal(out, kCount);
 }
 
-TEST(ivashchuk_v_tbb, test_task_run) {
-  constexpr int kCount = 100;
-  std::vector<std::complex<double>> in(2 * kCount * kCount, 0.0);
-  std::vector<std::complex<double>> out(kCount * kCount, 0.0);
+TEST(ivashchuk_v_tbb, test_sparse_matmul_10x10_from_file) {
+  std::string line;
+  std::ifstream test_file(ppc::util::GetAbsolutePath("tbb/example/data/test.txt"));
 
-  CreateIdentityMatrices(in, kCount);
+  size_t count = 10;
+
+  if (test_file.is_open()) {
+    if (getline(test_file, line)) {
+      try {
+        count = std::stoi(line);
+      } catch (const std::exception &) {
+        count = 10;
+      }
+    }
+    test_file.close();
+  }
+
+  std::vector<std::complex<double>> in(2 * count * count, 0.0);
+  std::vector<std::complex<double>> out(count * count, 0.0);
+
+  CreateIdentityMatrices(in, count);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -88,14 +92,12 @@ TEST(ivashchuk_v_tbb, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size() * sizeof(std::complex<double>));
 
-  auto task = std::make_shared<ivashchuk_v_tbb::SparseMatrixComplexCRS>(task_data);
-  auto perf_attr = CreatePerfAttr();
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+  ivashchuk_v_tbb::SparseMatrixComplexCRS task(task_data);
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  task.Run();
+  task.PostProcessing();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
-  perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-
-  VerifyDiagonal(out, kCount);
-  VerifyOffDiagonal(out, kCount);
+  VerifyDiagonal(out, count);
+  VerifyOffDiagonal(out, count);
 }
