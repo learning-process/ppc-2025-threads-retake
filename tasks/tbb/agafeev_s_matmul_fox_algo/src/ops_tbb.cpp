@@ -1,7 +1,7 @@
 #include "tbb/agafeev_s_matmul_fox_algo/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/tbb.h>
+#include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
