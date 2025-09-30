@@ -15,8 +15,8 @@ struct MatrixCRS {
   std::vector<size_t> row_ptr;
   std::vector<size_t> col_ind;
 
-  MatrixCRS() = default;
-  MatrixCRS(size_t rows, size_t cols) : rows_(rows), cols_(cols) { row_ptr.resize(rows + 1, 0); }
+  MatrixCRS() : rows_(0), cols_(0), values{}, row_ptr{0}, col_ind{} {}
+  MatrixCRS(size_t rows, size_t cols) : rows_(rows), cols_(cols), values{}, row_ptr{0}, col_ind{} {}
   MatrixCRS(size_t rows, size_t cols, const std::vector<std::complex<double>>& v, const std::vector<size_t>& c,
             const std::vector<size_t>& rptr)
       : rows_(rows), cols_(cols), values(v), row_ptr(rptr), col_ind(c) {}
