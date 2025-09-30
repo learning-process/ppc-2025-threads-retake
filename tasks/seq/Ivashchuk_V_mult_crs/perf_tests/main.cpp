@@ -35,7 +35,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
   auto test_task_sequential = std::make_shared<Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 9;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -84,7 +84,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
   auto test_task_sequential = std::make_shared<Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 9;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -108,50 +108,4 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
       }
     }
   }
-}
-
-TEST(Ivashchuk_V_sparse_matrix_seq, TestSparsePerformance) {
-  constexpr int kSize = 150;
-
-  std::vector<std::complex<double>> in1(kSize * kSize, 0);
-  std::vector<std::complex<double>> in2(kSize * kSize, 0);
-  std::vector<std::complex<double>> out(kSize * kSize, 0);
-
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(0.0, 1.0);
-
-  for (int i = 0; i < kSize; ++i) {
-    in1[i * kSize + i] = std::complex<double>(1.0, 0.5);
-    in2[i * kSize + i] = std::complex<double>(0.5, 1.0);
-
-    if (i < kSize - 1) {
-      in1[i * kSize + (i + 1)] = std::complex<double>(dis(gen), dis(gen));
-      in2[(i + 1) * kSize + i] = std::complex<double>(dis(gen), dis(gen));
-    }
-  }
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in1.data()));
-  task_data_seq->inputs_count.emplace_back(in1.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in2.data()));
-  task_data_seq->inputs_count.emplace_back(in2.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  auto test_task_sequential = std::make_shared<Ivashchuk_V_sparse_matrix_seq::SparseMatrixMultiplier>(task_data_seq);
-
-  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;
-  const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
-    auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
-  };
-
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
-  perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
