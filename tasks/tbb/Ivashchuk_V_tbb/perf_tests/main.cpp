@@ -5,11 +5,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/example/include/ops_tbb.hpp"
+#include "ivashchuk_v_tbb/include/ops_tbb.hpp"
 
 TEST(ivashchuk_v_tbb, test_pipeline_run) {
   constexpr int kCount = 100;
@@ -20,8 +19,8 @@ TEST(ivashchuk_v_tbb, test_pipeline_run) {
 
   // Create identity matrices for testing
   for (size_t i = 0; i < kCount; i++) {
-    in[i * kCount + i] = std::complex<double>(1.0, 0.0);                    // First matrix (identity)
-    in[kCount * kCount + i * kCount + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
+    in[(i * kCount) + i] = std::complex<double>(1.0, 0.0);                      // First matrix (identity)
+    in[(kCount * kCount) + (i * kCount) + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
   }
 
   // Create task_data
@@ -56,9 +55,9 @@ TEST(ivashchuk_v_tbb, test_pipeline_run) {
   for (size_t i = 0; i < kCount; i++) {
     for (size_t j = 0; j < kCount; j++) {
       if (i == j) {
-        EXPECT_NEAR(out[i * kCount + j].real(), 1.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].real(), 1.0, 1e-10);
       } else {
-        EXPECT_NEAR(out[i * kCount + j].real(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].real(), 0.0, 1e-10);
       }
     }
   }
@@ -73,8 +72,8 @@ TEST(ivashchuk_v_tbb, test_task_run) {
 
   // Create identity matrices for testing
   for (size_t i = 0; i < kCount; i++) {
-    in[i * kCount + i] = std::complex<double>(1.0, 0.0);                    // First matrix (identity)
-    in[kCount * kCount + i * kCount + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
+    in[(i * kCount) + i] = std::complex<double>(1.0, 0.0);                      // First matrix (identity)
+    in[(kCount * kCount) + (i * kCount) + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
   }
 
   // Create task_data
@@ -109,9 +108,9 @@ TEST(ivashchuk_v_tbb, test_task_run) {
   for (size_t i = 0; i < kCount; i++) {
     for (size_t j = 0; j < kCount; j++) {
       if (i == j) {
-        EXPECT_NEAR(out[i * kCount + j].real(), 1.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].real(), 1.0, 1e-10);
       } else {
-        EXPECT_NEAR(out[i * kCount + j].real(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].real(), 0.0, 1e-10);
       }
     }
   }

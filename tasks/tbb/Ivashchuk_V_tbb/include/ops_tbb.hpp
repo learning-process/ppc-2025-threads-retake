@@ -25,10 +25,10 @@ class SparseMatrixComplexCRS : public ppc::core::Task {
     int cols = 0;
   };
 
-  CRSMatrix matrixA, matrixB, result;
+  CRSMatrix matrix_a_, matrix_b_, result_;
 
   void ConvertToCRS(const std::vector<std::complex<double>>& dense, int rows, int cols, CRSMatrix& crs);
-  void SparseMatMul(const CRSMatrix& A, const CRSMatrix& B, CRSMatrix& C);
+  void SparseMatMul(const CRSMatrix& a, const CRSMatrix& b, CRSMatrix& c);
 };
 
 }  // namespace ivashchuk_v_tbb

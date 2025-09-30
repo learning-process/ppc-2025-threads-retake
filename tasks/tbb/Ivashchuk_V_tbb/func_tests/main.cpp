@@ -6,11 +6,10 @@
 #include <fstream>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "tbb/example/include/ops_tbb.hpp"
+#include "ivashchuk_v_tbb/include/ops_tbb.hpp"
 
 TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
   constexpr size_t kCount = 5;
@@ -21,8 +20,8 @@ TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
 
   // Create identity matrices for testing
   for (size_t i = 0; i < kCount; i++) {
-    in[i * kCount + i] = std::complex<double>(1.0, 0.0);                    // First matrix (identity)
-    in[kCount * kCount + i * kCount + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
+    in[(i * kCount) + i] = std::complex<double>(1.0, 0.0);                      // First matrix (identity)
+    in[(kCount * kCount) + (i * kCount) + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
   }
 
   // Create task_data
@@ -43,11 +42,11 @@ TEST(ivashchuk_v_tbb, test_sparse_matmul_5x5) {
   for (size_t i = 0; i < kCount; i++) {
     for (size_t j = 0; j < kCount; j++) {
       if (i == j) {
-        EXPECT_NEAR(out[i * kCount + j].real(), 1.0, 1e-10);
-        EXPECT_NEAR(out[i * kCount + j].imag(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].real(), 1.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].imag(), 0.0, 1e-10);
       } else {
-        EXPECT_NEAR(out[i * kCount + j].real(), 0.0, 1e-10);
-        EXPECT_NEAR(out[i * kCount + j].imag(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].real(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * kCount) + j].imag(), 0.0, 1e-10);
       }
     }
   }
@@ -69,8 +68,8 @@ TEST(ivashchuk_v_tbb, test_sparse_matmul_10x10_from_file) {
 
   // Create identity matrices for testing
   for (size_t i = 0; i < count; i++) {
-    in[i * count + i] = std::complex<double>(1.0, 0.0);                  // First matrix (identity)
-    in[count * count + i * count + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
+    in[(i * count) + i] = std::complex<double>(1.0, 0.0);                    // First matrix (identity)
+    in[(count * count) + (i * count) + i] = std::complex<double>(1.0, 0.0);  // Second matrix (identity)
   }
 
   // Create task_data
@@ -91,11 +90,11 @@ TEST(ivashchuk_v_tbb, test_sparse_matmul_10x10_from_file) {
   for (size_t i = 0; i < count; i++) {
     for (size_t j = 0; j < count; j++) {
       if (i == j) {
-        EXPECT_NEAR(out[i * count + j].real(), 1.0, 1e-10);
-        EXPECT_NEAR(out[i * count + j].imag(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * count) + j].real(), 1.0, 1e-10);
+        EXPECT_NEAR(out[(i * count) + j].imag(), 0.0, 1e-10);
       } else {
-        EXPECT_NEAR(out[i * count + j].real(), 0.0, 1e-10);
-        EXPECT_NEAR(out[i * count + j].imag(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * count) + j].real(), 0.0, 1e-10);
+        EXPECT_NEAR(out[(i * count) + j].imag(), 0.0, 1e-10);
       }
     }
   }

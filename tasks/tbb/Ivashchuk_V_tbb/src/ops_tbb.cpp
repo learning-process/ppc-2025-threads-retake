@@ -1,15 +1,10 @@
-#include "tbb/example/include/ops_tbb.hpp"
+#include "ivashchuk_v_tbb/include/ops_tbb.hpp"
 
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
-#include <algorithm>
 #include <cmath>
-#include <complex>
-#include <core/util/include/util.hpp>
-#include <cstddef>
-#include <vector>
 
 namespace {
 
@@ -23,7 +18,7 @@ void ConvertDenseToCRS(const std::vector<std::complex<double>>& dense, int rows,
   row_ptr.push_back(0);
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < cols; ++j) {
-      const auto& elem = dense[i * cols + j];
+      const auto& elem = dense[(i * cols) + j];
       if (std::abs(elem) > 1e-10) {  // Non-zero element
         values.push_back(elem);
         col_indices.push_back(j);
@@ -52,12 +47,12 @@ bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PreProcessingImpl() {
   std::copy(in_ptr + matrix_size * matrix_size, in_ptr + 2 * matrix_size * matrix_size, denseB.begin());
 
   // Convert to CRS format
-  ConvertToCRS(denseA, matrix_size, matrix_size, matrixA);
-  ConvertToCRS(denseB, matrix_size, matrix_size, matrixB);
+  ConvertToCRS(denseA, matrix_size, matrix_size, matrix_a_);
+  ConvertToCRS(denseB, matrix_size, matrix_size, matrix_b_);
 
   // Initialize result matrix
-  result.rows = matrix_size;
-  result.cols = matrix_size;
+  result_.rows = matrix_size;
+  result_.cols = matrix_size;
 
   return true;
 }
@@ -75,23 +70,23 @@ bool ivashchuk_v_tbb::SparseMatrixComplexCRS::ValidationImpl() {
 }
 
 bool ivashchuk_v_tbb::SparseMatrixComplexCRS::RunImpl() {
-  SparseMatMul(matrixA, matrixB, result);
+  SparseMatMul(matrix_a_, matrix_b_, result_);
   return true;
 }
 
 bool ivashchuk_v_tbb::SparseMatrixComplexCRS::PostProcessingImpl() {
   // Convert result back to dense format for output
   auto* out_ptr = reinterpret_cast<std::complex<double>*>(task_data->outputs[0]);
-  int size = result.rows * result.cols;
+  int size = result_.rows * result_.cols;
   std::fill(out_ptr, out_ptr + size, std::complex<double>(0.0));
 
-  for (int i = 0; i < result.rows; ++i) {
-    int row_start = result.row_ptr[i];
-    int row_end = result.row_ptr[i + 1];
+  for (int i = 0; i < result_.rows; ++i) {
+    int row_start = result_.row_ptr[i];
+    int row_end = result_.row_ptr[i + 1];
 
     for (int j = row_start; j < row_end; ++j) {
-      int col = result.col_indices[j];
-      out_ptr[i * result.cols + col] = result.values[j];
+      int col = result_.col_indices[j];
+      out_ptr[(i * result_.cols) + col] = result_.values[j];
     }
   }
 
@@ -105,45 +100,45 @@ void ivashchuk_v_tbb::SparseMatrixComplexCRS::ConvertToCRS(const std::vector<std
   ConvertDenseToCRS(dense, rows, cols, crs.values, crs.col_indices, crs.row_ptr);
 }
 
-void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& A, const CRSMatrix& B, CRSMatrix& C) {
-  C.rows = A.rows;
-  C.cols = B.cols;
-  C.row_ptr.clear();
-  C.values.clear();
-  C.col_indices.clear();
+void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& a, const CRSMatrix& b, CRSMatrix& c) {
+  c.rows = a.rows;
+  c.cols = b.cols;
+  c.row_ptr.clear();
+  c.values.clear();
+  c.col_indices.clear();
 
-  C.row_ptr.push_back(0);
+  c.row_ptr.push_back(0);
 
   // Parallel computation of result rows using TBB
-  tbb::parallel_for(tbb::blocked_range<int>(0, A.rows), [&](const tbb::blocked_range<int>& range) {
+  tbb::parallel_for(tbb::blocked_range<int>(0, a.rows), [&](const tbb::blocked_range<int>& range) {
     for (int i = range.begin(); i != range.end(); ++i) {
-      std::vector<std::complex<double>> temp_row(B.cols, 0.0);
+      std::vector<std::complex<double>> temp_row(b.cols, 0.0);
 
-      int A_row_start = A.row_ptr[i];
-      int A_row_end = A.row_ptr[i + 1];
+      int a_row_start = a.row_ptr[i];
+      int a_row_end = a.row_ptr[i + 1];
 
-      // Multiply row i of A with matrix B
-      for (int k = A_row_start; k < A_row_end; ++k) {
-        int col_A = A.col_indices[k];
-        const std::complex<double>& val_A = A.values[k];
+      // Multiply row i of a with matrix b
+      for (int k = a_row_start; k < a_row_end; ++k) {
+        int col_a = a.col_indices[k];
+        const std::complex<double>& val_a = a.values[k];
 
-        int B_row_start = B.row_ptr[col_A];
-        int B_row_end = B.row_ptr[col_A + 1];
+        int b_row_start = b.row_ptr[col_a];
+        int b_row_end = b.row_ptr[col_a + 1];
 
-        for (int l = B_row_start; l < B_row_end; ++l) {
-          int col_B = B.col_indices[l];
-          temp_row[col_B] += val_A * B.values[l];
+        for (int l = b_row_start; l < b_row_end; ++l) {
+          int col_b = b.col_indices[l];
+          temp_row[col_b] += val_a * b.values[l];
         }
       }
 
       // Store non-zero elements of result row
-      for (int j = 0; j < B.cols; ++j) {
+      for (int j = 0; j < b.cols; ++j) {
         if (std::abs(temp_row[j]) > 1e-10) {
 // Need synchronization for parallel insertion
 #pragma omp critical
           {
-            C.values.push_back(temp_row[j]);
-            C.col_indices.push_back(j);
+            c.values.push_back(temp_row[j]);
+            c.col_indices.push_back(j);
           }
         }
       }
@@ -151,7 +146,7 @@ void ivashchuk_v_tbb::SparseMatrixComplexCRS::SparseMatMul(const CRSMatrix& A, c
 // Update row pointer (needs synchronization)
 #pragma omp critical
       {
-        C.row_ptr.push_back(static_cast<int>(C.values.size()));
+        c.row_ptr.push_back(static_cast<int>(c.values.size()));
       }
     }
   });
