@@ -18,9 +18,9 @@ struct MatrixCRS {
   std::vector<size_t> col_ind;
 
   MatrixCRS() = default;
-  MatrixCRS(size_t row_count, size_t col_count) : rows(row_count), cols(col_count), values{}, row_ptr{0}, col_ind{} {}
-  MatrixCRS(size_t row_count, size_t col_count, const std::vector<std::complex<double>>& values_vec,
-            const std::vector<size_t>& columns, const std::vector<size_t>& row_pointer)
+  MatrixCRS(size_t row_count, size_t col_count) : rows(row_count), cols(col_count) {}
+  MatrixCRS(size_t row_count, size_t column_count, const std::vector<std::complex<double>>& non_zero_values,
+            const std::vector<size_t>& column_indexes, const std::vector<size_t>& row_pointers)
       : rows(row_count), cols(col_count), values(values_vec), row_ptr(row_pointer), col_ind(columns) {}
 
   bool operator==(const MatrixCRS& m) const {

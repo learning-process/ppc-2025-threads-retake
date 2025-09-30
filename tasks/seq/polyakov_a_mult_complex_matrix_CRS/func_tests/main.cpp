@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/polyakov_a_mult_complex_matrix_CRS/include/ops_seq.hpp"
 
 TEST(polyakov_a_mult_complex_matrix_crs_seq, test_mul_identity_matrix) {
@@ -67,7 +66,7 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_mul_negative_identity_matrix) 
 
   std::vector<std::complex<double>> exp_values;
   for (size_t i = 0; i < a.values.size(); i++) {
-    exp_values.push_back(a.values[i] * k_);
+    exp_values.push_back(a.values[i] * minus_one);
   }
   polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS expect(kN, kN, exp_values, a.col_ind, a.row_ptr);
 
@@ -129,10 +128,10 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_none_valid) {
   constexpr size_t kN = 5;
   constexpr size_t kM = 4;
   constexpr size_t k_ = 3;
-  constexpr size_t t = 10;
+  constexpr size_t kT = 10;
 
   polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS a(kN, kM);
-  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b(k_, t);
+  polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS b(k_, kT);
   polyakov_a_mult_complex_matrix_crs_seq::MatrixCRS c;
 
   // Create task_data
