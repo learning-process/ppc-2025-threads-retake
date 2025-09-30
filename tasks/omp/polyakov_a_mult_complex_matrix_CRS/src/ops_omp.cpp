@@ -2,12 +2,12 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cmath>
 #include <complex>
 #include <cstddef>
 #include <numeric>
 #include <random>
-#include <ranges>
 #include <utility>
 #include <vector>
 
