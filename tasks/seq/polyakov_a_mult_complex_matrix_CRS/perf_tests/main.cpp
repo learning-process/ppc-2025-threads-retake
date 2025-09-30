@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -27,7 +28,7 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<pcrs::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -63,7 +64,7 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&c));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<pcrs::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

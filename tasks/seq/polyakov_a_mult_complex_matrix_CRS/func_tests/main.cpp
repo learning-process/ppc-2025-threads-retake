@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -107,8 +108,8 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_mul_none_square_matrix) {
   pcrs::MatrixCRS c(pcrs::Rows{kN}, pcrs::Cols{k_});
 
   pcrs::MatrixCRS a(pcrs::Rows{kN}, pcrs::Cols{kM}, std::move(a_values), std::move(a_col_ind), std::move(a_row_ptr));
-  pcrs::MatrixCRS b(pcrs::Rows{kM}, pcrs::Cols{kK}, std::move(b_values), std::move(b_col_ind), std::move(b_row_ptr));
-  pcrs::MatrixCRS expect(pcrs::Rows{kN}, pcrs::Cols{kK}, std::move(exp_values), std::move(exp_col_ind),
+  pcrs::MatrixCRS b(pcrs::Rows{kM}, pcrs::Cols{k_}, std::move(b_values), std::move(b_col_ind), std::move(b_row_ptr));
+  pcrs::MatrixCRS expect(pcrs::Rows{kN}, pcrs::Cols{k_}, std::move(exp_values), std::move(exp_col_ind),
                          std::move(exp_row_ptr));
 
   // Create task_data
