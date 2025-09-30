@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -15,10 +16,15 @@ TEST(shishkarev_a_radix_sort_omp, test_pipeline_run) {
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
+  std::vector<int> expected(kCount);  // Для проверки результатов
 
   for (int i = 0; i < kCount; ++i) {
     in[i] = rand() % 10000000;
   }
+
+  // Создаем копию для эталонной сортировки
+  expected = in;
+  std::sort(expected.begin(), expected.end());
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -42,6 +48,26 @@ TEST(shishkarev_a_radix_sort_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  // Проверка результатов
+  bool sorted_correctly = true;
+  for (size_t i = 0; i < out.size(); ++i) {
+    if (out[i] != expected[i]) {
+      sorted_correctly = false;
+      break;
+    }
+  }
+  EXPECT_TRUE(sorted_correctly);
+
+  // Дополнительная проверка: убедимся, что массив действительно отсортирован
+  bool is_sorted = true;
+  for (size_t i = 1; i < out.size(); ++i) {
+    if (out[i] < out[i - 1]) {
+      is_sorted = false;
+      break;
+    }
+  }
+  EXPECT_TRUE(is_sorted);
 }
 
 TEST(shishkarev_a_radix_sort_omp, test_task_run) {
@@ -49,10 +75,15 @@ TEST(shishkarev_a_radix_sort_omp, test_task_run) {
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
+  std::vector<int> expected(kCount);  // Для проверки результатов
 
   for (int i = 0; i < kCount; ++i) {
     in[i] = rand() % 10000000;
   }
+
+  // Создаем копию для эталонной сортировки
+  expected = in;
+  std::sort(expected.begin(), expected.end());
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -76,4 +107,24 @@ TEST(shishkarev_a_radix_sort_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  // Проверка результатов
+  bool sorted_correctly = true;
+  for (size_t i = 0; i < out.size(); ++i) {
+    if (out[i] != expected[i]) {
+      sorted_correctly = false;
+      break;
+    }
+  }
+  EXPECT_TRUE(sorted_correctly);
+
+  // Дополнительная проверка: убедимся, что массив действительно отсортирован
+  bool is_sorted = true;
+  for (size_t i = 1; i < out.size(); ++i) {
+    if (out[i] < out[i - 1]) {
+      is_sorted = false;
+      break;
+    }
+  }
+  EXPECT_TRUE(is_sorted);
 }
