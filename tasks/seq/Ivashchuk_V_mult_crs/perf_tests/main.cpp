@@ -13,7 +13,7 @@
 #include "core/task/include/task.hpp"
 
 TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
-  constexpr int kCount = 1500;  // Большой размер + плотные матрицы
+  constexpr int kCount = 1500;  // Large size + dense matrices
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
@@ -23,13 +23,13 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> value_dis(-2.0, 2.0);
 
-  // Гарантируем, что матрицы не будут слишком разреженными
+  // Ensure matrices are not too sparse
   for (int i = 0; i < kCount; ++i) {
-    // Главная диагональ
+    // Main diagonal
     in1[i * kCount + i] = std::complex<double>(2.0, 1.0);
     in2[i * kCount + i] = std::complex<double>(1.5, -0.5);
 
-    // Ближайшие диагонали
+    // Adjacent diagonals
     if (i > 0) {
       in1[i * kCount + (i - 1)] = std::complex<double>(0.5, 0.3);
       in2[i * kCount + (i - 1)] = std::complex<double>(0.3, 0.5);
@@ -39,7 +39,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
       in2[i * kCount + (i + 1)] = std::complex<double>(-0.2, 0.7);
     }
 
-    // Случайные элементы в каждой строке (добавляем плотности)
+    // Random elements in each row (add density)
     for (int j = 0; j < 10; ++j) {
       int random_col = std::uniform_int_distribution<>(0, kCount - 1)(gen);
       in1[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
@@ -71,7 +71,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Проверка корректности результата (упрощенная)
+  // Check result correctness (simplified)
   bool has_non_zero = false;
   for (size_t i = 0; i < kCount * kCount; ++i) {
     if (std::abs(out[i].real()) > 1e-10 || std::abs(out[i].imag()) > 1e-10) {
@@ -79,27 +79,28 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestPipelineRun) {
       break;
     }
   }
-  EXPECT_TRUE(has_non_zero);  // Результат не должен быть нулевой матрицей
+  EXPECT_TRUE(has_non_zero);  // Result should not be zero matrix
 }
 
 TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
-  constexpr int kCount = 1500;  // Большой размер + плотные матрицы
+  constexpr int kCount = 1500;  // Large size + dense matrices
 
   std::vector<std::complex<double>> in1(kCount * kCount, 0);
   std::vector<std::complex<double>> in2(kCount * kCount, 0);
   std::vector<std::complex<double>> out(kCount * kCount, 0);
 
   std::random_device rd;
+  std::mutex mtx;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> value_dis(-2.0, 2.0);
 
-  // Гарантируем, что матрицы не будут слишком разреженными
+  // Ensure matrices are not too sparse
   for (int i = 0; i < kCount; ++i) {
-    // Главная диагональ
+    // Main diagonal
     in1[i * kCount + i] = std::complex<double>(2.0, 1.0);
     in2[i * kCount + i] = std::complex<double>(1.5, -0.5);
 
-    // Ближайшие диагонали
+    // Adjacent diagonals
     if (i > 0) {
       in1[i * kCount + (i - 1)] = std::complex<double>(0.5, 0.3);
       in2[i * kCount + (i - 1)] = std::complex<double>(0.3, 0.5);
@@ -109,7 +110,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
       in2[i * kCount + (i + 1)] = std::complex<double>(-0.2, 0.7);
     }
 
-    // Случайные элементы в каждой строке (добавляем плотности)
+    // Random elements in each row (add density)
     for (int j = 0; j < 10; ++j) {
       int random_col = std::uniform_int_distribution<>(0, kCount - 1)(gen);
       in1[i * kCount + random_col] = std::complex<double>(value_dis(gen), value_dis(gen));
@@ -141,7 +142,7 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Проверка корректности результата (упрощенная)
+  // Check result correctness (simplified)
   bool has_non_zero = false;
   for (size_t i = 0; i < kCount * kCount; ++i) {
     if (std::abs(out[i].real()) > 1e-10 || std::abs(out[i].imag()) > 1e-10) {
@@ -149,5 +150,5 @@ TEST(Ivashchuk_V_sparse_matrix_seq, TestTaskRun) {
       break;
     }
   }
-  EXPECT_TRUE(has_non_zero);  // Результат не должен быть нулевой матрицей
+  EXPECT_TRUE(has_non_zero);  // Result should not be zero matrix
 }
