@@ -97,6 +97,7 @@ TEST(Ivashchuk_V_mult_crs_omp, test_pipeline_run) {
   constexpr int kCols1 = 3000;
   constexpr int kRows2 = 3000;
   constexpr int kCols2 = 3000;
+
   constexpr double kDensity = 0.8; 
 
   MatrixDimensions dims{.rows1 = kRows1, .cols1 = kCols1, .rows2 = kRows2, .cols2 = kCols2};
