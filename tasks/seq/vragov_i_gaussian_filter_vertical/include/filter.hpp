@@ -17,8 +17,8 @@ class GaussianFilterTaskSequential : public ppc::core::Task {
 
  private:
   std::vector<int> input_, output_;
-  unsigned int x_{};
-  unsigned int y_{};
+  int x_{};
+  int y_{};
 };
 
 }  // namespace vragov_i_gaussian_filter_vertical_seq
