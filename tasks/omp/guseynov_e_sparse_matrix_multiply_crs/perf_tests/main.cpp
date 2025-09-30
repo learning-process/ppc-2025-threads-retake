@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -117,14 +120,25 @@ guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix MultiplyCRSSeq(
   return result;
 }
 
-void CompareCRSMatricesUnordered(const guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix &result,
-                                 const guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix &expected,
-                                 double eps = 1e-9) {
+void CompareRows(const std::vector<std::pair<int, double>>& row_r,
+                 const std::vector<std::pair<int, double>>& row_s,
+                 double eps) {
+  ASSERT_EQ(row_r.size(), row_s.size());
+  for (size_t j = 0; j < row_r.size(); ++j) {
+    EXPECT_EQ(row_r[j].first, row_s[j].first);
+    EXPECT_NEAR(row_r[j].second, row_s[j].second, eps);
+  }
+}
+
+void CompareCRSMatricesUnordered(
+    const guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix &result,
+    const guseynov_e_sparse_matrix_multiply_crs_omp::CRSMatrix &expected,
+    double eps = 1e-9) {
   ASSERT_EQ(result.n_rows, expected.n_rows);
   ASSERT_EQ(result.n_cols, expected.n_cols);
   ASSERT_EQ(result.pointer, expected.pointer);
 
-  for (int i = 0; i < result.n_rows; ++i) {
+  for (int i = 0; i < result.n_rows; i++) {
     int start_r = result.pointer[i];
     int end_r = result.pointer[i + 1];
     int start_s = expected.pointer[i];
@@ -132,23 +146,19 @@ void CompareCRSMatricesUnordered(const guseynov_e_sparse_matrix_multiply_crs_omp
 
     ASSERT_EQ(end_r - start_r, end_s - start_s);
 
-    std::vector<std::pair<int, double>> row_r;
-    std::vector<std::pair<int, double>> row_s;
-
-    for (int k = start_r; k < end_r; ++k) { 
+    std::vector<std::pair<int, double>> row_r, row_s;
+    for (int k = start_r; k < end_r; ++k) {
       row_r.emplace_back(result.col_indexes[k], result.non_zero_values[k]);
     }
+    
     for (int k = start_s; k < end_s; ++k) {
       row_s.emplace_back(expected.col_indexes[k], expected.non_zero_values[k]);
     }
 
-    std::sort(row_r.begin(), row_r.end());
-    std::sort(row_s.begin(), row_s.end());
+    std::ranges::sort(row_r);
+    std::ranges::sort(row_s);
 
-    for (size_t j = 0; j < row_r.size(); ++j) {
-      EXPECT_EQ(row_r[j].first, row_s[j].first);
-      EXPECT_NEAR(row_r[j].second, row_s[j].second, eps);
-    }
+    CompareRows(row_r, row_s, eps);
   }
 }
 }  // namespace
