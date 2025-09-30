@@ -24,7 +24,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_identity_matrix) {
   std::vector<size_t> row_ptr;
   row_ptr.push_back(0);
 
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     col_ind.push_back(i);
     row_ptr.push_back(i + 1);
   }
@@ -48,7 +48,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_identity_matrix) {
 
 TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) {
   constexpr size_t n = 1000;
-  constexpr size_t k = -1;
+  const std::complex<double> k = -1;
 
   // Create data
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
@@ -59,7 +59,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) 
   std::vector<size_t> b_row_ptr;
   b_row_ptr.push_back(0);
 
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     b_col_ind.push_back(i);
     b_row_ptr.push_back(i + 1);
   }
@@ -68,7 +68,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_mul_negative_identity_matrix) 
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS C(n, n);
 
   std::vector<std::complex<double>> exp_values;
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < A.values.size(); i++) {
     exp_values.push_back(A.values[i] * -1);
   }
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS expect(n, n, exp_values, A.col_ind, A.row_ptr);

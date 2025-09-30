@@ -21,7 +21,7 @@ polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS polyakov_a_mult_complex_matrix
   for (size_t i = 0; i < n; i++) {
     size_t nz_row = 0;
     for (size_t j = 0; j < m; j++) {
-      if (try_dist(gen) <= sparsity_coeff) {
+      if (static_cast<size_t>(try_dist(gen)) <= sparsity_coeff) {
         values.emplace_back(real_dist(gen), imag_dist(gen));
         col_ind.push_back(j);
         nz_row++;
@@ -36,6 +36,11 @@ polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS polyakov_a_mult_complex_matrix
 }
 
 bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::PreProcessingImpl() {
+  a_rows = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->rows_;
+  a_cols = reinterpret_cast<MatrixCRS *>(task_data->inputs[0])->cols_;
+  b_rows = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->rows_;
+  b_cols = reinterpret_cast<MatrixCRS *>(task_data->inputs[1])->cols_;
+
   A = reinterpret_cast<MatrixCRS *>(task_data->inputs[0]);
   B = reinterpret_cast<MatrixCRS *>(task_data->inputs[1]);
   c_rows = a_rows;
@@ -56,21 +61,21 @@ bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::ValidationImpl(
 bool polyakov_a_mult_complex_matrix_CRS_seq::TestTaskSequential::RunImpl() {
   double eps = 1e-9;
 
-  for (int r = 0; r < a_rows; r++) {
+  for (size_t r = 0; r < a_rows; r++) {
     std::vector<std::complex<double>> temp_row(c_cols, 0);  // создаём вектор для временного хранения строки матрицы C
 
-    for (int i = A->row_ptr[r]; i < A->row_ptr[r + 1]; i++) {  // проходимся по i-ой строке A, если она не нулевая
+    for (size_t i = A->row_ptr[r]; i < A->row_ptr[r + 1]; i++) {  // проходимся по i-ой строке A, если она не нулевая
       std::complex<double> a_value = A->values[i];
       size_t k = A->col_ind[i];
 
-      for (int j = B->row_ptr[k]; j < B->row_ptr[k + 1]; j++) {  // проходимся по соответсвующей строке B
+      for (size_t j = B->row_ptr[k]; j < B->row_ptr[k + 1]; j++) {  // проходимся по соответсвующей строке B
         std::complex<double> b_value = B->values[j];
-        int t = B->col_ind[j];
+        size_t t = B->col_ind[j];
         temp_row[t] += a_value * b_value;
       }
     }
 
-    for (int i = 0; i < c_cols; i++) {
+    for (size_t i = 0; i < c_cols; i++) {
       if (std::abs(temp_row[i]) > eps) {  // isComplexNoneZero
         C->values.push_back(temp_row[i]);
         C->col_ind.push_back(i);
