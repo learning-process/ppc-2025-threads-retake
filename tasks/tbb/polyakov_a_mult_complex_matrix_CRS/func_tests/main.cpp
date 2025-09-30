@@ -11,7 +11,7 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "tbb/polyakov_a_mult_ctbblex_matrix_CRS/include/ops_tbb.hpp"
+#include "tbb/polyakov_a_mult_complex_matrix_CRS/include/ops_tbb.hpp"
 
 TEST(polyakov_a_mult_complex_matrix_CRS_tbb, test_mul_identity_matrix) {
   constexpr size_t n = 1000;
