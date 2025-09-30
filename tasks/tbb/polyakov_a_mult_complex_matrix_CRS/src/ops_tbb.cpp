@@ -9,7 +9,6 @@
 #include <cstddef>
 #include <numeric>
 #include <random>
-#include <ranges>
 #include <vector>
 
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_tbb;
