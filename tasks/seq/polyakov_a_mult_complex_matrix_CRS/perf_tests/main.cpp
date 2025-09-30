@@ -11,7 +11,7 @@
 #include "seq/polyakov_a_mult_complex_matrix_CRS/include/ops_seq.hpp"
 
 TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_pipeline_run) {
-  constexpr size_t n = 1000;
+  constexpr size_t n = 2500;
 
   // Create data
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
@@ -50,7 +50,7 @@ TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_pipeline_run) {
 }
 
 TEST(polyakov_a_mult_complex_matrix_CRS_seq, test_task_run) {
-  constexpr size_t n = 1000;
+  constexpr size_t n = 2500;
 
   // Create data
   polyakov_a_mult_complex_matrix_CRS_seq::MatrixCRS A =
