@@ -59,6 +59,8 @@ struct MatrixCRS {
 
 MatrixCRS GetRandomMatrixCRS(Rows num_rows, Cols num_cols, size_t sparsity_coeff);
 
+MatrixCRS SequentialMatrixMultiply(const MatrixCRS& m1, const MatrixCRS& m2);
+
 class TestTaskTBB : public ppc::core::Task {
  public:
   explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
