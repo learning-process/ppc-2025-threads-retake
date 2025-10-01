@@ -12,12 +12,43 @@
 
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_omp;
 
+pcrs::MatrixCRS pcrs::SequentialMatrixMultiply(const pcrs::MatrixCRS& m1, const pcrs::MatrixCRS& m2) {
+  pcrs::MatrixCRS result(m1.rows, m2.cols);
+
+  double eps = 1e-9;
+
+  for (size_t r = 0; r < m1.rows; r++) {
+    std::vector<std::complex<double>> temp_row(result.cols, 0);
+
+    for (size_t i = m1->row_ptr[r]; i < m1->row_ptr[r + 1]; i++) {
+      std::complex<double> a_value = m1->values[i];
+      size_t k = m1->col_ind[i];
+
+      for (size_t j = m2->row_ptr[k]; j < m2->row_ptr[k + 1]; j++) {
+        std::complex<double> b_value = m2->values[j];
+        size_t t = m2->col_ind[j];
+        temp_row[t] += a_value * b_value;
+      }
+    }
+
+    for (size_t i = 0; i < result.cols; i++) {
+      if (std::abs(temp_row[i]) > eps) {
+        result->values.push_back(temp_row[i]);
+        result->col_ind.push_back(i);
+      }
+    }
+    result->row_ptr.push_back(result->values.size());
+  }
+
+  return result;
+}
+
 TEST(polyakov_a_mult_complex_matrix_crs_omp, test_pipeline_run) {
   constexpr size_t kN = 2500;
 
   // Create data
-  pcrs::MatrixCRS a = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
-  pcrs::MatrixCRS b = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS a = pcrs::GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS b = pcrs::GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
   pcrs::MatrixCRS c(pcrs::Rows{kN}, pcrs::Cols{kN});
 
   // Create task_data
@@ -46,14 +77,15 @@ TEST(polyakov_a_mult_complex_matrix_crs_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  EXPECT_EQ(pcrs::SequentialMatrixMultiply(a, b), c);
 }
 
 TEST(polyakov_a_mult_complex_matrix_crs_omp, test_task_run) {
   constexpr size_t kN = 2500;
 
   // Create data
-  pcrs::MatrixCRS a = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
-  pcrs::MatrixCRS b = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS a = pcrs::GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
+  pcrs::MatrixCRS b = pcrs::GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
   pcrs::MatrixCRS c(pcrs::Rows{kN}, pcrs::Cols{kN});
 
   // Create task_data
@@ -82,4 +114,5 @@ TEST(polyakov_a_mult_complex_matrix_crs_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  EXPECT_EQ(pcrs::SequentialMatrixMultiply(a, b), c);
 }

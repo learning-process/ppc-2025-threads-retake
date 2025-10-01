@@ -57,6 +57,8 @@ struct MatrixCRS {
   }
 };
 
+MatrixCRS SequentialMatrixMultiply(const MatrixCRS& m1, const MatrixCRS& m2);
+
 MatrixCRS GetRandomMatrixCRS(Rows num_rows, Cols num_cols, size_t sparsity_coeff);
 
 class TestTaskOMP : public ppc::core::Task {
