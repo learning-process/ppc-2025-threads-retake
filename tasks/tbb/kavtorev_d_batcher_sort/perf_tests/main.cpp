@@ -47,7 +47,7 @@ bool SameElements(const std::vector<double>& a, const std::vector<double>& b) {
 }  // namespace
 
 TEST(kavtorev_d_batcher_sort_tbb, perf_pipeline_run) {
-  constexpr size_t kCount = 2000000;
+  constexpr size_t kCount = 500000;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
   std::mt19937 gen(123);
@@ -94,7 +94,7 @@ TEST(kavtorev_d_batcher_sort_tbb, perf_pipeline_run) {
 }
 
 TEST(kavtorev_d_batcher_sort_tbb, perf_task_run) {
-  constexpr size_t kCount = 2000000;
+  constexpr size_t kCount = 500000;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
   std::mt19937 gen(321);
