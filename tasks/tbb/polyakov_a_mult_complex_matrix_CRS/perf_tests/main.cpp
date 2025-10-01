@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -10,9 +11,10 @@
 #include "core/task/include/task.hpp"
 #include "tbb/polyakov_a_mult_complex_matrix_CRS/include/ops_tbb.hpp"
 
+
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_tbb;
 
-pcrs::MatrixCRS pcrs::SequentialMatrixMultiply(const pcrs::MatrixCRS& m1, const pcrs::MatrixCRS& m2) {
+pcrs::MatrixCRS pcrs::SequentialMatrixMultiply(pcrs::MatrixCRS& m1, pcrs::MatrixCRS& m2) {
   pcrs::MatrixCRS result(m1.rows, m2.cols);
 
   double eps = 1e-9;

@@ -59,7 +59,7 @@ struct MatrixCRS {
 
 MatrixCRS GetRandomMatrixCRS(Rows num_rows, Cols num_cols, size_t sparsity_coeff);
 
-MatrixCRS SequentialMatrixMultiply(const MatrixCRS& m1, const MatrixCRS& m2);
+MatrixCRS SequentialMatrixMultiply(MatrixCRS& m1, MatrixCRS& m2);
 
 class TestTaskTBB : public ppc::core::Task {
  public:
