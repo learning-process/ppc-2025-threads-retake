@@ -1,7 +1,7 @@
 #include "tbb/polyakov_a_mult_complex_matrix_CRS/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <cmath>
 #include <complex>
