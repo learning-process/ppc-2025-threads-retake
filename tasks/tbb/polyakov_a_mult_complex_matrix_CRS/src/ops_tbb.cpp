@@ -8,7 +8,9 @@
 #include <numeric>
 #include <random>
 #include <utility>
+#include <cmath>
 #include <vector>
+
 
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_tbb;
 
