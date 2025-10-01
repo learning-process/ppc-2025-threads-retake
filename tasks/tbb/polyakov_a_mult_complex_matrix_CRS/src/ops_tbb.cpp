@@ -65,7 +65,7 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::ValidationImpl() {
 
 // Функция для подсчёта ненулевых элементов в строке матрицы A
 int polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::CountNonZeroInRow(size_t r) {
-  std::vector<char> local_marked(c_cols_);
+  std::vector<char> local_marked(c_cols_, 0);
   for (auto &x : local_marked) {
     x = 0;
   }
@@ -120,7 +120,7 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::RunImpl() {
   // Вычисление результата умножения A * B и запись в матрицу C
   tbb::parallel_for(tbb::blocked_range<size_t>(0, a_rows_), [&](const tbb::blocked_range<size_t> &range) {
     for (size_t r = range.begin(); r < range.end(); ++r) {
-      std::vector<std::complex<double>> local_temp(c_cols_);
+      std::vector<std::complex<double>> local_temp(c_cols_, std::complex<double>{0.0});
       ComputeRowProduct(r, local_temp);
 
       size_t write_pos = c_->row_ptr[r];
