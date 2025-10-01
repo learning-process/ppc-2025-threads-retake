@@ -3,14 +3,13 @@
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 
+#include <cmath>
 #include <complex>
 #include <cstddef>
 #include <numeric>
 #include <random>
 #include <utility>
-#include <cmath>
 #include <vector>
-
 
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_tbb;
 
@@ -67,7 +66,9 @@ bool polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::ValidationImpl() {
 // Функция для подсчёта ненулевых элементов в строке матрицы A
 int polyakov_a_mult_complex_matrix_crs_tbb::TestTaskTBB::CountNonZeroInRow(size_t r) {
   std::vector<char> local_marked(c_cols_);
-  std::fill(local_marked.begin(), local_marked.end(), 0);
+  for (auto &x : local_marked) {
+    x = 0;
+  }
 
   for (size_t i = a_->row_ptr[r]; i < a_->row_ptr[r + 1]; ++i) {
     size_t k = a_->col_ind[i];
