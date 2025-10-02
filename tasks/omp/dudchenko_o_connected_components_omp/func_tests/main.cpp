@@ -190,15 +190,15 @@ TEST(dudchenko_o_connected_components_omp, test_two_separate_components) {
 TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   // Инициализация генератора случайных чисел с фиксированным seed для воспроизводимости
   std::srand(42);
-  
+
   const int width = 50;
   const int height = 50;
   const size_t total_pixels = width * height;
-  
+
   // Создание случайного изображения
   std::vector<int> image_data(total_pixels);
   for (size_t i = 0; i < total_pixels; ++i) {
-    image_data[i] = (std::rand() % 100 < 20) ? 0 : 255; // 20% foreground (0), 80% background (255)
+    image_data[i] = (std::rand() % 100 < 20) ? 0 : 255;  // 20% foreground (0), 80% background (255)
   }
 
   // Подготовка входных данных
@@ -217,10 +217,10 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   task_data_omp->outputs_count.emplace_back(output_data.size());
 
   dudchenko_o_connected_components_omp::TestTaskOpenMP test_task_omp(task_data_omp);
-  
+
   // Проверка валидации
   ASSERT_EQ(test_task_omp.Validation(), true);
-  
+
   // Выполнение задачи
   test_task_omp.PreProcessing();
   test_task_omp.Run();
@@ -229,12 +229,12 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   // Базовые проверки результата
   size_t foreground_count = 0;
   size_t background_count = 0;
-  
+
   for (size_t i = 0; i < total_pixels; ++i) {
-    if (image_data[i] == 0) { // foreground
+    if (image_data[i] == 0) {  // foreground
       EXPECT_NE(output_data[i], 0);
       foreground_count++;
-    } else { // background
+    } else {  // background
       EXPECT_EQ(output_data[i], 0);
       background_count++;
     }
@@ -254,13 +254,13 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
     // Проверяем первый найденный компонент
     int test_label = unique_labels[0];
     std::vector<size_t> component_indices;
-    
+
     for (size_t i = 0; i < total_pixels; ++i) {
       if (output_data[i] == test_label) {
         component_indices.push_back(i);
       }
     }
-    
+
     // Проверяем, что у всех пикселей компонента одинаковая метка
     for (size_t idx : component_indices) {
       EXPECT_EQ(output_data[idx], test_label);
@@ -268,8 +268,7 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   }
 
   // Статистика для отладки
-  std::cout << "Random test: " << foreground_count << " foreground, " 
-            << background_count << " background, " 
+  std::cout << "Random test: " << foreground_count << " foreground, " << background_count << " background, "
             << unique_labels.size() << " components" << std::endl;
 
   // Проверка, что результат детерминирован (при одинаковых входных данных)
