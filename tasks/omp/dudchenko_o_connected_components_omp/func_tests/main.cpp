@@ -63,6 +63,11 @@ struct ImageDimensions {
   int height;
 };
 
+struct Data {
+  std::vector<int> expected_image_data;
+  std::vector<int> actual_output_data;
+};
+
 std::vector<int> GenerateRandomImageData(const ImageDimensions& dims, int foreground_percentage = 20) {
   const size_t total_pixels = dims.width * dims.height;
   std::vector<int> image_data(total_pixels);
@@ -74,15 +79,14 @@ std::vector<int> GenerateRandomImageData(const ImageDimensions& dims, int foregr
   return image_data;
 }
 
-void VerifyForegroundBackgroundLabels(const std::vector<int>& expected_image_data,
-                                      const std::vector<int>& actual_output_data) {
-  const size_t total_pixels = expected_image_data.size();
+void VerifyForegroundBackgroundLabels(const Data& data) {
+  const size_t total_pixels = data.expected_image_data.size();
 
   for (size_t i = 0; i < total_pixels; ++i) {
-    if (expected_image_data[i] == 0) {  // foreground
-      EXPECT_NE(actual_output_data[i], 0);
+    if (data.expected_image_data[i] == 0) {  // foreground
+      EXPECT_NE(data.actual_output_data[i], 0);
     } else {  // background
-      EXPECT_EQ(actual_output_data[i], 0);
+      EXPECT_EQ(data.actual_output_data[i], 0);
     }
   }
 }
@@ -256,7 +260,9 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   // Initialize random generator with fixed seed for reproducibility
   std::srand(42);
 
-  const ImageDimensions dims{50, 50};
+  ImageDimensions dims;
+  dims.width = 50;
+  dims.height = 50;
   const size_t total_pixels = dims.width * dims.height;
 
   // Generate random image data
@@ -287,7 +293,10 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   test_task_omp.PostProcessing();
 
   // Verify foreground/background labels
-  VerifyForegroundBackgroundLabels(image_data, output_data);
+  Data data;
+  data.expected_image_data = image_data;
+  data.actual_output_data = output_data;
+  VerifyForegroundBackgroundLabels(data);
 
   // Collect unique labels
   std::vector<int> unique_labels = CollectUniqueLabels(output_data);
