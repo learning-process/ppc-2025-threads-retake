@@ -56,6 +56,65 @@ void CheckComponentPoints(const OutputData& output, int component_label, const I
   }
 }
 
+// Helper functions for the random test
+std::vector<int> GenerateRandomImageData(int width, int height, int foreground_percentage = 20) {
+  const size_t total_pixels = width * height;
+  std::vector<int> image_data(total_pixels);
+
+  for (size_t i = 0; i < total_pixels; ++i) {
+    image_data[i] = (std::rand() % 100 < foreground_percentage) ? 0 : 255;
+  }
+
+  return image_data;
+}
+
+void VerifyForegroundBackgroundLabels(const std::vector<int>& image_data, 
+                                     const std::vector<int>& output_data) {
+  const size_t total_pixels = image_data.size();
+
+  for (size_t i = 0; i < total_pixels; ++i) {
+    if (image_data[i] == 0) {  // foreground
+      EXPECT_NE(output_data[i], 0);
+    } else {  // background
+      EXPECT_EQ(output_data[i], 0);
+    }
+  }
+}
+
+std::vector<int> CollectUniqueLabels(const std::vector<int>& output_data) {
+  std::vector<int> unique_labels;
+  for (int label : output_data) {
+    if (label != 0 && std::find(unique_labels.begin(), unique_labels.end(), label) == unique_labels.end()) {
+      unique_labels.push_back(label);
+    }
+  }
+  return unique_labels;
+}
+
+void VerifyComponentConsistency(const std::vector<int>& output_data, int component_label) {
+  std::vector<size_t> component_indices;
+
+  for (size_t i = 0; i < output_data.size(); ++i) {
+    if (output_data[i] == component_label) {
+      component_indices.push_back(i);
+    }
+  }
+
+  // Verify all pixels in the component have the same label
+  for (size_t idx : component_indices) {
+    EXPECT_EQ(output_data[idx], component_label);
+  }
+}
+
+void PrintTestStatistics(size_t foreground_count, size_t background_count, size_t component_count) {
+  std::cout << "Random test: " << foreground_count << " foreground, " 
+            << background_count << " background, " << component_count << " components" << std::endl;
+}
+
+size_t CountForegroundPixels(const std::vector<int>& image_data) {
+  return std::count(image_data.begin(), image_data.end(), 0);
+}
+
 }  // namespace
 
 TEST(dudchenko_o_connected_components_omp, test_small_image) {
@@ -188,26 +247,22 @@ TEST(dudchenko_o_connected_components_omp, test_two_separate_components) {
 }
 
 TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
-  // Инициализация генератора случайных чисел с фиксированным seed для воспроизводимости
+  // Initialize random generator with fixed seed for reproducibility
   std::srand(42);
 
   const int width = 50;
   const int height = 50;
   const size_t total_pixels = width * height;
 
-  // Создание случайного изображения
-  std::vector<int> image_data(total_pixels);
-  for (size_t i = 0; i < total_pixels; ++i) {
-    image_data[i] = (std::rand() % 100 < 20) ? 0 : 255;  // 20% foreground (0), 80% background (255)
-  }
+  // Generate random image data
+  std::vector<int> image_data = GenerateRandomImageData(width, height, 20);
+  std::vector<int> output_data(total_pixels);
 
   // Подготовка входных данных
   std::vector<int> input_data;
   input_data.push_back(width);
   input_data.push_back(height);
   input_data.insert(input_data.end(), image_data.begin(), image_data.end());
-
-  std::vector<int> output_data(total_pixels);
 
   // Создание и выполнение задачи
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -226,52 +281,25 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   test_task_omp.Run();
   test_task_omp.PostProcessing();
 
-  // Базовые проверки результата
-  size_t foreground_count = 0;
-  size_t background_count = 0;
+  // Verify foreground/background labels
+  VerifyForegroundBackgroundLabels(image_data, output_data);
 
-  for (size_t i = 0; i < total_pixels; ++i) {
-    if (image_data[i] == 0) {  // foreground
-      EXPECT_NE(output_data[i], 0);
-      foreground_count++;
-    } else {  // background
-      EXPECT_EQ(output_data[i], 0);
-      background_count++;
-    }
-  }
+  // Collect unique labels
+  std::vector<int> unique_labels = CollectUniqueLabels(output_data);
 
-  // Проверка, что все метки уникальны в пределах каждого компонента
-  std::vector<int> unique_labels;
-  for (size_t i = 0; i < total_pixels; ++i) {
-    int label = output_data[i];
-    if (label != 0 && std::find(unique_labels.begin(), unique_labels.end(), label) == unique_labels.end()) {
-      unique_labels.push_back(label);
-    }
-  }
-
-  // Проверка, что компоненты не пересекаются (выборочная проверка нескольких пикселей)
+  // Verify component consistency for the first found component
   if (!unique_labels.empty()) {
-    // Проверяем первый найденный компонент
-    int test_label = unique_labels[0];
-    std::vector<size_t> component_indices;
-
-    for (size_t i = 0; i < total_pixels; ++i) {
-      if (output_data[i] == test_label) {
-        component_indices.push_back(i);
-      }
-    }
-
-    // Проверяем, что у всех пикселей компонента одинаковая метка
-    for (size_t idx : component_indices) {
-      EXPECT_EQ(output_data[idx], test_label);
-    }
+    VerifyComponentConsistency(output_data, unique_labels[0]);
   }
 
-  // Статистика для отладки
-  std::cout << "Random test: " << foreground_count << " foreground, " << background_count << " background, "
-            << unique_labels.size() << " components" << std::endl;
+  // Calculate statistics
+  size_t foreground_count = CountForegroundPixels(image_data);
+  size_t background_count = total_pixels - foreground_count;
 
-  // Проверка, что результат детерминирован (при одинаковых входных данных)
+  // Print statistics
+  PrintTestStatistics(foreground_count, background_count, unique_labels.size());
+
+  // Verify basic expectations
   EXPECT_GT(foreground_count, 0UL);
   EXPECT_GT(background_count, 0UL);
   EXPECT_LE(unique_labels.size(), foreground_count);
