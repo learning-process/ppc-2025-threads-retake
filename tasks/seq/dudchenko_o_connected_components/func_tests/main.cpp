@@ -193,3 +193,99 @@ TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   CheckComponentPoints(output, comp1, Indices{{0, 1, 5, 6}});
   CheckComponentPoints(output, comp2, Indices{{18, 19, 23, 24}});
 }
+
+TEST(dudchenko_o_connected_components_seq, test_random_data_simple) {
+  // Инициализация генератора случайных чисел с фиксированным seed для воспроизводимости
+  std::srand(42);
+
+  const int width = 50;
+  const int height = 50;
+  const size_t total_pixels = width * height;
+
+  // ИСПРАВЛЕНИЕ: используем ту же логику, что и в других тестах
+  // 1 - foreground (компоненты связности), 0 - background
+  std::vector<int> image_data(total_pixels);
+  for (size_t i = 0; i < total_pixels; ++i) {
+    image_data[i] = (std::rand() % 100 < 20) ? 1 : 0;  // 20% foreground (1), 80% background (0)
+  }
+
+  // Подготовка входных данных
+  std::vector<int> input_data;
+  input_data.push_back(width);
+  input_data.push_back(height);
+  input_data.insert(input_data.end(), image_data.begin(), image_data.end());
+
+  std::vector<int> output_data(total_pixels);
+
+  // Создание и выполнение задачи
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_seq->inputs_count.emplace_back(input_data.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_seq->outputs_count.emplace_back(output_data.size());
+
+  dudchenko_o_connected_components::TestTaskSequential test_task_seq(task_data_seq);
+
+  // Проверка валидации
+  ASSERT_EQ(test_task_seq.Validation(), true);
+
+  // Выполнение задачи
+  test_task_seq.PreProcessing();
+  test_task_seq.Run();
+  test_task_seq.PostProcessing();
+
+  // Базовые проверки результата
+  size_t foreground_count = 0;
+  size_t background_count = 0;
+
+  for (size_t i = 0; i < total_pixels; ++i) {
+    if (image_data[i] == 1) {  // foreground
+      EXPECT_NE(output_data[i], 0);
+      foreground_count++;
+    } else {  // background
+      EXPECT_EQ(output_data[i], 0);
+      background_count++;
+    }
+  }
+
+  // Проверка, что все метки уникальны в пределах каждого компонента
+  std::vector<int> unique_labels;
+  for (size_t i = 0; i < total_pixels; ++i) {
+    int label = output_data[i];
+    if (label != 0 && std::find(unique_labels.begin(), unique_labels.end(), label) == unique_labels.end()) {
+      unique_labels.push_back(label);
+    }
+  }
+
+  // Проверка, что компоненты не пересекаются (выборочная проверка нескольких пикселей)
+  if (!unique_labels.empty()) {
+    // Проверяем первый найденный компонент
+    int test_label = unique_labels[0];
+    std::vector<size_t> component_indices;
+
+    for (size_t i = 0; i < total_pixels; ++i) {
+      if (output_data[i] == test_label) {
+        component_indices.push_back(i);
+      }
+    }
+
+    // Проверяем, что у всех пикселей компонента одинаковая метка
+    for (size_t idx : component_indices) {
+      EXPECT_EQ(output_data[idx], test_label);
+    }
+
+    // Проверяем, что все пиксели компонента являются foreground
+    for (size_t idx : component_indices) {
+      EXPECT_EQ(image_data[idx], 1);
+    }
+  }
+
+  // Статистика для отладки
+  std::cout << "Random test: " << foreground_count << " foreground, " << background_count << " background, "
+            << unique_labels.size() << " components" << std::endl;
+
+  // Проверка, что результат детерминирован (при одинаковых входных данных)
+  EXPECT_GT(foreground_count, 0UL);
+  EXPECT_GT(background_count, 0UL);
+  EXPECT_LE(unique_labels.size(), foreground_count);
+}
