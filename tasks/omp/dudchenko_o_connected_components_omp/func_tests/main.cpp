@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -57,8 +58,13 @@ void CheckComponentPoints(const OutputData& output, int component_label, const I
 }
 
 // Helper functions for the random test
-std::vector<int> GenerateRandomImageData(int width, int height, int foreground_percentage = 20) {
-  const size_t total_pixels = width * height;
+struct ImageDimensions {
+  int width;
+  int height;
+};
+
+std::vector<int> GenerateRandomImageData(const ImageDimensions& dims, int foreground_percentage = 20) {
+  const size_t total_pixels = dims.width * dims.height;
   std::vector<int> image_data(total_pixels);
 
   for (size_t i = 0; i < total_pixels; ++i) {
@@ -68,14 +74,15 @@ std::vector<int> GenerateRandomImageData(int width, int height, int foreground_p
   return image_data;
 }
 
-void VerifyForegroundBackgroundLabels(const std::vector<int>& image_data, const std::vector<int>& output_data) {
-  const size_t total_pixels = image_data.size();
+void VerifyForegroundBackgroundLabels(const std::vector<int>& expected_image_data, 
+                                     const std::vector<int>& actual_output_data) {
+  const size_t total_pixels = expected_image_data.size();
 
   for (size_t i = 0; i < total_pixels; ++i) {
-    if (image_data[i] == 0) {  // foreground
-      EXPECT_NE(output_data[i], 0);
+    if (expected_image_data[i] == 0) {  // foreground
+      EXPECT_NE(actual_output_data[i], 0);
     } else {  // background
-      EXPECT_EQ(output_data[i], 0);
+      EXPECT_EQ(actual_output_data[i], 0);
     }
   }
 }
@@ -83,7 +90,7 @@ void VerifyForegroundBackgroundLabels(const std::vector<int>& image_data, const 
 std::vector<int> CollectUniqueLabels(const std::vector<int>& output_data) {
   std::vector<int> unique_labels;
   for (int label : output_data) {
-    if (label != 0 && std::find(unique_labels.begin(), unique_labels.end(), label) == unique_labels.end()) {
+    if (label != 0 && std::ranges::find(unique_labels, label) == unique_labels.end()) {
       unique_labels.push_back(label);
     }
   }
@@ -107,7 +114,7 @@ void VerifyComponentConsistency(const std::vector<int>& output_data, int compone
 
 void PrintTestStatistics(size_t foreground_count, size_t background_count, size_t component_count) {
   std::cout << "Random test: " << foreground_count << " foreground, " << background_count << " background, "
-            << component_count << " components" << std::endl;
+            << component_count << " components\n";
 }
 
 size_t CountForegroundPixels(const std::vector<int>& image_data) {
@@ -249,18 +256,17 @@ TEST(dudchenko_o_connected_components_omp, test_random_data_simple) {
   // Initialize random generator with fixed seed for reproducibility
   std::srand(42);
 
-  const int width = 50;
-  const int height = 50;
-  const size_t total_pixels = width * height;
+  const ImageDimensions dims{50, 50};
+  const size_t total_pixels = dims.width * dims.height;
 
   // Generate random image data
-  std::vector<int> image_data = GenerateRandomImageData(width, height, 20);
+  std::vector<int> image_data = GenerateRandomImageData(dims, 20);
   std::vector<int> output_data(total_pixels);
 
   // Подготовка входных данных
   std::vector<int> input_data;
-  input_data.push_back(width);
-  input_data.push_back(height);
+  input_data.push_back(dims.width);
+  input_data.push_back(dims.height);
   input_data.insert(input_data.end(), image_data.begin(), image_data.end());
 
   // Создание и выполнение задачи
