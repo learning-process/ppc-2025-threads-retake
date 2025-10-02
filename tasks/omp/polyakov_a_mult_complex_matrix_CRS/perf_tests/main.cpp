@@ -46,7 +46,7 @@ pcrs::MatrixCRS pcrs::SequentialMatrixMultiply(pcrs::MatrixCRS& m1, pcrs::Matrix
 }
 
 TEST(polyakov_a_mult_complex_matrix_crs_omp, test_pipeline_run) {
-  constexpr size_t kN = 2500;
+  constexpr size_t kN = 3000;
 
   // Create data
   pcrs::MatrixCRS a = pcrs::GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
@@ -83,7 +83,7 @@ TEST(polyakov_a_mult_complex_matrix_crs_omp, test_pipeline_run) {
 }
 
 TEST(polyakov_a_mult_complex_matrix_crs_omp, test_task_run) {
-  constexpr size_t kN = 2500;
+  constexpr size_t kN = 3000;
 
   // Create data
   pcrs::MatrixCRS a = pcrs::GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
