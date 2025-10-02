@@ -68,8 +68,7 @@ std::vector<int> GenerateRandomImageData(int width, int height, int foreground_p
   return image_data;
 }
 
-void VerifyForegroundBackgroundLabels(const std::vector<int>& image_data, 
-                                     const std::vector<int>& output_data) {
+void VerifyForegroundBackgroundLabels(const std::vector<int>& image_data, const std::vector<int>& output_data) {
   const size_t total_pixels = image_data.size();
 
   for (size_t i = 0; i < total_pixels; ++i) {
@@ -107,8 +106,8 @@ void VerifyComponentConsistency(const std::vector<int>& output_data, int compone
 }
 
 void PrintTestStatistics(size_t foreground_count, size_t background_count, size_t component_count) {
-  std::cout << "Random test: " << foreground_count << " foreground, " 
-            << background_count << " background, " << component_count << " components" << std::endl;
+  std::cout << "Random test: " << foreground_count << " foreground, " << background_count << " background, "
+            << component_count << " components" << std::endl;
 }
 
 size_t CountForegroundPixels(const std::vector<int>& image_data) {
