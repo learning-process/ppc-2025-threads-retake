@@ -74,8 +74,8 @@ std::vector<int> GenerateRandomImageData(const ImageDimensions& dims, int foregr
   return image_data;
 }
 
-void VerifyForegroundBackgroundLabels(const std::vector<int>& expected_image_data, 
-                                     const std::vector<int>& actual_output_data) {
+void VerifyForegroundBackgroundLabels(const std::vector<int>& expected_image_data,
+                                      const std::vector<int>& actual_output_data) {
   const size_t total_pixels = expected_image_data.size();
 
   for (size_t i = 0; i < total_pixels; ++i) {
