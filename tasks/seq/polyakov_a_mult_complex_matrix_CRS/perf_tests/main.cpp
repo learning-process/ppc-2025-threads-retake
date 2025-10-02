@@ -13,7 +13,7 @@
 namespace pcrs = polyakov_a_mult_complex_matrix_crs_seq;
 
 TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
-  constexpr size_t kN = 2500;
+  constexpr size_t kN = 3000;
 
   // Create data
   pcrs::MatrixCRS a = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
@@ -49,7 +49,7 @@ TEST(polyakov_a_mult_complex_matrix_crs_seq, test_pipeline_run) {
 }
 
 TEST(polyakov_a_mult_complex_matrix_crs_seq, test_task_run) {
-  constexpr size_t kN = 2500;
+  constexpr size_t kN = 3000;
 
   // Create data
   pcrs::MatrixCRS a = GetRandomMatrixCRS(pcrs::Rows{kN}, pcrs::Cols{kN}, 5);
