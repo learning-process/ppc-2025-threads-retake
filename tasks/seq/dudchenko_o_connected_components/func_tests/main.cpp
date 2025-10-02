@@ -71,17 +71,17 @@ struct Data {
 std::vector<int> GenerateRandomImageData(const ImageDimensions& dims, int foreground_percentage = 20) {
   const size_t total_pixels = dims.width * dims.height;
   std::vector<int> image_data(total_pixels);
-  
+
   for (size_t i = 0; i < total_pixels; ++i) {
     image_data[i] = (std::rand() % 100 < foreground_percentage) ? 0 : 255;
   }
-  
+
   return image_data;
 }
 
 void VerifyForegroundBackgroundLabels(const Data& data) {
   const size_t total_pixels = data.expected_image_data.size();
-  
+
   for (size_t i = 0; i < total_pixels; ++i) {
     if (data.expected_image_data[i] == 0) {  // foreground
       EXPECT_NE(data.actual_output_data[i], 0);
@@ -103,7 +103,7 @@ std::vector<int> CollectUniqueLabels(const std::vector<int>& output_data) {
 
 void VerifyComponentConsistency(const std::vector<int>& output_data, int component_label) {
   std::vector<size_t> component_indices;
-  
+
   for (size_t i = 0; i < output_data.size(); ++i) {
     if (output_data[i] == component_label) {
       component_indices.push_back(i);
@@ -117,8 +117,8 @@ void VerifyComponentConsistency(const std::vector<int>& output_data, int compone
 }
 
 void PrintTestStatistics(size_t foreground_count, size_t background_count, size_t component_count) {
-  std::cout << "Random test: " << foreground_count << " foreground, " 
-            << background_count << " background, " << component_count << " components\n";
+  std::cout << "Random test: " << foreground_count << " foreground, " << background_count << " background, "
+            << component_count << " components\n";
 }
 
 size_t CountForegroundPixels(const std::vector<int>& image_data) {
@@ -222,11 +222,8 @@ TEST(dudchenko_o_connected_components_seq, test_no_components) {
 TEST(dudchenko_o_connected_components_seq, test_two_separate_components) {
   int width = 5;
   int height = 5;
-  std::vector<int> image_data = {0,   0,   255, 255, 255, 
-                                 0,   0,   255, 255, 255, 
-                                 255, 255, 255, 255, 255, 
-                                 255, 255, 255, 0,   0, 
-                                 255, 255, 255, 0,   0};
+  std::vector<int> image_data = {0,   0,   255, 255, 255, 0, 0, 255, 255, 255, 255, 255, 255,
+                                 255, 255, 255, 255, 255, 0, 0, 255, 255, 255, 0,   0};
 
   std::vector<int> input_data;
   input_data.push_back(width);
